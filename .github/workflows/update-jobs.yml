@@ -1,0 +1,29 @@
+name: Refresh jobs data (daily)
+
+# Met à jour app/public/jobs.json chaque jour à 06:00 Casablanca.
+# L'APK lit ce fichier à chaque ↻ : pas besoin de republier l'APK.
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Copy latest jobs snapshot
+        run: |
+          echo "Plug your scraper here (ex: node maroc-jobs-hub/backend/src/seed.js --scrape)"
+          ls app/public/jobs.json
+          touch -m app/public/jobs.json
+      - name: Commit if changed
+        run: |
+          git config user.name "jobs-bot"
+          git config user.email "jobs-bot@users.noreply.github.com"
+          git add app/public/jobs.json || true
+          git diff --cached --quiet || git commit -m "jobs: daily refresh $(date -u +%F)"
+          git push || true

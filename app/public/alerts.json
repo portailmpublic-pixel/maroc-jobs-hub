@@ -1,0 +1,19 @@
+{
+  "updatedAt": "2026-10-02T22:47:36.305Z",
+  "phone": "212663369080",
+  "total": 396,
+  "alerts": [
+    {
+      "id": "n1790981245528",
+      "at": "2026-10-02T22:47:25.528Z",
+      "title": "Veille sans nouveauté",
+      "body": "🇲🇦 Maroc Jobs Hub — 0 nouveauté(s) (e2e-dryrun)\n⏰ Deadlines ≤ 3j :\n- Concours — maitre de conférence (2026-10-03)\n- Concours — maitre de conférence (2026-10-03)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-03)\n- Concours — maitre de conférence (2026-10-03)\n- Concours — Technicien 3ème grade FSA Taroudant, Développement (2026-10-04)\n📊 Total suivi : 396 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 0,
+        "concours": 0,
+        "total": 396
+      },
+      "kind": "veille"
+    }
+  ]
+}

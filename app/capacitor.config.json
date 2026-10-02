@@ -1,0 +1,1 @@
+{"appId": "ma.marocjobs.hub", "appName": "Maroc Jobs Hub", "webDir": "dist", "backgroundColor": "#0b1020", "android": {"allowMixedContent": true}, "server": {"androidScheme": "https", "cleartext": true}}

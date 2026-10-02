@@ -1,0 +1,64 @@
+name: Build APK (free)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install app deps
+        working-directory: app
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Build web (Vite)
+        working-directory: app
+        run: npm run build
+
+      - name: Capacitor sync + add android
+        working-directory: app
+        run: |
+          npx cap add android || true
+          npx cap sync android
+
+      - name: Build debug APK
+        working-directory: app/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Rename APK
+        run: cp app/android/app/build/outputs/apk/debug/app-debug.apk Maroc-Jobs-Hub.apk
+
+      - name: Upload APK artifact (free download)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Maroc-Jobs-Hub-APK
+          path: Maroc-Jobs-Hub.apk
+
+      - name: GitHub Release with APK
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: "Maroc Jobs Hub APK #${{ github.run_number }}"
+          files: Maroc-Jobs-Hub.apk

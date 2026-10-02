@@ -1,0 +1,16 @@
+APK PRET A INSTALLER ✅
+=======================
+Fichier : C:\Users\hp\Documents\JOB\MarocJobs-APK\Maroc-Jobs-Hub.apk
+Taille : ~3.8 Mo | Package : ma.marocjobs.hub v1.0 | Android 5.1+ (SDK 22-34)
+Signe debug : installable directement sur votre telephone.
+
+INSTALLATION SUR TELEPHONE :
+1. Copiez Maroc-Jobs-Hub.apk vers votre telephone (USB / WhatsApp / Drive / Bluetooth).
+2. Sur Android : ouvrez le fichier -> autorisez "Installer des applications inconnues" si demande.
+3. Ouvrez "Maroc Jobs Hub" : 349 offres integrees, bouton ↻ pour actualiser.
+
+Contenu : hero moderne + stats + recherche + filtres ville/source + onglets
+Toutes/Emplois/Concours/≤7j + pull-to-refresh + mode hors-ligne.
+
+Rebuild gratuit : .github/workflows/build-apk.yml (GitHub Actions).
+SDK local utilise : .sdk/ (ignore par git, a ne pas supprimer si vous rebuild).
