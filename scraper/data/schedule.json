@@ -1,0 +1,5 @@
+{
+  "cron": "0 6 * * *",
+  "tz": "Africa/Casablanca",
+  "enabled": true
+}

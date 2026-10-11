@@ -1,10 +1,10 @@
-name: Refresh jobs data (daily)
+name: Auto-update jobs data (cloud)
 
-# Met à jour app/public/jobs.json chaque jour à 06:00 Casablanca.
-# L'APK lit ce fichier à chaque ↻ : pas besoin de republier l'APK.
+# GitHub's servers scrape + publish fresh data twice daily (06:00 & 18:00 Casablanca).
+# The phone APK pulls it on every refresh — no PC needed.
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 5,17 * * *'
   workflow_dispatch:
 
 jobs:
@@ -12,18 +12,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Copy latest jobs snapshot
-        run: |
-          echo "Plug your scraper here (ex: node maroc-jobs-hub/backend/src/seed.js --scrape)"
-          ls app/public/jobs.json
-          touch -m app/public/jobs.json
-      - name: Commit if changed
+
+      - name: Install scraper deps
+        working-directory: scraper
+        run: npm install --no-audit --no-fund
+
+      - name: Scrape latest offers
+        working-directory: scraper
+        run: npm run scrape
+
+      - name: Export APK snapshots
+        working-directory: scraper
+        run: npm run export:apk
+        env:
+          APK_PUBLIC_DIR: ../app/public
+
+      - name: Commit + push fresh data
         run: |
           git config user.name "jobs-bot"
           git config user.email "jobs-bot@users.noreply.github.com"
-          git add app/public/jobs.json || true
-          git diff --cached --quiet || git commit -m "jobs: daily refresh $(date -u +%F)"
+          git add app/public/jobs.json app/public/alerts.json app/public/exams-index.json app/public/exams scraper/data/jobs.json scraper/data/runs.json scraper/data/notifications.json || true
+          git diff --cached --quiet || git commit -m "jobs: auto refresh $(date -u +%F_%H%M)"
           git push || true

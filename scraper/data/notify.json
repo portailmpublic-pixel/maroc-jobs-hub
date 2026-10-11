@@ -1,0 +1,23 @@
+{
+  "phone": "212663369080",
+  "enabled": true,
+  "onlyNew": true,
+  "maxItems": 8,
+  "autoExportApk": true,
+  "channels": {
+    "callmebot": {
+      "enabled": false,
+      "apikey": ""
+    },
+    "meta": {
+      "enabled": false,
+      "token": "",
+      "phoneNumberId": ""
+    },
+    "webhook": {
+      "enabled": false,
+      "url": ""
+    }
+  },
+  "lastSend": null
+}
