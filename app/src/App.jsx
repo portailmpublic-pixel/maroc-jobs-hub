@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-const DEFAULT_REMOTE = 'https://raw.githubusercontent.com/USER/maroc-jobs-hub/main/jobs.json';
+const DEFAULT_REMOTE = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/jobs.json';
 const LS_REMOTE = 'mjh_remote_url';
 const LS_SEEN = 'mjh_alerts_seen';
 
@@ -86,7 +86,7 @@ export default function App() {
   const [specialty, setSpecialty] = useState('');
   const [urgentOnly, setUrgentOnly] = useState(false);
   const [toast, setToast] = useState('');
-  const [remote, setRemote] = useState(() => { try { return localStorage.getItem(LS_REMOTE) || ''; } catch { return ''; } });
+  const [remote, setRemote] = useState(() => { try { return localStorage.getItem(LS_REMOTE) || DEFAULT_REMOTE; } catch { return DEFAULT_REMOTE; } });
   const [alerts, setAlerts] = useState([]);
   const [alertsUpdated, setAlertsUpdated] = useState('');
   const [seen, setSeen] = useState(() => { try { return localStorage.getItem(LS_SEEN) || ''; } catch { return ''; } });
