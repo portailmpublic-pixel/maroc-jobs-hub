@@ -238,9 +238,9 @@ export default function App() {
     }
   }
 
-  async function refresh(manual = true) {
+  async function refresh(manual = true, silent = false) {
     if (manual) { setRefreshing(true); setSpin((s) => s + 1); }
-    else setLoading(true);
+    else if (!silent) setLoading(true);
     try {
       let list = [], upd = '';
       const remoteUrl = (remote || '').trim();
@@ -251,22 +251,32 @@ export default function App() {
             const data = await r.json();
             list = Array.isArray(data) ? data : data.jobs || [];
             upd = data.updatedAt || new Date().toISOString();
-            if (list.length) { setJobs(list); setUpdatedAt(upd); showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); return; }
+            if (list.length) { setJobs(list); setUpdatedAt(upd); if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); return; }
           }
         } catch (e) { /* fallback local */ }
       }
       const b = await loadBundled();
       setJobs(b.list); setUpdatedAt(b.updatedAt);
-      showToast(`Actualisé • ${b.list.length} offres`);
+      if (!silent) showToast(`Actualisé • ${b.list.length} offres`);
       loadAlerts(remoteUrl); loadExams(remoteUrl);
     } catch (e) {
-      showToast('Erreur actualisation: ' + e.message);
+      if (!silent) showToast('Erreur actualisation: ' + e.message);
     } finally {
       setRefreshing(false); setLoading(false);
     }
   }
 
   useEffect(() => { refresh(false); }, []);
+  // Auto-refresh: every 30 min + each time the app comes back to foreground
+  useEffect(() => {
+    const AUTO_MS = 30 * 60 * 1000;
+    const tick = () => refresh(false, true);
+    const interval = setInterval(tick, AUTO_MS);
+    const onVis = () => { if (document.visibilityState === 'visible') tick(); };
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('resume', tick); // Capacitor resume event
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVis); window.removeEventListener('resume', tick); };
+  }, [remote]);
   useEffect(() => { try { localStorage.setItem(LS_REMOTE, remote); } catch {} }, [remote]);
   useEffect(() => {
     if (tab === 'alerts') {
