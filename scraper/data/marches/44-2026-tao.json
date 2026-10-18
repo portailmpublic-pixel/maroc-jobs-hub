@@ -1,0 +1,47 @@
+{
+  "id": "44-2026-tao",
+  "ref": "44/2026/TAO",
+  "organisme": "M3 / DPET - LE DIRECTEUR PROVINCIAL DE L'EQUIPEMENT ET DU TRANSPORT ET DE LA LOGISTIQUE DE TAOUNATE",
+  "sousOrganisme": "المديرية الإقليمية للتجهيز والنقل واللوجستيك بتاونات",
+  "objet": "Contrôle extérieur topographique des travaux de reconstruction de trois ouvrages d'art aux PK 5+500 de la RR 418 (PK 2+900 de l’Ex RP 5324), PK 23+600 de la RP 5326 et PK 10+500 de la RP 5331, Dépendant de la DPETL de Taounate.",
+  "ville": "TAOUNATE",
+  "caution": "1 600,00 MAD",
+  "estimation": "80 280,00",
+  "dateLimite": "22/09/2026 11:00",
+  "dateLimiteIso": "2026-09-22T11:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "La salle de réunion à la Direction Provinciale de l’Equipement, du Transport et de la Logistique de Taounate, ‘Bd Mohamed V Taounate Centre’.",
+  "adresseRetrait": "Le dossier d'appel d'offres doit être téléchargé à partir du portail des marchés publics accessible à l'adresse : (www.marchespublics.gov.ma).",
+  "adresseDepot": "Les concurrents doivent déposer leurs dossiers par voie électronique dans le portail des marchés publics accessible à l'adresse (www.marchespublics.gov.ma).",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "TAOUNATE DPETL",
+    "email": "dpet.taounate@gmail.com",
+    "tel": "0679823762",
+    "fax": "0535627348"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1032927&orgAcronyme=o8p",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1032927&orgAcronyme=o8p",
+  "dceSize": "Dossier de consultation - 1,53 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "Avis AO 44-2026-TAO (Ar)",
+      "file": "marches-docs/44-2026-tao-avis-1.pdf",
+      "size": 69315
+    },
+    {
+      "name": "Avis AO 44-2026-TAO (FR)",
+      "file": "marches-docs/44-2026-tao-avis-2.pdf",
+      "size": 10021
+    }
+  ],
+  "seenAt": "2026-09-12T21:41:43.237010",
+  "source": "offer-analyzer"
+}

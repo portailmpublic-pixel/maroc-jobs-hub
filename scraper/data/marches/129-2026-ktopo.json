@@ -1,0 +1,42 @@
+{
+  "id": "129-2026-ktopo",
+  "ref": "129/2026/KTOPO",
+  "organisme": "MHUAE / ORSK - AL OMRANE RABAT SALE KENITRA",
+  "sousOrganisme": "",
+  "objet": "ACHEVEMENT DES TRAVAUX DE BORNAGE ET ETABLISSEMENT DES DOSSIERS TECHNIQUES CADASTRAUX DE L’OPERATION SIDI TAIBI SECTEUR 2A2 – PROVINCE DE KENITRA",
+  "ville": "KENITRA",
+  "caution": "20 000,00 MAD",
+  "estimation": "1 315 458,00",
+  "dateLimite": "24/09/2026 10:00",
+  "dateLimiteIso": "2026-09-24T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "bureau des marchés au 2ème étage du siège d’Al Omrane – Rabat- Salé-Kénitra, sise à ILOT 31, Rue Narjiss, Secteur 17– Hay Riad – Rabat",
+  "adresseRetrait": "www.marchespublics.gov.ma",
+  "adresseDepot": "www.marchespublics.gov.ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "MOHAMED NAZIH",
+    "email": "m.nazih@alomrane.gov.ma",
+    "tel": "0537 28 71 71",
+    "fax": "0537 28 34 42"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1036332&orgAcronyme=j8k",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1036332&orgAcronyme=j8k",
+  "dceSize": "Règlement de consultation - 9,39 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "AVIS",
+      "file": "marches-docs/129-2026-ktopo-avis-1.pdf",
+      "size": 601881
+    }
+  ],
+  "seenAt": "2026-09-12T21:40:53.351104",
+  "source": "offer-analyzer"
+}

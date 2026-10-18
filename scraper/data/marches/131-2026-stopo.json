@@ -1,0 +1,42 @@
+{
+  "id": "131-2026-stopo",
+  "ref": "131/2026/STOPO",
+  "organisme": "MHUAE / ORSK - AL OMRANE RABAT SALE KENITRA",
+  "sousOrganisme": "",
+  "objet": "ETUDES TOPOGRAPHIQUES ET REGLEMENTS DE COPROPRIETE DE L'OPERATION ANNAKHIL A SIDI BOUKNADEL PREFECTURE DE SALE",
+  "ville": "SALE",
+  "caution": "2 500,00 MAD",
+  "estimation": "178 140,00",
+  "dateLimite": "01/10/2026 11:00",
+  "dateLimiteIso": "2026-10-01T11:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "bureau des marchés au 2ème étage du siège d’Al Omrane – Rabat- Salé-Kénitra, sise à ILOT 31, Rue Narjiss, Secteur 17– Hay Riad – Rabat",
+  "adresseRetrait": "www.marchespublics.gov.ma",
+  "adresseDepot": "www.marchespublics.gov.ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "MOHAMED NAZIH",
+    "email": "m.nazih@alomrane.gov.ma",
+    "tel": "0537 28 71 71",
+    "fax": "0537 28 34 42"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1038079&orgAcronyme=j8k",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1038079&orgAcronyme=j8k",
+  "dceSize": "Règlement de consultation - 10,56 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "AVIS_0001-2",
+      "file": "marches-docs/131-2026-stopo-avis-1.pdf",
+      "size": 589888
+    }
+  ],
+  "seenAt": "2026-09-12T21:35:15.439224",
+  "source": "offer-analyzer"
+}

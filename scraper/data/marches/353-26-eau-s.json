@@ -1,0 +1,47 @@
+{
+  "id": "353-26-eau-s",
+  "ref": "353/26/EAU/S",
+  "organisme": "M6 / SRMMS - SOCIETE REGIONALE MULTISERVICES MARRAKECH - SAFI S.A",
+  "sousOrganisme": "",
+  "objet": "Fourniture d'outillage et matériel d'exploitation eau potable : LOT 1 : Outillage et matériel d’exploitation eau. LOT 2 : Groupes motopompes",
+  "ville": "SAFI",
+  "caution": "remise des d’ouverture",
+  "estimation": "",
+  "dateLimite": "22/10/2026 10:00",
+  "dateLimiteIso": "2026-10-22T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Fournitures",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "les bureaux de la SRM-MS, au siège de la SRM-MS DP Safi Sis Avenue Moulay Driss 1er Safi",
+  "adresseRetrait": "portail des marchés publics : www,marchespublics,gov,ma",
+  "adresseDepot": "portail des marchés publics : www,marchespublics,gov,ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "HASSAN BENMAHJOUB",
+    "email": "h.benmahjoub@srm-ms.ma",
+    "tel": "0660135522",
+    "fax": "0524424303"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1045098&orgAcronyme=g3h",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1045098&orgAcronyme=g3h",
+  "dceSize": "Règlement de consultation - 7,97 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "Avis VA",
+      "file": "marches-docs/353-26-eau-s-avis-1.pdf",
+      "size": 345478
+    },
+    {
+      "name": "Avis VF",
+      "file": "marches-docs/353-26-eau-s-avis-2.pdf",
+      "size": 125253
+    }
+  ],
+  "seenAt": "2026-10-03T18:29:45.222370",
+  "source": "offer-analyzer"
+}

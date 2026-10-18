@@ -1,0 +1,47 @@
+{
+  "id": "33-2026-ctsa-s",
+  "ref": "33/2026/CTSA/S",
+  "organisme": "M6 / CTSA - CASABLANCA TRANSPORT EN SITE AMENAGE SA",
+  "sousOrganisme": "",
+  "objet": "REALISATION DU PROGRAMME PRIORITAIRE DE DEVELOPPEMENT D’INFRASTRUCTURE DE MOBILITE CASA SUD « PRESTATIONS DE CABINET TOPOGRAPHE EXECUTION DES CONTROLES TOPGRAPHIQUES DURANT L’EXECUTION DES TRAVAUX ET LEUR RECEPTION »",
+  "ville": "CASABLANCA",
+  "caution": "4 000,00 MAD",
+  "estimation": "404 400,00",
+  "dateLimite": "23/10/2026 10:00",
+  "dateLimiteIso": "2026-10-23T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Crystal 2-BS, Immeuble n° 2, 9ème étage, Casablanca Marina – Bd des Almohades - 20 010 Casablanca – Maroc.",
+  "adresseRetrait": "Crystal 2-BS, Immeuble n° 2, 9ème étage, Casablanca Marina – Bd des Almohades - 20 010 Casablanca – Maroc.",
+  "adresseDepot": "Crystal 2-BS, Immeuble n° 2, 9ème étage, Casablanca Marina – Bd des Almohades - 20 010 Casablanca – Maroc.",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "ASRI MOUNSIF",
+    "email": "marche_casatransport@casatramway.ma",
+    "tel": "+212 5 22 94 06 86",
+    "fax": "+212 5 22 94 06 85"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1044262&orgAcronyme=g3h",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1044262&orgAcronyme=g3h",
+  "dceSize": "Dossier de consultation - 3,56 Mo",
+  "counts": {
+    "cps": 2,
+    "rc": 2
+  },
+  "docs": [
+    {
+      "name": "Avis VA",
+      "file": "marches-docs/33-2026-ctsa-s-avis-1.pdf",
+      "size": 345478
+    },
+    {
+      "name": "Avis VF",
+      "file": "marches-docs/33-2026-ctsa-s-avis-2.pdf",
+      "size": 125253
+    }
+  ],
+  "seenAt": "2026-10-03T18:28:58.732785",
+  "source": "offer-analyzer"
+}

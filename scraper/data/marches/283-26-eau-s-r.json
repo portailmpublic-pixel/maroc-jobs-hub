@@ -1,0 +1,42 @@
+{
+  "id": "283-26-eau-s-r",
+  "ref": "283/26/EAU/S/R",
+  "organisme": "M6 / SRMMS - SOCIETE REGIONALE MULTISERVICES MARRAKECH - SAFI S.A",
+  "sousOrganisme": "",
+  "objet": "Assistance à l'établissement des APD relatifs à la sécurisation de l'AEP rural de la province de Safi y compris les études topographiques",
+  "ville": "SAFI",
+  "caution": "42 000,00 MAD",
+  "estimation": "2 116 800,00",
+  "dateLimite": "26/10/2026 10:00",
+  "dateLimiteIso": "2026-10-26T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "les bureaux de la SRM-MS, au siège de la SRM-MS DP Safi Sis Avenue Moulay Driss 1er Safi",
+  "adresseRetrait": "portail des marchés publics : www,marchespublics,gov,ma",
+  "adresseDepot": "portail des marchés publics : www,marchespublics,gov,ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "HASSAN BENMAHJOUB",
+    "email": "h.benmahjoub@srm-ms.ma",
+    "tel": "0660135522",
+    "fax": "0524424303"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1045369&orgAcronyme=g3h",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1045369&orgAcronyme=g3h",
+  "dceSize": "Règlement de consultation - 9,99 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "AVIS AO 66-2026",
+      "file": "marches-docs/283-26-eau-s-r-avis-1.pdf",
+      "size": 174107
+    }
+  ],
+  "seenAt": "2026-10-03T18:26:36.240906",
+  "source": "offer-analyzer"
+}

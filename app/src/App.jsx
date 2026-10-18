@@ -26,6 +26,10 @@ const ICONS = {
   check: <path d="m5 12.5 4.5 4.5L19 7" />,
   close: <path d="M6 6l12 12M18 6 6 18" />,
   plug: <path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4" />,
+  scale: <><path d="M12 3v3M7 6l-3.2 6.4a3.2 3.2 0 0 0 6.4 0L7 6zM17 6l-3.2 6.4a3.2 3.2 0 0 0 6.4 0L17 6zM8.5 21h7M12 12v9" /></>,
+  mail: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m3.5 8 8.5 6 8.5-6" /></>,
+  phone: <path d="M5 4h4l1.8 4.2-2.2 1.4a11.5 11.5 0 0 0 4.8 4.8l1.4-2.2L19 14v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />,
+  gavel: <><path d="m5 9 4 4M9.5 4.5 14 9M12.5 7.5l4.5 4.5M4 20h9M15 14l5-5M18.5 17.5 21 15" /></>,
 };
 
 function Icon({ n, size = 20 }) {
@@ -97,6 +101,13 @@ export default function App() {
   const [examSelId, setExamSelId] = useState('');
   const [examQ, setExamQ] = useState('');
   const [practiced, setPracticed] = useState(() => { try { return JSON.parse(localStorage.getItem('mjh_apk_practiced') || '{}'); } catch { return {}; } });
+  // ---- Marchés Publics (Offer Analyzer data) ----
+  const [marches, setMarches] = useState([]);
+  const [marchesUpdated, setMarchesUpdated] = useState('');
+  const [mStatus, setMStatus] = useState('open');
+  const [mCat, setMCat] = useState('');
+  const [mVille, setMVille] = useState('');
+  const [mSel, setMSel] = useState(null);
 
   function togglePracticed(offerId, year) {
     setPracticed((prev) => {
@@ -108,12 +119,10 @@ export default function App() {
     });
   }
 
-  // Direct PDF download on APK: save to device then open share sheet (no browser detour).
+  // Direct file download on APK: save to device then open share sheet (no browser detour).
   // Web fallback: blob anchor download. Last resort: open link in browser.
-  async function downloadExamFile(f, label) {
-    const url = examFileUrl(f);
-    const safeName = (String(label || (f && f.title) || 'epreuve').replace(/[^\wÀ-ÿ-]+/gi, '-').slice(0, 50) || 'epreuve') + '.pdf';
-    showToast('⬇ Téléchargement du PDF…');
+  async function downloadFile(url, safeName) {
+    showToast('⬇ Téléchargement du fichier…');
     setDlMsg('');
     try {
       const cap = await import('@capacitor/core').catch(() => ({}));
@@ -131,11 +140,11 @@ export default function App() {
         const saved = await Filesystem.writeFile({ path: safeName, data: btoa(bin), directory: Directory.Cache });
         try {
           const { Share } = await import('@capacitor/share');
-          await Share.share({ title: safeName, text: safeName, url: saved.uri, dialogTitle: 'PDF téléchargé — ouvrir / enregistrer' });
+          await Share.share({ title: safeName, text: safeName, url: saved.uri, dialogTitle: 'Fichier téléchargé — ouvrir / enregistrer' });
         } catch {
           await openLink(saved.uri);
         }
-        showToast('✅ PDF téléchargé sur l’appareil');
+        showToast('✅ Fichier téléchargé sur l’appareil');
         return;
       }
       throw new Error('web');
@@ -153,17 +162,44 @@ export default function App() {
         document.body.appendChild(a);
         a.click();
         setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
-        showToast('✅ PDF téléchargé');
+        showToast('✅ Fichier téléchargé');
       } catch {
         openLink(url);
       }
     }
   }
 
+  function downloadExamFile(f, label) {
+    const safeName = (String(label || (f && f.title) || 'epreuve').replace(/[^\wÀ-ÿ-]+/gi, '-').slice(0, 50) || 'epreuve') + '.pdf';
+    return downloadFile(examFileUrl(f), safeName);
+  }
+
   function remoteBase(remoteUrl) {
     const u = (remoteUrl || '').trim();
     if (!u) return '';
     return u.replace(/[^/]*$/, '').replace(/\/$/, '');
+  }
+
+  // URL of a Marché doc (AVIS PDF): absolute remote first, else bundled copy
+  function marcheDocUrl(d) {
+    if (/^https?:\/\//i.test(d.url || '')) return d.url;
+    const base = remoteBase(remote);
+    const rel = (base ? base + '/' : './') + d.file;
+    try { return new URL(rel, window.location.href).href; } catch { return rel; }
+  }
+
+  async function loadMarches(remoteUrl) {
+    const base = remoteBase(remoteUrl);
+    const urls = base ? [base + '/marches.json'] : [];
+    urls.push('./marches.json');
+    for (const u of urls) {
+      try {
+        const r = await fetch(u, { cache: 'no-store' });
+        if (!r.ok) continue;
+        const data = await r.json();
+        if (data && data.offers) { setMarches(data.offers); setMarchesUpdated(data.updatedAt || ''); return; }
+      } catch {}
+    }
   }
 
   // Direct-from-web file URL: Supabase absolute url first, else remote/bundled copy
@@ -200,6 +236,7 @@ export default function App() {
       : kind === 'emploi' ? { icon: './app-icon.png', ico: 'briefcase', label: 'Emplois CDI/CDD' }
       : { icon: './app-icon.png', ico: 'search', label: 'Toutes les offres' })
     : tab === 'concours' ? { icon: './app-icon.png', ico: 'landmark', label: 'Concours État' }
+    : tab === 'marches' ? { icon: './app-icon.png', ico: 'scale', label: 'Marchés Publics' }
     : tab === 'exams' ? { icon: './app-icon.png', ico: 'file', label: 'Exams & Corrigés' }
     : tab === 'dash' ? { icon: './app-icon.png', ico: 'chart', label: 'Dashboard' }
     : tab === 'alerts' ? { icon: './app-icon.png', ico: 'bell', label: 'Alertes nouveautés' }
@@ -251,14 +288,14 @@ export default function App() {
             const data = await r.json();
             list = Array.isArray(data) ? data : data.jobs || [];
             upd = data.updatedAt || new Date().toISOString();
-            if (list.length) { setJobs(list); setUpdatedAt(upd); if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); return; }
+            if (list.length) { setJobs(list); setUpdatedAt(upd); if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl); return; }
           }
         } catch (e) { /* fallback local */ }
       }
       const b = await loadBundled();
       setJobs(b.list); setUpdatedAt(b.updatedAt);
       if (!silent) showToast(`Actualisé • ${b.list.length} offres`);
-      loadAlerts(remoteUrl); loadExams(remoteUrl);
+      loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl);
     } catch (e) {
       if (!silent) showToast('Erreur actualisation: ' + e.message);
     } finally {
@@ -387,6 +424,52 @@ export default function App() {
     return [...new Set(examSel.files.map((f) => f.year))].sort().reverse();
   }, [examSel]);
 
+  // ---- Marchés Publics views ----
+  const mStats = useMemo(() => {
+    let open = 0, soon = 0, closed = 0;
+    marches.forEach((m) => { if (m.status === 'open') open++; else if (m.status === 'soon') soon++; else closed++; });
+    return { total: marches.length, open: open + soon, soon, closed };
+  }, [marches]);
+
+  const mCats = useMemo(() => {
+    const m = {};
+    marches.forEach((o) => { if (o.categorie) m[o.categorie] = (m[o.categorie] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [marches]);
+
+  const mVilles = useMemo(() => {
+    const m = {};
+    marches.forEach((o) => String(o.ville || '').split(/[,;]/).forEach((v) => {
+      const k = v.trim(); if (k) m[k] = (m[k] || 0) + 1;
+    }));
+    return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 30);
+  }, [marches]);
+
+  const mFiltered = useMemo(() => {
+    let l = [...marches];
+    if (mStatus === 'open') l = l.filter((m) => m.status === 'open' || m.status === 'soon');
+    else if (mStatus === 'closed') l = l.filter((m) => m.status === 'closed');
+    if (mCat) l = l.filter((m) => (m.categorie || '') === mCat);
+    if (mVille) l = l.filter((m) => String(m.ville || '').toLowerCase().includes(mVille.toLowerCase()));
+    if (query.trim()) {
+      const s = query.trim().toLowerCase();
+      l = l.filter((m) => [m.ref, m.organisme, m.objet, m.ville, m.typeProcedure, m.modePassation].join(' ').toLowerCase().includes(s));
+    }
+    return l;
+  }, [marches, mStatus, mCat, mVille, query]);
+
+  function mDeadline(m) {
+    if (!m.dateLimiteIso) return { label: 'Sans date', cls: 'b-muted', d: null };
+    const end = new Date(m.dateLimiteIso).getTime() + 86400000 - 1;
+    const d = Math.ceil((end - Date.now()) / 86400000);
+    const raw = m.dateLimite || m.dateLimiteIso.slice(0, 16).replace('T', ' ');
+    if (d < 0) return { label: `Clôturé • ${raw}`, cls: 'b-red', d };
+    if (d === 0) return { label: `Dernier jour • ${raw}`, cls: 'b-red pulse', d };
+    if (d <= 3) return { label: `J-${d} • ${raw}`, cls: 'b-red', d };
+    if (d <= 7) return { label: `J-${d} • ${raw}`, cls: 'b-orange', d };
+    return { label: `J-${d} • ${raw}`, cls: 'b-green', d };
+  }
+
   function onTouchStart(e) { startY.current = e.touches[0].clientY; }
   function onTouchEnd(e) {
     const dy = e.changedTouches[0].clientY - startY.current;
@@ -398,6 +481,7 @@ export default function App() {
     if (k !== undefined) setKind(k);
     setMenuOpen(false);
     setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false);
+    setMSel(null); setMCat(''); setMVille(''); setMStatus('open');
     try { window.scrollTo({ top: 0 }); } catch {}
   }
 
@@ -406,12 +490,13 @@ export default function App() {
       {menuOpen && <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />}
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
         <div className="drawer-brand"><img src="./app-icon.png" alt="ELASSOULI OFFERS" className="drawer-logo" /><span><b>ELASSOULI</b> <em>OFFERS</em></span></div>
-        <p className="muted">Maroc Jobs Hub • {stats.total} offres • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
+        <p className="muted">Maroc Jobs Hub • {stats.total} offres • {mStats.total} marchés publics • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
           <button className={tab === 'jobs' && kind === 'all' ? 'active' : ''} onClick={() => goTab('jobs', 'all')}><span className="dn-l"><Icon n="search" size={19} />Toutes les offres</span></button>
           <button className={tab === 'jobs' && kind === 'emploi' ? 'active' : ''} onClick={() => goTab('jobs', 'emploi')}><span className="dn-l"><Icon n="briefcase" size={19} />Emplois CDI/CDD</span></button>
           <button className={tab === 'jobs' && kind === 'stages' ? 'active' : ''} onClick={() => goTab('jobs', 'stages')}><span className="dn-l"><Icon n="cap" size={19} />Stages</span>{stats.stages > 0 && <b className="count">{stats.stages}</b>}</button>
           <button className={tab === 'concours' ? 'active' : ''} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span></button>
+          <button className={tab === 'marches' ? 'active' : ''} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mStats.open > 0 && <b className="count">{mStats.open}</b>}</button>
           <button className={tab === 'exams' ? 'active' : ''} onClick={() => goTab('exams')}><span className="dn-l"><Icon n="file" size={19} />Exams & Corrigés</span></button>
           <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><span className="dn-l"><Icon n="chart" size={19} />Dashboard</span></button>
           <button className={tab === 'alerts' ? 'active' : ''} onClick={() => goTab('alerts')}><span className="dn-l"><Icon n="bell" size={19} />Alertes</span>{unread > 0 && <b className="count red">{unread}</b>}</button>
@@ -452,9 +537,9 @@ export default function App() {
         {tab === 'concours' && <span className="section-count">{concoursList.length} concours</span>}
       </div>
 
-      {(tab === 'jobs' || tab === 'concours') && (
+      {(tab === 'jobs' || tab === 'concours' || tab === 'marches') && (
       <div className="searchbar">
-        <Icon n="search" size={18} /><input placeholder="Rechercher : poste, entreprise, ville…" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <Icon n="search" size={18} /><input placeholder={tab === 'marches' ? 'Rechercher : référence, organisme, objet, ville…' : 'Rechercher : poste, entreprise, ville…'} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
       )}
       {(tab === 'jobs' || tab === 'concours') && (
@@ -476,6 +561,63 @@ export default function App() {
           <button className="clear" onClick={() => { setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false); setKind('all'); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
         )}
       </div>
+      )}
+
+      {tab === 'marches' && (
+      <div className="filters modern-filters">
+        <button className={'fchip' + (mStatus === 'open' ? ' active' : '')} onClick={() => setMStatus(mStatus === 'open' ? 'all' : 'open')}><Icon n="clock" size={15} /> Ouverts ({mStats.open})</button>
+        <button className={'fchip' + (mStatus === 'closed' ? ' active' : '')} onClick={() => setMStatus(mStatus === 'closed' ? 'all' : 'closed')}>Clôturés ({mStats.closed})</button>
+        <label className="fselect"><span><Icon n="file" size={16} /></span><select value={mCat} onChange={(e) => setMCat(e.target.value)}>
+          <option value="">Catégories</option>
+          {mCats.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
+        </select></label>
+        <label className="fselect"><span><Icon n="pin" size={16} /></span><select value={mVille} onChange={(e) => setMVille(e.target.value)}>
+          <option value="">Toutes villes</option>
+          {mVilles.map(([c, n]) => <option key={c} value={c}>{c.length > 26 ? c.slice(0, 26) + '…' : c} ({n})</option>)}
+        </select></label>
+        {(query || mCat || mVille || mStatus !== 'open') && (
+          <button className="clear" onClick={() => { setQuery(''); setMCat(''); setMVille(''); setMStatus('open'); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
+        )}
+      </div>
+      )}
+
+      {tab === 'marches' && (
+        <main className="feed">
+          <div className="panel" style={{ marginBottom: 10 }}>
+            <h3>Marchés Publics — appels d’offres ({mFiltered.length})</h3>
+            <p className="muted">Source : Offer Analyzer • portail marchespublics.gov.ma {marchesUpdated ? `• maj ${(marchesUpdated || '').slice(0, 16).replace('T', ' ')}` : ''} — touchez une offre pour le dossier complet (AVIS, DCE, contacts).</p>
+          </div>
+          {marches.length === 0 && <div className="empty">Aucun marché public. Touchez ↻ pour actualiser.</div>}
+          {mFiltered.length === 0 && marches.length > 0 && <div className="empty">Aucun marché ne correspond aux filtres.</div>}
+          {mFiltered.map((m) => {
+            const dl = mDeadline(m);
+            return (
+              <article className="card mcard" key={m.id} onClick={() => setMSel(m)}>
+                <div className="card-head">
+                  <div className="avatar" style={{ '--h': 162 }}><Icon n="gavel" size={20} /></div>
+                  <div className="chead">
+                    <h3><span className="mcard-ref">{m.ref}</span>{m.organisme ? ` — ${String(m.organisme).split(' - ')[0]}` : ''}</h3>
+                    <div className="csub meta">
+                      {m.ville && <span><Icon n="pin" size={14} />{m.ville.length > 42 ? m.ville.slice(0, 42) + '…' : m.ville}</span>}
+                    </div>
+                  </div>
+                </div>
+                <p className="desc m-objet">{m.objet || '—'}</p>
+                <div className="chips">
+                  <span className="chip ref-chip"><Icon n="scale" size={12} />{m.categorie || 'Marché'}</span>
+                  {m.modePassation && <span className="chip blue">{m.modePassation}</span>}
+                  {m.counts && (m.counts.cps || m.counts.rc) ? <span className="chip muted">CPS ×{m.counts.cps || 0} • RC ×{m.counts.rc || 0}</span> : null}
+                  {(m.docs || []).length > 0 && <span className="chip muted"><Icon n="file" size={12} />{m.docs.length} avis PDF</span>}
+                  <span className={'chip ' + dl.cls}>{dl.label}</span>
+                </div>
+                <div className="m-foot">
+                  <span className="m-open">Voir le dossier <Icon n="arrow" size={14} /></span>
+                  {m.dceUrl && <button className="ghost" style={{ height: 34, padding: '0 12px', fontSize: 12.5 }} onClick={(e) => { e.stopPropagation(); openLink(m.dceUrl); }}><Icon n="download" size={14} /> DCE</button>}
+                </div>
+              </article>
+            );
+          })}
+        </main>
       )}
 
       {tab === 'jobs' && (
@@ -631,8 +773,18 @@ export default function App() {
               <div className="dstat warning" onClick={() => { goTab('jobs', 'all'); setUrgentOnly(true); }}><b>{stats.urgent}</b><span>Urgentes</span></div>
               <div className="dstat stages" onClick={() => goTab('jobs', 'stages')}><b>{stats.stages}</b><span>Stages</span></div>
               <div className="dstat violet" onClick={() => goTab('concours')}><b>{stats.concours}</b><span>Concours</span></div>
+              <div className="dstat green" onClick={() => goTab('marches')}><b>{mStats.open}</b><span>Marchés ouverts</span></div>
             </div>
           </div>
+          {mStats.total > 0 && (
+            <div className="panel">
+              <div className="section-header"><h3>Marchés Publics</h3><span className="section-count">{mStats.open} ouverts</span></div>
+              <p className="muted">Appels d’offres suivis par Offer Analyzer — {mStats.total} au total, {mStats.closed} clôturés.</p>
+              <div className="row" style={{ marginTop: 10 }}>
+                <button className="apply" onClick={() => goTab('marches')}><Icon n="scale" size={16} /> Voir les marchés</button>
+              </div>
+            </div>
+          )}
           <div className="panel">
             <div className="section-header"><h3>Par source</h3><span className="section-count">{sources.length} sources</span></div>
             {sources.map(([k, l]) => {
@@ -711,12 +863,92 @@ export default function App() {
 
       <nav className="bottomnav" aria-label="Navigation principale">
         <button className={tab === 'jobs' ? 'active' : ''} onClick={() => goTab('jobs')}><Icon n="briefcase" size={22} /><span>Offres</span></button>
+        <button className={tab === 'marches' ? 'active' : ''} onClick={() => goTab('marches')}><Icon n="scale" size={22} /><span>Marchés</span></button>
         <button className={tab === 'concours' ? 'active' : ''} onClick={() => goTab('concours')}><Icon n="landmark" size={22} /><span>Concours</span></button>
-        <button className={tab === 'exams' ? 'active' : ''} onClick={() => goTab('exams')}><Icon n="file" size={22} /><span>Exams</span></button>
         <button className={'fab' + (refreshing ? ' spinning' : '')} onClick={() => refresh(true)} title="Actualiser" aria-label="Actualiser"><Icon n="refresh" size={26} /></button>
-        <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><Icon n="chart" size={22} /><span>Stats</span></button>
+        <button className={tab === 'exams' ? 'active' : ''} onClick={() => goTab('exams')}><Icon n="file" size={22} /><span>Exams</span></button>
         <button className={tab === 'alerts' ? 'active' : ''} onClick={() => goTab('alerts')}><Icon n="bell" size={22} /><span>Alertes</span>{unread > 0 && <b className="nav-badge">{unread}</b>}</button>
       </nav>
+
+      {mSel && (() => {
+        const dl = mDeadline(mSel);
+        return (
+          <>
+            <div className="sheet-overlay" onClick={() => setMSel(null)} />
+            <div className="sheet" role="dialog" aria-label={`Marché ${mSel.ref}`}>
+              <div className="sheet-handle" />
+              <div className="sheet-head">
+                <div className="avatar" style={{ '--h': 162 }}><Icon n="gavel" size={20} /></div>
+                <div className="chead">
+                  <h3><span className="mcard-ref">{mSel.ref}</span></h3>
+                  <div className="csub meta"><span><Icon n="building" size={14} />{mSel.organisme || '—'}</span></div>
+                  <div className="chips">
+                    <span className={'chip ' + dl.cls}>{dl.label}</span>
+                    {mSel.categorie && <span className="chip ref-chip">{mSel.categorie}</span>}
+                  </div>
+                </div>
+                <button className="sheet-close" onClick={() => setMSel(null)} aria-label="Fermer"><Icon n="close" size={18} /></button>
+              </div>
+              <div className="sheet-body">
+                <div className="panel">
+                  <h3>Objet</h3>
+                  <p className="desc" style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{mSel.objet || '—'}</p>
+                  <div className="chips">
+                    {mSel.ville && <span className="chip blue"><Icon n="pin" size={12} />{mSel.ville}</span>}
+                    {mSel.typeProcedure && <span className="chip">{mSel.typeProcedure}</span>}
+                    {mSel.modePassation && <span className="chip blue">{mSel.modePassation}</span>}
+                    {mSel.typeAnnonce && <span className="chip muted">{mSel.typeAnnonce}</span>}
+                  </div>
+                </div>
+
+                <div className="panel">
+                  <h3>Dossier de consultation</h3>
+                  {(mSel.docs || []).map((d, i) => (
+                    <div className="doc-row" key={d.file + i}>
+                      <Icon n="file" size={20} />
+                      <span className="doc-name">{d.name || 'Avis PDF'}</span>
+                      <span className="doc-size">{d.size ? (d.size / 1024 / 1024).toFixed(1) + ' Mo' : ''}</span>
+                      <button className="ghost" style={{ height: 34, padding: '0 12px', fontSize: 12.5 }} onClick={() => downloadFile(marcheDocUrl(d), `${mSel.ref}-${d.name || 'avis'}.pdf`.replace(/[^\wÀ-ÿ.-]+/g, '-').slice(0, 60))}><Icon n="download" size={14} /></button>
+                    </div>
+                  ))}
+                  {!((mSel.docs || []).length) && <p className="muted">Aucun avis PDF publié pour ce marché.</p>}
+                  <div className="row" style={{ marginTop: 10 }}>
+                    {mSel.dceUrl && <button className="apply" onClick={() => openLink(mSel.dceUrl)}><Icon n="download" size={16} /> Télécharger le DCE</button>}
+                    {mSel.portalHref && <button className="ghost" onClick={() => openLink(mSel.portalHref)}><Icon n="arrow" size={16} /> Page officielle</button>}
+                  </div>
+                  {mSel.dceSize && <p className="muted" style={{ marginTop: 8 }}>{mSel.dceSize} — s’ouvre sur marchespublics.gov.ma</p>}
+                </div>
+
+                <div className="panel">
+                  <h3>Informations</h3>
+                  {mSel.dateLimite && <div className="mrow"><span className="mlabel">Clôture</span><span className="mval">{mSel.dateLimite}</span></div>}
+                  {mSel.estimation && <div className="mrow"><span className="mlabel">Estimation</span><span className="mval">{mSel.estimation}</span></div>}
+                  {mSel.caution && <div className="mrow"><span className="mlabel">Caution</span><span className="mval">{mSel.caution}</span></div>}
+                  {mSel.prixAcquisition && mSel.prixAcquisition !== '0,00 MAD' && <div className="mrow"><span className="mlabel">Prix DCE</span><span className="mval">{mSel.prixAcquisition}</span></div>}
+                  {mSel.lieuOuverture && <div className="mrow"><span className="mlabel">Ouverture plis</span><span className="mval">{mSel.lieuOuverture}</span></div>}
+                  {mSel.adresseRetrait && <div className="mrow"><span className="mlabel">Retrait</span><span className="mval">{mSel.adresseRetrait}</span></div>}
+                  {mSel.adresseDepot && <div className="mrow"><span className="mlabel">Dépôt</span><span className="mval">{mSel.adresseDepot}</span></div>}
+                </div>
+
+                {(mSel.contact && (mSel.contact.nom || mSel.contact.email || mSel.contact.tel)) && (
+                  <div className="panel">
+                    <h3>Contact</h3>
+                    {mSel.contact.nom && <div className="mrow"><span className="mlabel">Nom</span><span className="mval">{mSel.contact.nom}</span></div>}
+                    {mSel.contact.email && <div className="mrow"><span className="mlabel">Email</span><span className="mval"><a href={`mailto:${mSel.contact.email}`}>{mSel.contact.email}</a></span></div>}
+                    {mSel.contact.tel && <div className="mrow"><span className="mlabel">Téléphone</span><span className="mval"><a href={`tel:${mSel.contact.tel}`}>{mSel.contact.tel}</a></span></div>}
+                    {mSel.contact.fax && <div className="mrow"><span className="mlabel">Fax</span><span className="mval">{mSel.contact.fax}</span></div>}
+                    <div className="row" style={{ marginTop: 8 }}>
+                      {mSel.contact.email && <button className="ghost" onClick={() => openLink(`mailto:${mSel.contact.email}`)}><Icon n="mail" size={16} /> Envoyer un mail</button>}
+                      {mSel.contact.tel && <button className="ghost" onClick={() => openLink(`tel:${mSel.contact.tel}`)}><Icon n="phone" size={16} /> Appeler</button>}
+                    </div>
+                  </div>
+                )}
+                <p className="muted">Source : Offer Analyzer (marchespublics.gov.ma) • {mSel.seenAt ? `détecté le ${mSel.seenAt.slice(0, 10)}` : ''}</p>
+              </div>
+            </div>
+          </>
+        );
+      })()}
 
       {toast && <div className="toast">{toast}</div>}
     </div>

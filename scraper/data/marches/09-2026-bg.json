@@ -1,0 +1,42 @@
+{
+  "id": "09-2026-bg",
+  "ref": "09/2026/BG",
+  "organisme": "M6 / GM - GOUVERNEUR DE LA PREFECTURE DE MOHAMMADIA",
+  "sousOrganisme": "SECRETARIAT GENERAL",
+  "objet": "FOURNITURE ET TRAVAUX DE POSE D'UN ASCENCEUR PMR A STRUCTURE AUTOPORTANTE",
+  "ville": "MOHAMMADIA",
+  "caution": "10 680,00 MAD",
+  "estimation": "534 000,00",
+  "dateLimite": "05/10/2026 10:00",
+  "dateLimiteIso": "2026-10-05T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Travaux",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Bureaux de Secrétariat Général de la Préfecture de Mohammedia",
+  "adresseRetrait": "Service des marchés, Division du budget et marchés Préfecture Mohammedia, BD Yacoub El Mansour Mohammedia",
+  "adresseDepot": "Service des marchés, Division du budget et marchés Préfecture Mohammedia, BD Yacoub El Mansour Mohammedia",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "SANAA KATIM",
+    "email": "sankatim@gmail.com",
+    "tel": "0653100911",
+    "fax": "0653100911"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1033781&orgAcronyme=g3h",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1033781&orgAcronyme=g3h",
+  "dceSize": "Dossier de consultation - 924,67 Ko",
+  "counts": {
+    "cps": 2,
+    "rc": 2
+  },
+  "docs": [
+    {
+      "name": "AVIS FR 3",
+      "file": "marches-docs/09-2026-bg-avis-1.pdf",
+      "size": 276514
+    }
+  ],
+  "seenAt": "2026-09-12T21:31:08.449373",
+  "source": "offer-analyzer"
+}

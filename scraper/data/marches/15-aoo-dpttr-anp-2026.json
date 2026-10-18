@@ -1,0 +1,42 @@
+{
+  "id": "15-aoo-dpttr-anp-2026",
+  "ref": "15_AOO_DPTTR_ANP_2026",
+  "organisme": "M3 / ANP / ANPDPTR - AGENCE NATIONALE DES PORTS / DIRECTION DU PORT DE TAN-TAN ET REGION",
+  "sousOrganisme": "DIRECTION DU PORT DE TAN TAN ET REGION",
+  "objet": "CONTROLE TOPOGRAPHIQUE ET BATHYMETRIQUE DES TRAVAUX DE CONFORTEMENT DES OUVRAGES DE PROTECTION DU PORT DE TAN-TAN",
+  "ville": "TAN-TAN",
+  "caution": "26 000,00 MAD",
+  "estimation": "1 316 400,00",
+  "dateLimite": "07/10/2026 11:00",
+  "dateLimiteIso": "2026-10-07T11:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "dans les bureaux de la Direction du Port de Tan Tan et Région/Direction du port de Tan Tan",
+  "adresseRetrait": "PMMP",
+  "adresseDepot": "PMMP",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "MUSTAPHA INAN",
+    "email": "inan1@anp.org.ma",
+    "tel": "0661700307",
+    "fax": "0528879251"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1039081&orgAcronyme=o8p",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1039081&orgAcronyme=o8p",
+  "dceSize": "Dossier de consultation - 15,41 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "AVIS AOO 15",
+      "file": "marches-docs/15-aoo-dpttr-anp-2026-avis-1.pdf",
+      "size": 777031
+    }
+  ],
+  "seenAt": "2026-09-12T21:28:12.783662",
+  "source": "offer-analyzer"
+}

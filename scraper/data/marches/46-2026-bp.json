@@ -1,0 +1,36 @@
+{
+  "id": "46-2026-bp",
+  "ref": "46/2026/BP",
+  "organisme": "RMTA / PM - PREFECTURE de MARRAKECH",
+  "sousOrganisme": "Bureau des Marchés et Bons de Commande",
+  "objet": "Contrôle topographique des travaux de construction de la 2ème tranche de la piste reliant entre centre Sidi Zouine et douar El Matougui El Foukani sur une longueur d'environ 1,0 km à la commune territoriale Sidi Zouine à la préfecture de Marrakech",
+  "ville": "MARRAKECH",
+  "caution": "300,00 MAD",
+  "estimation": "21 600,00",
+  "dateLimite": "06/10/2026 10:30",
+  "dateLimiteIso": "2026-10-06T10:30:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Siège du conseil Préfectoral de Marrakech",
+  "adresseRetrait": "bureau des marchés au conseil Préfectoral de Marrakech",
+  "adresseDepot": "bureau des marchés au conseil Préfectoral de Marrakech",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "LHOUSSAINE HAMIDOUCH",
+    "email": "cpmarrakechbmarches@gmail.com",
+    "tel": "0661449217",
+    "fax": "0524290344"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1023873&orgAcronyme=j0w",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1023873&orgAcronyme=j0w",
+  "dceSize": "Dossier de consultation - 1,28 Mo",
+  "counts": {
+    "cps": 2,
+    "rc": 2
+  },
+  "docs": [],
+  "seenAt": "2026-09-12T21:29:39.768603",
+  "source": "offer-analyzer"
+}

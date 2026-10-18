@@ -1,0 +1,47 @@
+{
+  "id": "61-2026-abhs",
+  "ref": "61/2026/ABHS",
+  "organisme": "MEMEE / ABHS - AGENCE DU BASSIN HYDRAULIQUE DU SEBOU",
+  "sousOrganisme": "",
+  "objet": "Réalisation des prestations topographiques pour la délimitation du domaine public hydraulique (dph) des cours d’eau relevant de la préfecture de fès",
+  "ville": "FES",
+  "caution": "19 000,00 MAD",
+  "estimation": "960 000,00",
+  "dateLimite": "02/10/2026 10:30",
+  "dateLimiteIso": "2026-10-02T10:30:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Agence du Bassin Hydraulique du Sebou, Avenue Abou Al Alaâ Maâri (en face de l'école la fontaine). Fès",
+  "adresseRetrait": "www.marchespublics.gov.ma",
+  "adresseDepot": "www.marchespublics.gov.ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "RAJAE BEN ABOU",
+    "email": "r.benabbou@abhsebou.ma",
+    "tel": "0661481542/43",
+    "fax": "0535640444"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1037986&orgAcronyme=d4q",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1037986&orgAcronyme=d4q",
+  "dceSize": "Dossier de consultation - 1,56 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "Avis AO 02-10-2026 Page1 Fr",
+      "file": "marches-docs/61-2026-abhs-avis-1.pdf",
+      "size": 862690
+    },
+    {
+      "name": "Avis AO 02-10-2026 Page1 Ar",
+      "file": "marches-docs/61-2026-abhs-avis-2.pdf",
+      "size": 560536
+    }
+  ],
+  "seenAt": "2026-09-12T21:32:55.837862",
+  "source": "offer-analyzer"
+}

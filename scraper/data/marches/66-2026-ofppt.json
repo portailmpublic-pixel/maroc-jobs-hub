@@ -1,0 +1,47 @@
+{
+  "id": "66-2026-ofppt",
+  "ref": "66/2026/OFPPT",
+  "organisme": "MEFPE / OFPPT - OFFICE DE LA FORMATION PROFESSIONNELLE ET DE LA PROMOTION DU TRAVAIL",
+  "sousOrganisme": "",
+  "objet": "Études topographiques relatives aux Etablissements de Formation Professionnelle réparties en neuf (09) lots : • Lot n° 1 : Région Tanger-Tetouan-El Hoceima (45 EFP) • Lot n° 2 : Région Oriental (33 EFP) • Lot n° 3 : Région Fes-Meknes (23 EFP) • Lot n° 4 : Région Rabat-Salé-Kenitra (60 EFP) • Lot n° 5 : Région Beni Mellal-Khenifra (17 EFP) • Lot n° 6 : Région Casablanca-Settat (72 EFP) • Lot n° 7 : Région Marrakech-Safi (20 EFP) • Lot n° 8 : Région Souss Massa (10 EFP) • Lot n° 9 : Provinces de sud (16 EFP)",
+  "ville": "TANGER-ASSILAH, MDIQ-FNIDEQ, TETOUAN, FAHS-ANJRA, LARACHE, AL HOCEIMA, CHEFCHAOUEN, OUEZZANE",
+  "caution": "",
+  "estimation": "(DHS TTC) Cautionnement provisoire (DHS) d’ouverture",
+  "dateLimite": "26/10/2026 10:30",
+  "dateLimiteIso": "2026-10-26T10:30:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "les bureaux de l’office de la Formation Professionnelle et de la Promotion du Travail, sis Intersection de la Route BO n° 50 et la R.N.11 (Route Nouaceur Sidi Maârouf) - Casablanca",
+  "adresseRetrait": "service des marchés à la Direction de l’Approvisionnement et la Logistique, sis Intersection de la Route BO n° 50 et la R.N.11 (Route Nouaceur Sidi Maârouf) Casablanca, il peut être également téléchargé à partir du portail des marchés de l’Etat www.m",
+  "adresseDepot": " soit envoyer, par courrier recommandé avec accusé de réception, au bureau précité ;  soit déposer contre récépissé leurs plis dans le bureau du service des marchés rattaché à la Direction de l’Approvisionnement et la Logistique, sis Intersection",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "ASMAA HSAINI",
+    "email": "asmaa.hsaini@ofppt.ma",
+    "tel": "0522634444",
+    "fax": "0522787031"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1044740&orgAcronyme=o4d",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1044740&orgAcronyme=o4d",
+  "dceSize": "Dossier de consultation - 7,13 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "AVIS PRESSE ARABE",
+      "file": "marches-docs/66-2026-ofppt-avis-1.pdf",
+      "size": 548244
+    },
+    {
+      "name": "AVIS PRESSE FRANCAIS",
+      "file": "marches-docs/66-2026-ofppt-avis-2.pdf",
+      "size": 138806
+    }
+  ],
+  "seenAt": "2026-10-03T18:25:30.901997",
+  "source": "offer-analyzer"
+}

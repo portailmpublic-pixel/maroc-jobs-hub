@@ -1,0 +1,36 @@
+{
+  "id": "99-cl-2026-srmfm",
+  "ref": "99/CL/2026/SRMFM",
+  "organisme": "M6 / SRMFM - SOCIETE REGIONALE MULTISERVICES FES - MEKNES S.A",
+  "sousOrganisme": "",
+  "objet": "Acquisition des groupes motopompes tractables diesel pour eaux usées avec remorque par véhicule -PREFECTURE DE FES-",
+  "ville": "FES",
+  "caution": "38 000,00 MAD",
+  "estimation": "1 920 000,00",
+  "dateLimite": "01/10/2026 08:30",
+  "dateLimiteIso": "2026-10-01T08:30:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Fournitures",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "10, Rue Mohamed El Kaghat BP n° 2097 Fès",
+  "adresseRetrait": "Les dossiers d’appel d’offres sont à télécharger du portail des marchés publics : www.marchespublics.gov.ma",
+  "adresseDepot": "Les concurrents doivent déposer leurs dossiers par voie électronique dans le portail des marchés publics accessible à l'adresse www.marchespublics.gov.ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "Mohamed CHAOUI",
+    "email": "contact@srm-fm.ma",
+    "tel": "05356250 15/16/17",
+    "fax": "0535620795"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1036395&orgAcronyme=g3h",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1036395&orgAcronyme=g3h",
+  "dceSize": "Dossier de consultation - 3,17 Mo",
+  "counts": {
+    "cps": 0,
+    "rc": 1
+  },
+  "docs": [],
+  "seenAt": "2026-09-12T21:36:34.044755",
+  "source": "offer-analyzer"
+}

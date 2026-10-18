@@ -1,0 +1,47 @@
+{
+  "id": "169-o-26",
+  "ref": "169/O/26",
+  "organisme": "M6 / SRM-BMK - SOCIETE REGIONALE MULTISERVICES BENI MELLAL-KHENIFRA SA",
+  "sousOrganisme": "",
+  "objet": "Fourniture des motopompes, groupes électrogènes, outillages et matériels de signalisation pour la SRM-BK.",
+  "ville": "BENI MELLAL",
+  "caution": "44 600,00 MAD",
+  "estimation": "2 972 400,00",
+  "dateLimite": "02/10/2026 09:00",
+  "dateLimiteIso": "2026-10-02T09:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Fournitures",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Les bureaux de siège de la Société Régionale Multiservices Béni Mellal-Khénifra, boulevard Omar Ben El Khattab, en face du Terrain sportif Municipale, Béni Mellal",
+  "adresseRetrait": "Bureau du Direction des Achats et Logistique, de siège de la Société Régionale Multiservices Béni Mellal-Khénifra, boulevard Omar Ben El Khattab, en face du Terrain sportif Municipale, Béni Mellal",
+  "adresseDepot": "Le bureau d’ordre de siège de la Société Régionale Multiservices Béni Mellal-Khénifra sis, boulevard Omar Ben El Khattab, en face du Terrain sportif Municipale, Béni Mellal",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "MARIA ATTIF",
+    "email": "achatsrmbk@gmail.com",
+    "tel": "0523483207",
+    "fax": "0523483387"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1038453&orgAcronyme=g3h",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1038453&orgAcronyme=g3h",
+  "dceSize": "Dossier de consultation - 2,57 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "AVIS AR (4)",
+      "file": "marches-docs/169-o-26-avis-1.pdf",
+      "size": 428979
+    },
+    {
+      "name": "Avis FR (2)",
+      "file": "marches-docs/169-o-26-avis-2.pdf",
+      "size": 382086
+    }
+  ],
+  "seenAt": "2026-09-12T21:33:45.734039",
+  "source": "offer-analyzer"
+}

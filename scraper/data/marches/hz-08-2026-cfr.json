@@ -1,0 +1,36 @@
+{
+  "id": "hz-08-2026-cfr",
+  "ref": "HZ/08/2026/CFR",
+  "organisme": "M3 / CDPEE - DIRECTEUR PROVINCIAL DE L'EQUIPEMENT ELHAOUZ",
+  "sousOrganisme": "Ministère de l’Equipement et de l’Eau - Direction Provinciale de l’Equipement, du Transport et de la Logistique d’Al Haouz",
+  "objet": "CONTROLE EXTERIEUR TOPOGRAPHIQUE DES TRAVAUX DE CONSTRUCTION D'UN OA SUR OUED BOUYZRANE AU NIVEAU DE LA RNC RELIANT IGUERFEROUANE ET OURIKA - PROVINCE D'AL HAOUZ",
+  "ville": "AL HAOUZ",
+  "caution": "5 000,00 MAD",
+  "estimation": "351 360,00",
+  "dateLimite": "24/09/2026 11:00",
+  "dateLimiteIso": "2026-09-24T11:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "les bureaux de la CAISSE POUR LE FINANCEMENT ROUTIER sis au N° 12, Avenue Mehdi Ben Barka, Rue Mekki Bitaouri, Souissi, RABAT",
+  "adresseRetrait": "Le dossier d’appel d’offres peut être téléchargé à partir du portail des marchés publics : https://www.marchespublics.gov.ma.",
+  "adresseDepot": "le dépôt électronique des offres est obligatoire au Portail des marchés publics https://www.marchespublics.gov.ma.",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "HICHAM AMINE",
+    "email": "aminehicham40@yahoo.fr",
+    "tel": "0619547434",
+    "fax": "0524484290"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1035733&orgAcronyme=o8p",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1035733&orgAcronyme=o8p",
+  "dceSize": "Dossier de consultation - 306,99 Ko",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [],
+  "seenAt": "2026-09-12T21:39:24.227570",
+  "source": "offer-analyzer"
+}

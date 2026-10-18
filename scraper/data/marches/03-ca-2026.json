@@ -1,0 +1,42 @@
+{
+  "id": "03-ca-2026",
+  "ref": "03/CA/2026",
+  "organisme": "RRSK / CRA - Commune Rurale d'Ameur",
+  "sousOrganisme": "",
+  "objet": "Acquisition de motopompes et groupe électrogène pour le compte de la commune d’AMEUR",
+  "ville": "SALE",
+  "caution": "2 000,00 MAD",
+  "estimation": "108 000,00",
+  "dateLimite": "15/10/2026 10:00",
+  "dateLimiteIso": "2026-10-15T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert simplifié | Sur offre de prix",
+  "categorie": "Fournitures",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "dans la salle de réunion De la commune d’ameur sis à brahma route azouzi,",
+  "adresseRetrait": "www. marchespublics.gov.ma",
+  "adresseDepot": "www. marchespublics.gov.ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "rachid yaagoubi",
+    "email": "yaagopubi_bouk@hotmail.com",
+    "tel": "0661442749",
+    "fax": "0537822903"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1045647&orgAcronyme=s3z",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1045647&orgAcronyme=s3z",
+  "dceSize": "Dossier de consultation - 3,28 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 0
+  },
+  "docs": [
+    {
+      "name": "Avis des AO FR 01 OCTOBRE-2026",
+      "file": "marches-docs/03-ca-2026-avis-1.pdf",
+      "size": 521768
+    }
+  ],
+  "seenAt": "2026-10-03T18:30:32.225090",
+  "source": "offer-analyzer"
+}

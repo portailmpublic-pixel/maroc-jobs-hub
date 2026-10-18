@@ -1,0 +1,36 @@
+{
+  "id": "sk37-2026",
+  "ref": "SK37/2026",
+  "organisme": "M3 / DPESK - LE DIRECTEUR PROVINCIAL DE L'EQUIPEMENT ET DU TRANSPORT ET DE LA LOGISTIQUE DE SIDI KACEM",
+  "sousOrganisme": "Direction Provinciale de Sidi Kacem",
+  "objet": "REALISATION DES PRESTATIONS TOPOGRAPHIQUES POUR LE CONTRÔLE DES CARRIERES SITUEES DANS LA PROVINCE DE SIDI KACEM",
+  "ville": "SIDI KACEM",
+  "caution": "5 500,00 MAD",
+  "estimation": "277 200,00",
+  "dateLimite": "06/10/2026 10:00",
+  "dateLimiteIso": "2026-10-06T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Direction Provinciale de l’Equipement, du Transport et de la Logistique de Sidi Kacem",
+  "adresseRetrait": "Direction Provinciale de l’Equipement, du Transport et de la Logistique de Sidi Kacem",
+  "adresseDepot": "Direction Provinciale de l’Equipement, du Transport et de la Logistique de Sidi Kacem",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "MUSTAPHA CHAKIR",
+    "email": "m.chakir@mtpnet.gov.ma",
+    "tel": "066 19 21 15 & 0679 82 33 28",
+    "fax": "(037) 59-37-21"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1033600&orgAcronyme=o8p",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1033600&orgAcronyme=o8p",
+  "dceSize": "Dossier de consultation - 197,34 Ko",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [],
+  "seenAt": "2026-09-12T21:30:23.241958",
+  "source": "offer-analyzer"
+}

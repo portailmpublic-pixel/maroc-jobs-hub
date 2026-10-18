@@ -1,0 +1,47 @@
+{
+  "id": "05-2026-aut",
+  "ref": "05/2026/AUT",
+  "organisme": "MHUAE / AUT - AGENCE URBAINE DE TANGER",
+  "sousOrganisme": "Ministère de l'Aménagement du Territoire National, de l'Urbanisme, de l'Habitat et de la Politique de la Ville",
+  "objet": "Exécution des levés topographiques réguliers au 1/500 par uniquement les procédés au sol dans l’arrondissement de MGHOUGHA à la Commune de Tanger – Préfecture Tanger Assilah.",
+  "ville": "TANGER-ASSILAH",
+  "caution": "6 000,00 MAD",
+  "estimation": "312 000,00",
+  "dateLimite": "06/10/2026 11:30",
+  "dateLimiteIso": "2026-10-06T11:30:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "53, rue Abou Alaa El Maari – Tanger",
+  "adresseRetrait": "53, rue Abou Alaa El Maari – Tanger",
+  "adresseDepot": "53, rue Abou Alaa El Maari – Tanger",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "ELHOR SAMIRA",
+    "email": "daf@aut.gov.ma",
+    "tel": "0539321500",
+    "fax": "0539321510"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1036471&orgAcronyme=j8k",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1036471&orgAcronyme=j8k",
+  "dceSize": "Dossier de consultation - 2,28 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "Avis FR",
+      "file": "marches-docs/05-2026-aut-avis-1.pdf",
+      "size": 57624
+    },
+    {
+      "name": "Avis AR",
+      "file": "marches-docs/05-2026-aut-avis-2.pdf",
+      "size": 51091
+    }
+  ],
+  "seenAt": "2026-09-12T21:28:55.840429",
+  "source": "offer-analyzer"
+}

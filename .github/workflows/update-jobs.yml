@@ -31,10 +31,16 @@ jobs:
         env:
           APK_PUBLIC_DIR: ../app/public
 
+      - name: Export Marchés Publics snapshot
+        working-directory: scraper
+        run: npm run export:marches
+        env:
+          APK_PUBLIC_DIR: ../app/public
+
       - name: Commit + push fresh data
         run: |
           git config user.name "jobs-bot"
           git config user.email "jobs-bot@users.noreply.github.com"
-          git add app/public/jobs.json app/public/alerts.json app/public/exams-index.json app/public/exams scraper/data/jobs.json scraper/data/runs.json scraper/data/notifications.json || true
+          git add app/public/jobs.json app/public/alerts.json app/public/exams-index.json app/public/exams app/public/marches.json scraper/data/jobs.json scraper/data/runs.json scraper/data/notifications.json || true
           git diff --cached --quiet || git commit -m "jobs: auto refresh $(date -u +%F_%H%M)"
           git push || true

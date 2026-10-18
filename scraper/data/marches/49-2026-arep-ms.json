@@ -1,0 +1,47 @@
+{
+  "id": "49-2026-arep-ms",
+  "ref": "49/2026/AREP/MS",
+  "organisme": "RMTA / AREPRMS - AGENCE REGIONALE D'EXECUTION DES PROJETS DE LA REGION MARRAKECH SAFI",
+  "sousOrganisme": "",
+  "objet": "Contrôle extérieur topographique des Travaux de dédoublement de la RN08 du PK238+170 EX (240+136) au PK248+602 EX (250+568) sur 10,432 Km - Province El Kelaa Des Sraghna - Région de Marrakech-Safi.",
+  "ville": "EL KELAA DES SRAGHNA",
+  "caution": "12 000,00 MAD",
+  "estimation": "610 800,00",
+  "dateLimite": "24/09/2026 10:00",
+  "dateLimiteIso": "2026-09-24T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "L’Agence Régionale d’Exécution des Projets de la Région Marrakech-Safi, sis au 5ème Etage, Ben Moulay Center, N°298, Sidi AABAD 1, Boulevard Moulay Abdellah Marrakech.",
+  "adresseRetrait": "www.marchespublics.gov.ma",
+  "adresseDepot": "www.marchespublics.gov.ma",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "Abdellatif AABOUDOU",
+    "email": "abdellatif.aaboudou@arepms.ma",
+    "tel": "0666227547",
+    "fax": "0524306649"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1034050&orgAcronyme=j0w",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1034050&orgAcronyme=j0w",
+  "dceSize": "Dossier de consultation - 7,14 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "Avis Arabe AO 49-2026-AREP-MS",
+      "file": "marches-docs/49-2026-arep-ms-avis-1.pdf",
+      "size": 107057
+    },
+    {
+      "name": "Avis Français AO 49-2026-AREP-MS",
+      "file": "marches-docs/49-2026-arep-ms-avis-2.pdf",
+      "size": 75032
+    }
+  ],
+  "seenAt": "2026-09-12T21:40:09.046356",
+  "source": "offer-analyzer"
+}

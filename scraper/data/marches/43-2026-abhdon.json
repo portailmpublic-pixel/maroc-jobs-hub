@@ -1,0 +1,42 @@
+{
+  "id": "43-2026-abhdon",
+  "ref": "43/2026/ABHDON",
+  "organisme": "MEMEE / ABHDON - Agence du Bassain Hydraulique de DRAA OUED NOUN",
+  "sousOrganisme": "Direction provinciale SRM-MS de Safi",
+  "objet": "RÉALISATION DES PRESTATIONS TOPOGRAPHIQUES SUR LES SECTIONS DE MESURE DES STATIONS HYDROLOGIQUES DANS LA ZONE D’ACTION DE L’ABHDON ET ÉLABORATION DES BARÈMES D’ÉTALONNAGE.",
+  "ville": "OUARZAZATE, TINGHIR, ZAGORA, TATA, GUELMIM, ASSA-ZAG, TAN-TAN, SIDI IFNI",
+  "caution": "4 000,00 MAD",
+  "estimation": "299 040,00",
+  "dateLimite": "23/10/2026 10:00",
+  "dateLimiteIso": "2026-10-23T10:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Dans la salle de réunion de l’Agence du Bassin Hydraulique de Draa Oued Noun, Avenue Mohamed VI– Guelmim",
+  "adresseRetrait": "Au bureau des marchés de l’Agence du Bassin Hydraulique de Draa Oued Noun, Avenue Mohamed VI – Guelmim",
+  "adresseDepot": "Au bureau des marchés de l’Agence du Bassin Hydraulique de Draa Oued Noun, Avenue Mohamed VI – Guelmim",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "HAMMADI MEZIN",
+    "email": "h.mezin@abhdon.ma",
+    "tel": "0528772641",
+    "fax": "0528772642"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1042157&orgAcronyme=d4q",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1042157&orgAcronyme=d4q",
+  "dceSize": "Dossier de consultation - 4,26 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 0
+  },
+  "docs": [
+    {
+      "name": "Avis des AO FR 01 OCTOBRE-2026",
+      "file": "marches-docs/43-2026-abhdon-avis-1.pdf",
+      "size": 521768
+    }
+  ],
+  "seenAt": "2026-10-03T18:27:53.655101",
+  "source": "offer-analyzer"
+}

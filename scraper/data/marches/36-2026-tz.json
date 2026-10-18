@@ -1,0 +1,36 @@
+{
+  "id": "36-2026-tz",
+  "ref": "36/2026/TZ",
+  "organisme": "M3 / DPET - LE DIRECTEUR PROVINCIAL DE L'EQUIPEMENT ET DU TRANSPORT ET DE LA LOGISTIQUE DE TAZA",
+  "sousOrganisme": "",
+  "objet": "Contrôle Extérieur Topographique des Travaux de construction de la RP5406 du PK0+000 au PK11+200 - Province de TAZA.",
+  "ville": "TAZA",
+  "caution": "4 800,00 MAD",
+  "estimation": "243 600,00",
+  "dateLimite": "24/09/2026 11:30",
+  "dateLimiteIso": "2026-09-24T11:30:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "les bureaux de la Direction Provinciale de l’Équipement, du Transport et de la Logistique de Taza",
+  "adresseRetrait": "Le dossier d'appel d'offres doit être téléchargé à partir du portail des marchés publics accessible à l'adresse : www.marchespublics.gov.ma.",
+  "adresseDepot": "Les concurrents doivent déposer leurs dossiers par voie électronique dans le portail des marchés publics conformément aux conditions fixées par l’arrêté du Ministre délégué auprès de la Ministre de l’Économie et des Finances, chargé du budget n° 1692-23 du 4 hija 1444 (23 juin 2023).",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "OUMAIMA FD",
+    "email": "dpee.taza.bm@gmail.com",
+    "tel": "0538907510",
+    "fax": "0535672231"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1034692&orgAcronyme=o8p",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1034692&orgAcronyme=o8p",
+  "dceSize": "Dossier de consultation - 2,35 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [],
+  "seenAt": "2026-09-12T21:38:39.369549",
+  "source": "offer-analyzer"
+}

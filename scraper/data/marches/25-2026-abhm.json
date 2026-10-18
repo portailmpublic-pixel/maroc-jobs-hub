@@ -1,0 +1,47 @@
+{
+  "id": "25-2026-abhm",
+  "ref": "25/2026/ABHM",
+  "organisme": "MEMEE / ABHMO - AGENCE DU BASSIN HYDRAULIQUE DE MOULOUYA",
+  "sousOrganisme": "",
+  "objet": "Réalisation des levés topographique pour l’établissement de l’Atlas des zones inondables Lot n°1 : Province Nador Lot n°2 : Province Berkane Lot n°3 : Province Driouch",
+  "ville": "NADOR, DRIOUCH, BERKANE",
+  "caution": "",
+  "estimation": "",
+  "dateLimite": "02/10/2026 11:00",
+  "dateLimiteIso": "2026-10-02T11:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "Agence du Bassin Hydraulique de la Moulouya, Angle Bd Hassan Loukili - Rue Ibn Khaldoun, BP 703 – OUJDA",
+  "adresseRetrait": "Agence du Bassin Hydraulique de la Moulouya, Angle Bd Hassan Loukili - Rue Ibn Khaldoun, BP 703 – OUJDA",
+  "adresseDepot": "Agence du Bassin Hydraulique de la Moulouya, Angle Bd Hassan Loukili - Rue Ibn Khaldoun, BP 703 – OUJDA",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "abhm abhm",
+    "email": "abhm@menara.ma",
+    "tel": "0536684513",
+    "fax": "0536683848"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1038059&orgAcronyme=d4q",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1038059&orgAcronyme=d4q",
+  "dceSize": "Dossier de consultation - 2,42 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [
+    {
+      "name": "Avis AO 02-10-2026 Page1 Fr",
+      "file": "marches-docs/25-2026-abhm-avis-1.pdf",
+      "size": 862690
+    },
+    {
+      "name": "Avis AO 02-10-2026 Page1 Ar",
+      "file": "marches-docs/25-2026-abhm-avis-2.pdf",
+      "size": 560536
+    }
+  ],
+  "seenAt": "2026-09-12T21:32:07.019380",
+  "source": "offer-analyzer"
+}

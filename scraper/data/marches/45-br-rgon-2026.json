@@ -1,0 +1,36 @@
+{
+  "id": "45-br-rgon-2026",
+  "ref": "45/BR/RGON/2026",
+  "organisme": "RGON / RGON - REGION DE GUELMIM - OUED NOUN",
+  "sousOrganisme": "",
+  "objet": "Contrôle topographique d'achèvement des travaux de construction des liaisons routières : RR 118 (ancienne RP 1300) du PK 63+000 au PK 108+000 sur 45 kms. RNC reliant la RR 118 et Zaouiat El Gtouaa sur 5 kms (dans la Province de Guelmim)",
+  "ville": "GUELMIM",
+  "caution": "900,00 MAD",
+  "estimation": "49 200,00",
+  "dateLimite": "01/10/2026 11:00",
+  "dateLimiteIso": "2026-10-01T11:00:00",
+  "typeProcedure": "Appel d'offres ouvert | Sur offre de prix",
+  "categorie": "Services",
+  "modePassation": "Sur offre de prix",
+  "typeAnnonce": "Annonce de consultation",
+  "lieuOuverture": "la salle de réunion n°01 au siège de la Région Guelmim - Oued Noun",
+  "adresseRetrait": "Le dossier d'appel d'offre est disponible au format électronique, et peut être téléchargé à partir du portail des marchés publics.",
+  "adresseDepot": "les offres doivent être déposer électroniquement via le portail des marchés publics (www.marchespublics.gov.ma)",
+  "prixAcquisition": "0,00 MAD",
+  "contact": {
+    "nom": "Région Guelmim Oued Noun Direction générale des Service",
+    "email": "marches.rgon@gmail.com",
+    "tel": "0528772436",
+    "fax": "0528772099"
+  },
+  "dceUrl": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDemandeTelechargementDce&refConsultation=1036196&orgAcronyme=m8x",
+  "portalHref": "https://www.marchespublics.gov.ma/index.php?page=entreprise.EntrepriseDetailConsultation&refConsultation=1036196&orgAcronyme=m8x",
+  "dceSize": "Dossier de consultation - 12,44 Mo",
+  "counts": {
+    "cps": 1,
+    "rc": 1
+  },
+  "docs": [],
+  "seenAt": "2026-09-12T21:34:29.582525",
+  "source": "offer-analyzer"
+}
