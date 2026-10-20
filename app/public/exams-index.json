@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-20T09:49:43.249Z",
+  "updatedAt": "2026-10-20T20:18:39.082Z",
   "years": [
     2022,
     2023,
@@ -473,7 +473,7 @@
       "id": "emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072",
       "title": "Concours — Maître de conférences à la FSA Ouarzazate spécialité informatique embarquée et génie électrique",
       "company": "Université Ibn Zohr - Agadir",
-      "specialty": "informatique embarquée et génie électrique",
+      "specialty": "",
       "fonction": "Maître de conférences à la FSA Ouarzazate spécialité informatique embarquée et génie électrique",
       "city": "Ouarzazate",
       "url": "https://www.emploi-public.ma/fr/concours/details/7c1d769e-bc86-4ed8-a640-9a04a11e9072",
@@ -485,7 +485,7 @@
           "title": "Sujet 2022",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2022-sujet-v7.pdf",
-          "size": 9524
+          "size": 9577
         },
         {
           "year": 2022,
@@ -493,7 +493,7 @@
           "title": "Corrigé 2022",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2022-corrige-v7.pdf",
-          "size": 7057
+          "size": 7110
         },
         {
           "year": 2023,
@@ -501,7 +501,7 @@
           "title": "Sujet 2023",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2023-sujet-v7.pdf",
-          "size": 9559
+          "size": 9612
         },
         {
           "year": 2023,
@@ -509,7 +509,7 @@
           "title": "Corrigé 2023",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2023-corrige-v7.pdf",
-          "size": 7065
+          "size": 7118
         },
         {
           "year": 2024,
@@ -517,7 +517,7 @@
           "title": "Sujet 2024",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2024-sujet-v7.pdf",
-          "size": 9509
+          "size": 9562
         },
         {
           "year": 2024,
@@ -525,7 +525,7 @@
           "title": "Corrigé 2024",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2024-corrige-v7.pdf",
-          "size": 6983
+          "size": 7036
         },
         {
           "year": 2025,
@@ -533,7 +533,7 @@
           "title": "Sujet 2025",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2025-sujet-v7.pdf",
-          "size": 9463
+          "size": 9516
         },
         {
           "year": 2025,
@@ -541,7 +541,7 @@
           "title": "Corrigé 2025",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2025-corrige-v7.pdf",
-          "size": 6926
+          "size": 6979
         },
         {
           "year": 2026,
@@ -549,7 +549,7 @@
           "title": "Sujet 2026",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2026-sujet-v7.pdf",
-          "size": 9455
+          "size": 9508
         },
         {
           "year": 2026,
@@ -557,7 +557,7 @@
           "title": "Corrigé 2026",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072-2026-corrige-v7.pdf",
-          "size": 6907
+          "size": 6960
         }
       ]
     },
@@ -565,7 +565,7 @@
       "id": "emploi-public-18ddfeee-6114-4dc5-b266-503297e24986",
       "title": "Concours — Maître de conférences à la FSA Ouarzazate spécialité informatique",
       "company": "Université Ibn Zohr - Agadir",
-      "specialty": "informatique",
+      "specialty": "",
       "fonction": "Maître de conférences à la FSA Ouarzazate spécialité informatique",
       "city": "Ouarzazate",
       "url": "https://www.emploi-public.ma/fr/concours/details/18ddfeee-6114-4dc5-b266-503297e24986",
@@ -577,7 +577,7 @@
           "title": "Sujet 2022",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2022-sujet-v7.pdf",
-          "size": 9393
+          "size": 9481
         },
         {
           "year": 2022,
@@ -585,7 +585,7 @@
           "title": "Corrigé 2022",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2022-corrige-v7.pdf",
-          "size": 6927
+          "size": 7015
         },
         {
           "year": 2023,
@@ -593,7 +593,7 @@
           "title": "Sujet 2023",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2023-sujet-v7.pdf",
-          "size": 9428
+          "size": 9516
         },
         {
           "year": 2023,
@@ -601,7 +601,7 @@
           "title": "Corrigé 2023",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2023-corrige-v7.pdf",
-          "size": 6935
+          "size": 7023
         },
         {
           "year": 2024,
@@ -609,7 +609,7 @@
           "title": "Sujet 2024",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2024-sujet-v7.pdf",
-          "size": 9378
+          "size": 9466
         },
         {
           "year": 2024,
@@ -617,7 +617,7 @@
           "title": "Corrigé 2024",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2024-corrige-v7.pdf",
-          "size": 6853
+          "size": 6941
         },
         {
           "year": 2025,
@@ -625,7 +625,7 @@
           "title": "Sujet 2025",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2025-sujet-v7.pdf",
-          "size": 9332
+          "size": 9420
         },
         {
           "year": 2025,
@@ -633,7 +633,7 @@
           "title": "Corrigé 2025",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2025-corrige-v7.pdf",
-          "size": 6796
+          "size": 6884
         },
         {
           "year": 2026,
@@ -641,7 +641,7 @@
           "title": "Sujet 2026",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2026-sujet-v7.pdf",
-          "size": 9324
+          "size": 9412
         },
         {
           "year": 2026,
@@ -649,7 +649,7 @@
           "title": "Corrigé 2026",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2026-corrige-v7.pdf",
-          "size": 6777
+          "size": 6865
         }
       ]
     }

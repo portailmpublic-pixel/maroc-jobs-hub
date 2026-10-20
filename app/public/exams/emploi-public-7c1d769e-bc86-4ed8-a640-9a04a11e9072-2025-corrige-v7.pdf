@@ -260,13 +260,13 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /FR 3 0 R /FB 4 0 R >> >> /Contents 7 0 R >>
 endobj
 7 0 obj
-<< /Length 3101 >>
+<< /Length 3154 >>
 stream
 BT /FB 20 Tf 56.0 778.0 Td (Concours - Corrigé 2025) Tj ET
 BT /FR 10 Tf 56.0 745.6 Td (Maître de conférences à la FSA Ouarzazate spécialité informatique embarquée et génie) Tj ET
 BT /FR 10 Tf 56.0 731.4 Td (électrique) Tj ET
-BT /FR 10 Tf 56.0 717.2 Td (Organisme : Université Ibn Zohr - Agadir | Spécialité : informatique embarquée et génie) Tj ET
-BT /FR 10 Tf 56.0 703.0 Td (électrique) Tj ET
+BT /FR 10 Tf 56.0 717.2 Td (Organisme : Université Ibn Zohr - Agadir | Spécialité : Maître de conférences à la FSA) Tj ET
+BT /FR 10 Tf 56.0 703.0 Td (Ouarzazate spécialité informatique embarquée et génie électrique) Tj ET
 BT /FR 10 Tf 56.0 688.8 Td (Domaine : Informatique / Développement | À consulter après avoir traité le Sujet 2025.) Tj ET
 0.6 0.65 0.9 RG 0.8 w 56 674.6 m 539 674.6 l S
 BT /FB 13 Tf 56.0 656.6 Td (CORRIGÉ QCM - bonnes réponses) Tj ET
@@ -310,5 +310,5 @@ xref
 trailer
 << /Size 8 /Root 1 0 R >>
 startxref
-6703
+6756
 %%EOF
