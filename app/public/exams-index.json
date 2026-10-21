@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-20T20:18:39.082Z",
+  "updatedAt": "2026-10-21T09:50:56.989Z",
   "years": [
     2022,
     2023,
@@ -7,7 +7,7 @@
     2025,
     2026
   ],
-  "total": 7,
+  "total": 8,
   "offers": [
     {
       "id": "dreamjob-hassan1er",
@@ -194,282 +194,6 @@
       ]
     },
     {
-      "id": "emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804",
-      "title": "Concours — Technicien de 4ème grade - echelle 8",
-      "company": "Chambre de commerce d'industrie et de services de la région Souss Massa",
-      "specialty": "",
-      "fonction": "Technicien de 4ème grade - echelle 8",
-      "city": "Maroc",
-      "url": "https://www.emploi-public.ma/fr/concours/details/c1331468-dfd4-41bd-87cc-7fe369a80804",
-      "familyLabel": "Technique / Maintenance",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2022-sujet-v7.pdf",
-          "size": 9344
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2022-corrige-v7.pdf",
-          "size": 6827
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2023-sujet-v7.pdf",
-          "size": 9332
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2023-corrige-v7.pdf",
-          "size": 6798
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2024-sujet-v7.pdf",
-          "size": 9283
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2024-corrige-v7.pdf",
-          "size": 6776
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2025-sujet-v7.pdf",
-          "size": 9277
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2025-corrige-v7.pdf",
-          "size": 6772
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2026-sujet-v7.pdf",
-          "size": 9347
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-c1331468-dfd4-41bd-87cc-7fe369a80804-2026-corrige-v7.pdf",
-          "size": 6803
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc",
-      "title": "Concours — Administrateur 3ème grade - echelle 10",
-      "company": "Chambre de commerce d'industrie et de services de la région Souss Massa",
-      "specialty": "",
-      "fonction": "Administrateur 3ème grade - echelle 10",
-      "city": "Maroc",
-      "url": "https://www.emploi-public.ma/fr/concours/details/98bb6a45-de89-4080-8e03-d91f538653dc",
-      "familyLabel": "Administration / Gestion",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2022-sujet-v7.pdf",
-          "size": 9664
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2022-corrige-v7.pdf",
-          "size": 6949
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2023-sujet-v7.pdf",
-          "size": 9605
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2023-corrige-v7.pdf",
-          "size": 6853
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2024-sujet-v7.pdf",
-          "size": 9593
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2024-corrige-v7.pdf",
-          "size": 6828
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2025-sujet-v7.pdf",
-          "size": 9614
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2025-corrige-v7.pdf",
-          "size": 6850
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2026-sujet-v7.pdf",
-          "size": 9616
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-98bb6a45-de89-4080-8e03-d91f538653dc-2026-corrige-v7.pdf",
-          "size": 6849
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf",
-      "title": "Concours — Administrateur 3ème grade - echelle 10",
-      "company": "Chambre de commerce d'industrie et de services de la région Souss Massa",
-      "specialty": "",
-      "fonction": "Administrateur 3ème grade - echelle 10",
-      "city": "Maroc",
-      "url": "https://www.emploi-public.ma/fr/concours/details/70902cbf-8259-4c20-90b5-b5f383854ddf",
-      "familyLabel": "Administration / Gestion",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2022-sujet-v7.pdf",
-          "size": 9664
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2022-corrige-v7.pdf",
-          "size": 6949
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2023-sujet-v7.pdf",
-          "size": 9605
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2023-corrige-v7.pdf",
-          "size": 6853
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2024-sujet-v7.pdf",
-          "size": 9593
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2024-corrige-v7.pdf",
-          "size": 6828
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2025-sujet-v7.pdf",
-          "size": 9614
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2025-corrige-v7.pdf",
-          "size": 6850
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2026-sujet-v7.pdf",
-          "size": 9616
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-70902cbf-8259-4c20-90b5-b5f383854ddf-2026-corrige-v7.pdf",
-          "size": 6849
-        }
-      ]
-    },
-    {
       "id": "emploi-public-7c1d769e-bc86-4ed8-a640-9a04a11e9072",
       "title": "Concours — Maître de conférences à la FSA Ouarzazate spécialité informatique embarquée et génie électrique",
       "company": "Université Ibn Zohr - Agadir",
@@ -650,6 +374,374 @@
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-18ddfeee-6114-4dc5-b266-503297e24986-2026-corrige-v7.pdf",
           "size": 6865
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c",
+      "title": "Concours — Administrateur 2ème grade spécialité Informatique à l'ENSIASD TAROUDANT",
+      "company": "Université Ibn Zohr - Agadir",
+      "specialty": "Informatique à l&#039;ENSIASD TAROUDANT",
+      "fonction": "Administrateur 2ème grade spécialité Informatique à l'ENSIASD TAROUDANT",
+      "city": "Taroudant",
+      "url": "https://www.emploi-public.ma/fr/concours/details/2fb165a9-1388-49c5-a6a4-85674202f96c",
+      "familyLabel": "Informatique / Développement",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2022-sujet-v7.pdf",
+          "size": 9461
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2022-corrige-v7.pdf",
+          "size": 6995
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2023-sujet-v7.pdf",
+          "size": 9496
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2023-corrige-v7.pdf",
+          "size": 7003
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2024-sujet-v7.pdf",
+          "size": 9446
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2024-corrige-v7.pdf",
+          "size": 6921
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2025-sujet-v7.pdf",
+          "size": 9400
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2025-corrige-v7.pdf",
+          "size": 6864
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2026-sujet-v7.pdf",
+          "size": 9392
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-2fb165a9-1388-49c5-a6a4-85674202f96c-2026-corrige-v7.pdf",
+          "size": 6845
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9",
+      "title": "Concours — Technicien 3ème grade à la FMPA spécialité Gestion Des Entreprises",
+      "company": "Université Ibn Zohr - Agadir",
+      "specialty": "Gestion Des Entreprises",
+      "fonction": "Technicien 3ème grade à la FMPA spécialité Gestion Des Entreprises",
+      "city": "Agadir",
+      "url": "https://www.emploi-public.ma/fr/concours/details/d1e1e38c-271f-4f5d-9fec-3707d4525dc9",
+      "familyLabel": "Administration / Gestion",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2022-sujet-v7.pdf",
+          "size": 9599
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2022-corrige-v7.pdf",
+          "size": 6884
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2023-sujet-v7.pdf",
+          "size": 9540
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2023-corrige-v7.pdf",
+          "size": 6788
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2024-sujet-v7.pdf",
+          "size": 9528
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2024-corrige-v7.pdf",
+          "size": 6763
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2025-sujet-v7.pdf",
+          "size": 9549
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2025-corrige-v7.pdf",
+          "size": 6785
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2026-sujet-v7.pdf",
+          "size": 9551
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-d1e1e38c-271f-4f5d-9fec-3707d4525dc9-2026-corrige-v7.pdf",
+          "size": 6784
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-e20884c3-abda-45da-bffa-3299805568b8",
+      "title": "Concours — Ingénieur d'Etat 1er grade - echelle 11",
+      "company": "Ecole Nationale d’Agriculture de Meknès",
+      "specialty": "Sciences Agronomique spécialité : Production Végétale ou équivalent",
+      "fonction": "Ingénieur d'Etat 1er grade - echelle 11",
+      "city": "Meknès",
+      "url": "https://www.emploi-public.ma/fr/concours/details/e20884c3-abda-45da-bffa-3299805568b8",
+      "familyLabel": "Technique / Maintenance",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2022-sujet-v7.pdf",
+          "size": 9346
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2022-corrige-v7.pdf",
+          "size": 6829
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2023-sujet-v7.pdf",
+          "size": 9334
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2023-corrige-v7.pdf",
+          "size": 6800
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2024-sujet-v7.pdf",
+          "size": 9285
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2024-corrige-v7.pdf",
+          "size": 6778
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2025-sujet-v7.pdf",
+          "size": 9279
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2025-corrige-v7.pdf",
+          "size": 6774
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2026-sujet-v7.pdf",
+          "size": 9349
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-e20884c3-abda-45da-bffa-3299805568b8-2026-corrige-v7.pdf",
+          "size": 6805
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5",
+      "title": "Concours — Ingénieur d'Etat 1er grade - echelle 11",
+      "company": "Ecole Nationale d’Agriculture de Meknès",
+      "specialty": "Sciences Agronomique spécialité : Ingénierie du Développement Rural ou équivalent",
+      "fonction": "Ingénieur d'Etat 1er grade - echelle 11",
+      "city": "Meknès",
+      "url": "https://www.emploi-public.ma/fr/concours/details/c47ab8c9-b994-419e-aae9-846dd8a300e5",
+      "familyLabel": "Informatique / Développement",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2022-sujet-v7.pdf",
+          "size": 9482
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2022-corrige-v7.pdf",
+          "size": 7016
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2023-sujet-v7.pdf",
+          "size": 9517
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2023-corrige-v7.pdf",
+          "size": 7024
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2024-sujet-v7.pdf",
+          "size": 9467
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2024-corrige-v7.pdf",
+          "size": 6942
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2025-sujet-v7.pdf",
+          "size": 9421
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2025-corrige-v7.pdf",
+          "size": 6885
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2026-sujet-v7.pdf",
+          "size": 9413
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c47ab8c9-b994-419e-aae9-846dd8a300e5-2026-corrige-v7.pdf",
+          "size": 6866
         }
       ]
     }
