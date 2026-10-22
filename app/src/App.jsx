@@ -67,6 +67,48 @@ async function openLink(url) {
   window.open(url, '_blank', 'noopener');
 }
 
+// ---- Notifications téléphone (barre d'état Android) ----
+async function setupNotifications() {
+  try {
+    const cap = await import('@capacitor/core').catch(() => null);
+    if (!cap || !cap.Capacitor || !cap.Capacitor.isNativePlatform()) return;
+    const { LocalNotifications } = await import('@capacitor/local-notifications');
+    const perm = await LocalNotifications.checkPermissions();
+    if (perm.display !== 'granted') await LocalNotifications.requestPermissions();
+    try {
+      await LocalNotifications.createChannel({
+        id: 'updates',
+        name: 'Nouveautés ELASSOULI',
+        description: 'Nouvelles offres, marchés publics, concours et examens',
+        importance: 5,
+        visibility: 1,
+        vibration: true,
+      });
+    } catch {}
+  } catch {}
+}
+
+async function notifyPhone(title, body) {
+  try {
+    const cap = await import('@capacitor/core').catch(() => null);
+    if (!cap || !cap.Capacitor || !cap.Capacitor.isNativePlatform()) return false;
+    const { LocalNotifications } = await import('@capacitor/local-notifications');
+    const perm = await LocalNotifications.checkPermissions();
+    if (perm.display !== 'granted') return false;
+    await LocalNotifications.schedule({
+      notifications: [{
+        id: Math.floor(Math.random() * 2000000000),
+        title: String(title || 'ELASSOULI OFFERS').slice(0, 64),
+        body: String(body || 'Nouvelles offres disponibles').slice(0, 240),
+        channelId: 'updates',
+        schedule: { at: new Date(Date.now() + 400) },
+        autoCancel: true,
+      }],
+    });
+    return true;
+  } catch { return false; }
+}
+
 // Stage detection: backend category first, contract/title fallback (old snapshots)
 function isStageJob(j) {
   if (!j) return false;
@@ -401,6 +443,9 @@ function MainApp({ session, onLogout }) {
   const [examIndex, setExamIndex] = useState(null);
   const [examSelId, setExamSelId] = useState('');
   const [examQ, setExamQ] = useState('');
+  const [examFam, setExamFam] = useState('');
+  const [examYearF, setExamYearF] = useState('');
+  const [examOpen, setExamOpen] = useState(false);
   const [practiced, setPracticed] = useState(() => { try { return JSON.parse(localStorage.getItem('mjh_apk_practiced') || '{}'); } catch { return {}; } });
   // ---- Marchés Publics (Offer Analyzer data) ----
   const [marches, setMarches] = useState([]);
@@ -573,6 +618,19 @@ function MainApp({ session, onLogout }) {
         if (list.length || data.alerts) {
           setAlerts(list);
           setAlertsUpdated(data.updatedAt || '');
+          // Notification immédiate si l'alerte contient de vraies nouveautés
+          try {
+            const top = list[0];
+            if (top && top.at) {
+              const lastAt = localStorage.getItem('mjh_last_alert_at') || '';
+              const fresh = top.counts ? Number(top.counts.new || 0) > 0 : true;
+              localStorage.setItem('mjh_last_alert_at', top.at);
+              if (lastAt && top.at > lastAt && fresh) {
+                const body = String(top.body || '').split('\n').filter(Boolean).slice(0, 3).join(' • ').slice(0, 220);
+                notifyPhone(top.title || 'Alerte nouveautés', body || 'Nouvelles offres disponibles');
+              }
+            }
+          } catch {}
           return;
         }
       } catch {}
@@ -592,7 +650,14 @@ function MainApp({ session, onLogout }) {
             const data = await r.json();
             list = Array.isArray(data) ? data : data.jobs || [];
             upd = data.updatedAt || new Date().toISOString();
-            if (list.length) { setJobs(list); setUpdatedAt(upd); if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl); return; }
+            if (list.length) {
+              const prevCount = Number(localStorage.getItem('mjh_last_remote_jobs') || 0);
+              localStorage.setItem('mjh_last_remote_jobs', String(list.length));
+              if (prevCount > 0 && list.length > prevCount) {
+                notifyPhone(`Nouvelles offres • ${list.length - prevCount}`, `${list.length} offres suivies. Ouvrez ELASSOULI OFFERS pour les consulter.`);
+              }
+              setJobs(list); setUpdatedAt(upd); if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl); return;
+            }
           }
         } catch (e) { /* fallback local */ }
       }
@@ -607,7 +672,7 @@ function MainApp({ session, onLogout }) {
     }
   }
 
-  useEffect(() => { refresh(false); }, []);
+  useEffect(() => { setupNotifications(); refresh(false); }, []);
   // Auto-refresh: every 30 min + each time the app comes back to foreground
   useEffect(() => {
     const AUTO_MS = 30 * 60 * 1000;
@@ -712,11 +777,41 @@ function MainApp({ session, onLogout }) {
   }, [jobs]);
 
   const examOffers = useMemo(() => {
-    const list = (examIndex && examIndex.offers) || [];
-    if (!examQ.trim()) return list;
-    const s = examQ.trim().toLowerCase();
-    return list.filter((o) => [o.title, o.company, o.specialty, o.fonction].join(' ').toLowerCase().includes(s));
-  }, [examIndex, examQ]);
+    let list = (examIndex && examIndex.offers) || [];
+    if (examFam) list = list.filter((o) => o.familyLabel === examFam);
+    if (examYearF) list = list.filter((o) => o.files.some((f) => String(f.year) === String(examYearF)));
+    if (examQ.trim()) {
+      const s = examQ.trim().toLowerCase();
+      list = list.filter((o) => [o.title, o.company, o.specialty, o.fonction, o.familyLabel].join(' ').toLowerCase().includes(s));
+    }
+    return list;
+  }, [examIndex, examQ, examFam, examYearF]);
+
+  const examFamilies = useMemo(() => {
+    const m = {};
+    ((examIndex && examIndex.offers) || []).forEach((o) => { const k = o.familyLabel || 'Autres'; m[k] = (m[k] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [examIndex]);
+
+  const examTotals = useMemo(() => {
+    let sujets = 0, corriges = 0, years = 0;
+    ((examIndex && examIndex.offers) || []).forEach((o) => {
+      const ys = new Set();
+      o.files.forEach((f) => { ys.add(f.year); if (f.kind === 'corrige') corriges++; else sujets++; });
+      years += ys.size;
+    });
+    return { sujets, corriges, years };
+  }, [examIndex]);
+
+  const examPracticed = useMemo(() => {
+    let done = 0, total = 0;
+    ((examIndex && examIndex.offers) || []).forEach((o) => {
+      const ys = [...new Set(o.files.map((f) => f.year))];
+      total += ys.length;
+      done += ys.filter((y) => practiced[`${o.id}-${y}`]).length;
+    });
+    return { done, total };
+  }, [examIndex, practiced]);
 
   const examSel = useMemo(() => {
     const list = (examIndex && examIndex.offers) || [];
@@ -806,6 +901,7 @@ function MainApp({ session, onLogout }) {
     setTab(t);
     if (k !== undefined) setKind(k);
     setMenuOpen(false);
+    setExamOpen(false);
     setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false);
     setMSel(null); setMCat(''); setMVille(''); setMStatus('open'); setMType(''); setMRegion(''); setMKw('');
     try { window.scrollTo({ top: 0 }); } catch {}
@@ -1059,44 +1155,89 @@ function MainApp({ session, onLogout }) {
       )}
 
       {tab === 'exams' && (
-        <main className="feed">
-          <div className="panel" style={{ marginBottom: 10 }}>
-            <h3>Exams — sujets + corrigés ({examIndex ? examIndex.years[0] + '–' + examIndex.years[examIndex.years.length - 1] : ''})</h3>
-            <p className="muted">Mêmes dossiers que le web : sujet puis corrigé par année. Le téléchargement vient <b>directement du web</b>.</p>
-            <div className="searchbar" style={{ margin: '8px 0' }}>
-              <Icon n="search" size={18} /><input placeholder="Filtrer : concours, organisme…" value={examQ} onChange={(e) => setExamQ(e.target.value)} />
+        <main className="feed exams-page">
+          <div className="panel ex-hero">
+            <div className="ex-hero-top">
+              <div className="ex-hero-ic"><Icon n="file" size={24} /></div>
+              <div className="ex-hero-txt">
+                <h3>Exams &amp; Corrigés</h3>
+                <p className="muted">
+                  {examIndex
+                    ? `${examIndex.offers.length} concours • ${examIndex.years[examIndex.years.length - 1]}–${examIndex.years[0]} • sujet + corrigé`
+                    : 'Chargement des dossiers…'}
+                </p>
+              </div>
             </div>
-            <select className="remote" value={examSelId} onChange={(e) => setExamSelId(e.target.value)}>
-              {examOffers.map((o) => <option key={o.id} value={o.id}>{o.title} — {o.company}</option>)}
-            </select>
-            {!examIndex && <p className="muted">Chargement… touchez ↻.</p>}
+            <div className="ex-kpis">
+              <div className="ex-kpi"><b>{examTotals.sujets}</b><span>sujets</span></div>
+              <div className="ex-kpi green"><b>{examTotals.corriges}</b><span>corrigés</span></div>
+              <div className="ex-kpi blue"><b>{examPracticed.done}<i>/{examPracticed.total}</i></b><span>pratiqués</span></div>
+            </div>
+            <div className="searchbar ex-search">
+              <Icon n="search" size={18} />
+              <input placeholder="Concours, organisme, spécialité…" value={examQ} onChange={(e) => setExamQ(e.target.value)} />
+              {examQ && <button className="ex-clear" onClick={() => setExamQ('')} aria-label="Effacer"><Icon n="close" size={16} /></button>}
+            </div>
           </div>
-          {examSel && (
-            <div className="panel" style={{ marginBottom: 10 }}>
-              <h3>{examSel.title}</h3>
-              <p className="muted">{examSel.company}{examSel.specialty ? ` • ${examSel.specialty}` : ''} • {examSel.familyLabel}</p>
-              <p className="muted">{examYears.filter((y) => practiced[`${examSel.id}-${y}`]).length}/{examYears.length} pratiqués</p>
-              <div className="bt" style={{ margin: '0 0 10px' }}><div className="bf g" style={{ width: (examYears.length ? (examYears.filter((y) => practiced[`${examSel.id}-${y}`]).length / examYears.length) * 100 : 0) + '%' }} /></div>
-              {dlMsg && <p className="chip b-orange" style={{ margin: '6px 0' }}>{dlMsg}</p>}
-              {examYears.map((y) => {
-                const sujet = examSel.files.find((f) => f.year === y && f.kind !== 'corrige');
-                const corrige = examSel.files.find((f) => f.year === y && f.kind === 'corrige');
-                const done = !!practiced[`${examSel.id}-${y}`];
-                const q = encodeURIComponent(`concours ${examSel.company} ${examSel.specialty || examSel.fonction || ''} épreuve PDF ${y} Maroc`.replace(/\s+/g, ' ').trim());
-                return (
-                  <div className="panel" key={y} style={{ margin: '8px 0', opacity: done ? 0.85 : 1 }}>
-                    <h3>{y} {done && <span className="chip b-green"><Icon n="check" size={12} />Pratiqué</span>}</h3>
-                    {sujet && <div className="row"><span className="chip">Sujet</span><button className="apply" onClick={() => openLink(examFileUrl(sujet))}><Icon n="eye" size={16} /> Voir</button><button className="ghost" onClick={() => downloadExamFile(sujet, `${examSel.company}-${y}-sujet`)}><Icon n="download" size={16} /> Télécharger</button></div>}
-                    {corrige && <div className="row" style={{ marginTop: 6 }}><span className="chip blue">Corrigé</span><button className="apply" onClick={() => openLink(examFileUrl(corrige))}><Icon n="eye" size={16} /> Voir</button><button className="ghost" onClick={() => downloadExamFile(corrige, `${examSel.company}-${y}-corrige`)}><Icon n="download" size={16} /> Télécharger</button></div>}
-                    {corrige && <p className="muted">Corrigé à consulter après l'épreuve.</p>}
-                    <div className="row" style={{ marginTop: 6 }}>
-                      <button className="ghost" onClick={() => openLink(`https://www.google.com/search?q=${q}+filetype:pdf`)}><Icon n="search" size={16} /> Sujet officiel</button>
-                      <button className="ghost" onClick={() => togglePracticed(examSel.id, y)}>{done ? 'À refaire' : 'Marquer pratiqué'}</button>
-                    </div>
-                  </div>
-                );
-              })}
+
+          {((examIndex && examIndex.years) || []).length > 0 && (
+            <div className="filters ex-filters">
+              <span className="kw-label"><Icon n="calendar" size={13} /> Année</span>
+              <button className={'fchip' + (!examYearF ? ' active' : '')} onClick={() => setExamYearF('')}>Toutes</button>
+              {examIndex.years.map((y) => (
+                <button key={y} className={'fchip' + (String(examYearF) === String(y) ? ' active' : '')} onClick={() => setExamYearF(String(examYearF) === String(y) ? '' : String(y))}>{y}</button>
+              ))}
             </div>
+          )}
+
+          {examFamilies.length > 0 && (
+            <div className="kw-row ex-fam-row">
+              <span className="kw-label"><Icon n="target" size={13} /> Filière</span>
+              <button className={'kw-chip' + (!examFam ? ' active' : '')} onClick={() => setExamFam('')}>Toutes</button>
+              {examFamilies.map(([f, n]) => (
+                <button key={f} className={'kw-chip' + (examFam === f ? ' active' : '')} onClick={() => setExamFam(examFam === f ? '' : f)}>{f} ({n})</button>
+              ))}
+            </div>
+          )}
+
+          {!examIndex && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div className="skeleton" key={i} />)}</div>}
+          {examIndex && examOffers.length === 0 && (
+            <div className="empty">Aucun exam ne correspond à ces filtres. Touchez ↻ pour actualiser.</div>
+          )}
+
+          <div className="exam-grid">
+            {examOffers.map((o) => {
+              const ys = [...new Set(o.files.map((f) => f.year))].sort((a, b) => b - a);
+              const done = ys.filter((y) => practiced[`${o.id}-${y}`]).length;
+              const pct = ys.length ? Math.round((done / ys.length) * 100) : 0;
+              const sujets = o.files.filter((f) => f.kind !== 'corrige').length;
+              const corriges = o.files.filter((f) => f.kind === 'corrige').length;
+              return (
+                <article className="card exam-card" key={o.id} onClick={() => { setExamSelId(o.id); setExamOpen(true); }}>
+                  <div className="ex-card-top">
+                    <div className="ex-badge"><Icon n="landmark" size={20} /></div>
+                    <div className="ex-card-title">
+                      <h3>{o.title}</h3>
+                      <p className="ex-org">{o.company}</p>
+                    </div>
+                    <span className={'ex-pct' + (pct === 100 ? ' full' : '')}>{pct}%</span>
+                  </div>
+                  <div className="chips">
+                    {o.familyLabel && <span className="chip blue">{o.familyLabel}</span>}
+                    <span className="chip">{ys.length} années</span>
+                    <span className="chip muted">{sujets} sujets • {corriges} corrigés</span>
+                  </div>
+                  <div className="ex-prog">
+                    <div className="bt"><div className="bf g" style={{ width: pct + '%' }} /></div>
+                    <span>{done}/{ys.length}</span>
+                  </div>
+                  <div className="ex-open">Ouvrir les sujets <Icon n="arrow" size={14} /></div>
+                </article>
+              );
+            })}
+          </div>
+          {examIndex && examOffers.length > 0 && (
+            <p className="more">Touchez un concours pour voir les sujets et corrigés par année.</p>
           )}
         </main>
       )}
@@ -1288,6 +1429,80 @@ function MainApp({ session, onLogout }) {
                   </div>
                 )}
                 <p className="muted">Source : Offer Analyzer (marchespublics.gov.ma) • {mSel.seenAt ? `détecté le ${mSel.seenAt.slice(0, 10)}` : ''}</p>
+              </div>
+            </div>
+          </>
+        );
+      })()}
+
+      {examOpen && examSel && (() => {
+        const ys = examYears;
+        const doneCount = ys.filter((y) => practiced[`${examSel.id}-${y}`]).length;
+        const pct = ys.length ? Math.round((doneCount / ys.length) * 100) : 0;
+        return (
+          <>
+            <div className="sheet-overlay" onClick={() => setExamOpen(false)} aria-hidden="true" />
+            <div className="sheet exam-sheet" role="dialog" aria-modal="true" aria-label={`Examens ${examSel.title}`}>
+              <div className="sheet-handle" />
+              <div className="sheet-head">
+                <div className="ex-badge"><Icon n="file" size={20} /></div>
+                <div className="chead">
+                  <h3>{examSel.title}</h3>
+                  <div className="csub meta"><span><Icon n="building" size={14} />{examSel.company}</span>{examSel.specialty && <span><Icon n="target" size={14} />{examSel.specialty}</span>}</div>
+                  <div className="chips">
+                    {examSel.familyLabel && <span className="chip blue">{examSel.familyLabel}</span>}
+                    <span className="chip b-green">{doneCount}/{ys.length} pratiqués</span>
+                  </div>
+                </div>
+                <button className="sheet-close" onClick={() => setExamOpen(false)} aria-label="Fermer"><Icon n="close" size={18} /></button>
+              </div>
+              <div className="sheet-body">
+                <div className="ex-sheet-prog">
+                  <div className="bt"><div className="bf g" style={{ width: pct + '%' }} /></div>
+                  <b>{pct}%</b>
+                </div>
+                {dlMsg && <p className="chip b-orange" style={{ margin: '0 0 10px' }}>{dlMsg}</p>}
+                {ys.map((y) => {
+                  const sujet = examSel.files.find((f) => f.year === y && f.kind !== 'corrige');
+                  const corrige = examSel.files.find((f) => f.year === y && f.kind === 'corrige');
+                  const done = !!practiced[`${examSel.id}-${y}`];
+                  const q = encodeURIComponent(`concours ${examSel.company} ${examSel.specialty || examSel.fonction || ''} épreuve PDF ${y} Maroc`.replace(/\s+/g, ' ').trim());
+                  return (
+                    <div className="panel ex-year" key={y}>
+                      <div className="ex-year-head">
+                        <b className="ex-year-num">{y}</b>
+                        {done ? <span className="chip b-green"><Icon n="check" size={12} />Pratiqué</span> : <span className="chip muted">À faire</span>}
+                        <button className="ghost sm ex-mark" onClick={() => togglePracticed(examSel.id, y)}>{done ? 'À refaire' : 'Pratiqué ✓'}</button>
+                      </div>
+                      {(sujet || corrige) ? (
+                        <>
+                          {sujet && (
+                            <div className="ex-file">
+                              <span className="ex-tag">Sujet</span>
+                              <span className="ex-file-meta">{sujet.detail || (sujet.size ? Math.round(sujet.size / 1024) + ' Ko' : 'PDF')}</span>
+                              <div className="ex-file-btns">
+                                <button className="ghost sm" onClick={() => openLink(examFileUrl(sujet))}><Icon n="eye" size={15} /> Voir</button>
+                                <button className="apply sm" onClick={() => downloadExamFile(sujet, `${examSel.company}-${y}-sujet`)}><Icon n="download" size={15} /> PDF</button>
+                              </div>
+                            </div>
+                          )}
+                          {corrige && (
+                            <div className="ex-file corrige">
+                              <span className="ex-tag blue">Corrigé</span>
+                              <span className="ex-file-meta">{corrige.detail || (corrige.size ? Math.round(corrige.size / 1024) + ' Ko' : 'PDF')}</span>
+                              <div className="ex-file-btns">
+                                <button className="ghost sm" onClick={() => openLink(examFileUrl(corrige))}><Icon n="eye" size={15} /> Voir</button>
+                                <button className="apply sm" onClick={() => downloadExamFile(corrige, `${examSel.company}-${y}-corrige`)}><Icon n="download" size={15} /> PDF</button>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      ) : <p className="muted">Aucun fichier pour cette année.</p>}
+                      <button className="ex-official" onClick={() => openLink(`https://www.google.com/search?q=${q}+filetype:pdf`)}><Icon n="search" size={15} /> Chercher le sujet officiel</button>
+                    </div>
+                  );
+                })}
+                <p className="muted ex-sheet-foot">Téléchargement direct • les fichiers s’ouvrent aussi dans le lecteur PDF du téléphone.</p>
               </div>
             </div>
           </>
