@@ -3,6 +3,71 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 const DEFAULT_REMOTE = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/jobs.json';
 const LS_REMOTE = 'mjh_remote_url';
 const LS_SEEN = 'mjh_alerts_seen';
+const LS_CACHE = 'mjh_cache_';
+
+function readCached(key, fallback) {
+  try {
+    const v = localStorage.getItem(LS_CACHE + key);
+    return v ? JSON.parse(v) : fallback;
+  } catch { return fallback; }
+}
+
+function writeCached(key, val) {
+  try {
+    localStorage.setItem(LS_CACHE + key, JSON.stringify(val));
+  } catch {
+    // Quota dépassé : on libère les grosses données et on garde l'essentiel
+    try { localStorage.removeItem(LS_CACHE + 'jobs'); } catch {}
+  }
+}
+
+let BOOT = null;
+function bootCache() {
+  if (!BOOT) {
+    BOOT = {
+      jobs: readCached('jobs', []),
+      jobsUpdated: readCached('jobsUpdated', ''),
+      alerts: readCached('alerts', []),
+      alertsUpdated: readCached('alertsUpdated', ''),
+      exams: readCached('exams', null),
+      marches: readCached('marches', []),
+      marchesUpdated: readCached('marchesUpdated', ''),
+    };
+  }
+  return BOOT;
+}
+
+async function fetchJSON(url, timeoutMs = 12000) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => { try { ctrl.abort(); } catch {} }, timeoutMs);
+  try {
+    const r = await fetch(url, { cache: 'default', signal: ctrl.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// Premier serveur qui répond gagne : indispensable en connexion faible
+// (le distant peut traîner, la copie embarquée répond tout de suite).
+function fetchFirst(urls, timeoutMs = 9000) {
+  return new Promise((resolve, reject) => {
+    const list = (urls || []).filter(Boolean);
+    if (!list.length) { reject(new Error('offline')); return; }
+    let pending = list.length;
+    let settled = false;
+    list.forEach(async (u) => {
+      try {
+        const data = await fetchJSON(u, timeoutMs);
+        if (!settled) { settled = true; resolve(data); }
+      } catch {
+        pending -= 1;
+        if (pending === 0 && !settled) { settled = true; reject(new Error('offline')); }
+      }
+    });
+  });
+}
 
 const ICONS = {
   menu: <path d="M4 7h16M4 12h10M4 17h16" />,
@@ -28,6 +93,7 @@ const ICONS = {
   plug: <path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4" />,
   scale: <><path d="M12 3v3M7 6l-3.2 6.4a3.2 3.2 0 0 0 6.4 0L7 6zM17 6l-3.2 6.4a3.2 3.2 0 0 0 6.4 0L17 6zM8.5 21h7M12 12v9" /></>,
   mail: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m3.5 8 8.5 6 8.5-6" /></>,
+  wifi: <><path d="M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10.5 16.4a3 3 0 0 1 3 0M12 20h.01" /></>,
   phone: <path d="M5 4h4l1.8 4.2-2.2 1.4a11.5 11.5 0 0 0 4.8 4.8l1.4-2.2L19 14v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />,
   gavel: <><path d="m5 9 4 4M9.5 4.5 14 9M12.5 7.5l4.5 4.5M4 20h9M15 14l5-5M18.5 17.5 21 15" /></>,
 };
@@ -35,6 +101,27 @@ const ICONS = {
 function Icon({ n, size = 20 }) {
   return (
     <svg className="ic" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ICONS[n]}</svg>
+  );
+}
+
+function SplashIntro() {
+  return (
+    <div className="splash-intro" aria-hidden="true">
+      <div className="splash-glow" />
+      <div className="splash-rings">
+        <span className="splash-ring r1" />
+        <span className="splash-ring r2" />
+      </div>
+      <div className="splash-badge-wrap">
+        <img src="./app-icon.png" alt="" className="splash-badge" />
+        <span className="splash-shine" />
+      </div>
+      <div className="splash-word">
+        <span className="splash-name">ASSOULI <b>AUTOX</b></span>
+        <span className="splash-tag">Offres • Marchés • Concours • Exams</span>
+      </div>
+      <div className="splash-bar"><span /></div>
+    </div>
   );
 }
 
@@ -78,7 +165,7 @@ async function setupNotifications() {
     try {
       await LocalNotifications.createChannel({
         id: 'updates',
-        name: 'Nouveautés ELASSOULI',
+        name: 'Nouveautés ASSOULI',
         description: 'Nouvelles offres, marchés publics, concours et examens',
         importance: 5,
         visibility: 1,
@@ -142,7 +229,7 @@ function writeSession(s) { try { localStorage.setItem(LS_SESSION, JSON.stringify
 function clearSession() { try { localStorage.removeItem(LS_SESSION); } catch {} }
 
 async function hashPassword(password, salt) {
-  const data = `${salt}::${password}::elassouli-offers`;
+  const data = `${salt}::${password}::ASSOULI-AUTOX`;
   try {
     if (window.crypto && window.crypto.subtle) {
       const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
@@ -207,7 +294,6 @@ function AuthScreen({ onAuthed }) {
     const r = await sendVerificationEmail({ to: target, code, name });
     setBusy(false);
     if (r.ok) {
-      setInfo(`Code envoyé à ${target} depuis portailm.public@gmail.com`);
       setMode(kind);
       return true;
     }
@@ -299,7 +385,7 @@ function AuthScreen({ onAuthed }) {
     <div className="auth-wrap">
       <div className="auth-card">
         <img src="./app-icon.png" alt="ASSOULI AUTOX" className="auth-logo" />
-        <h1 className="auth-title">ELASSOULI <b>OFFERS</b></h1>
+        <h1 className="auth-title">ASSOULI <b>AUTOX</b></h1>
         <p className="auth-sub">Plateforme sécurisée — offres d'emploi, marchés publics, concours & exams</p>
 
         <div className="auth-tabs">
@@ -309,7 +395,7 @@ function AuthScreen({ onAuthed }) {
 
         {mode === 'signup' && (
           <label className="auth-field"><span>Nom complet</span>
-            <input className="auth-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex : Soulaymane Elassouli" autoComplete="name" />
+            <input className="auth-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex : Soulaymane ASSOULI" autoComplete="name" />
           </label>
         )}
 
@@ -321,9 +407,32 @@ function AuthScreen({ onAuthed }) {
 
         {isVerify && (
           <>
-            <p className="auth-note"><Icon n="mail" size={16} /> Code envoyé à <b>{codeInfo ? codeInfo.email : email}</b> par <b>portailm.public@gmail.com</b></p>
-            <label className="auth-field"><span>Code de vérification (6 chiffres)</span>
-              <input className="auth-input auth-code" value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="••••••" inputMode="numeric" autoComplete="one-time-code" />
+            <div className="auth-sent">
+              <span className="auth-sent-ic"><Icon n="mail" size={18} /></span>
+              <div className="auth-sent-body">
+                <b>Code envoyé</b>
+                <span className="auth-sent-mail">{codeInfo ? codeInfo.email : email}</span>
+                <span className="auth-sent-from">depuis portailm.public@gmail.com · vérifiez aussi les spams</span>
+              </div>
+              <span className="auth-sent-ok"><Icon n="check" size={13} /></span>
+            </div>
+            <label className="auth-field auth-code-field"><span>Code de vérification</span>
+              <div className="auth-otp">
+                <div className="auth-otp-boxes" aria-hidden="true">
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <span key={i} className={'auth-otp-box' + (codeInput[i] ? ' filled' : '') + (i === codeInput.length ? ' cur' : '')}>{codeInput[i] || ''}</span>
+                  ))}
+                </div>
+                <input
+                  className="auth-otp-input"
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  aria-label="Code de vérification à 6 chiffres"
+                />
+              </div>
             </label>
           </>
         )}
@@ -421,9 +530,11 @@ const MKEYWORDS = [
 ];
 
 function MainApp({ session, onLogout }) {
-  const [jobs, setJobs] = useState([]);
-  const [updatedAt, setUpdatedAt] = useState('');
-  const [loading, setLoading] = useState(true);
+  const boot = bootCache();
+  const [jobs, setJobs] = useState(boot.jobs || []);
+  const [updatedAt, setUpdatedAt] = useState(boot.jobsUpdated || '');
+  const [loading, setLoading] = useState(!(boot.jobs || []).length);
+  const [offline, setOffline] = useState(() => { try { return !navigator.onLine; } catch { return false; } });
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('dash');
   const [kind, setKind] = useState('all');
@@ -434,13 +545,13 @@ function MainApp({ session, onLogout }) {
   const [urgentOnly, setUrgentOnly] = useState(false);
   const [toast, setToast] = useState('');
   const [remote, setRemote] = useState(() => { try { return localStorage.getItem(LS_REMOTE) || DEFAULT_REMOTE; } catch { return DEFAULT_REMOTE; } });
-  const [alerts, setAlerts] = useState([]);
-  const [alertsUpdated, setAlertsUpdated] = useState('');
+  const [alerts, setAlerts] = useState(boot.alerts || []);
+  const [alertsUpdated, setAlertsUpdated] = useState(boot.alertsUpdated || '');
   const [seen, setSeen] = useState(() => { try { return localStorage.getItem(LS_SEEN) || ''; } catch { return ''; } });
   const [menuOpen, setMenuOpen] = useState(false);
   const [dlMsg, setDlMsg] = useState('');
   // ---- Exams (same Sujet + Corrige data as the web app) ----
-  const [examIndex, setExamIndex] = useState(null);
+  const [examIndex, setExamIndex] = useState(boot.exams || null);
   const [examSelId, setExamSelId] = useState('');
   const [examQ, setExamQ] = useState('');
   const [examFam, setExamFam] = useState('');
@@ -448,8 +559,8 @@ function MainApp({ session, onLogout }) {
   const [examOpen, setExamOpen] = useState(false);
   const [practiced, setPracticed] = useState(() => { try { return JSON.parse(localStorage.getItem('mjh_apk_practiced') || '{}'); } catch { return {}; } });
   // ---- Marchés Publics (Offer Analyzer data) ----
-  const [marches, setMarches] = useState([]);
-  const [marchesUpdated, setMarchesUpdated] = useState('');
+  const [marches, setMarches] = useState(boot.marches || []);
+  const [marchesUpdated, setMarchesUpdated] = useState(boot.marchesUpdated || '');
   const [mStatus, setMStatus] = useState('open');
   const [mCat, setMCat] = useState('');
   const [mVille, setMVille] = useState('');
@@ -541,14 +652,14 @@ function MainApp({ session, onLogout }) {
     const base = remoteBase(remoteUrl);
     const urls = base ? [base + '/marches.json'] : [];
     urls.push('./marches.json');
-    for (const u of urls) {
-      try {
-        const r = await fetch(u, { cache: 'no-store' });
-        if (!r.ok) continue;
-        const data = await r.json();
-        if (data && data.offers) { setMarches(data.offers); setMarchesUpdated(data.updatedAt || ''); return; }
-      } catch {}
-    }
+    try {
+      const data = await fetchFirst(urls, 9000);
+      const list = data.AUTOX || data.offers || (Array.isArray(data) ? data : []);
+      if (list.length) {
+        setMarches(list); setMarchesUpdated(data.updatedAt || '');
+        writeCached('marches', list); writeCached('marchesUpdated', data.updatedAt || '');
+      }
+    } catch {}
   }
 
   // Direct-from-web file URL: Supabase absolute url first, else remote/bundled copy
@@ -563,18 +674,16 @@ function MainApp({ session, onLogout }) {
     const base = remoteBase(remoteUrl);
     const urls = base ? [base + '/exams-index.json'] : [];
     urls.push('./exams-index.json');
-    for (const u of urls) {
-      try {
-        const r = await fetch(u, { cache: 'no-store' });
-        if (!r.ok) continue;
-        const data = await r.json();
-        if (data && data.offers) {
-          setExamIndex(data);
-          if (!examSelId && data.offers.length) setExamSelId(data.offers[0].id);
-          return;
-        }
-      } catch {}
-    }
+    try {
+      const data = await fetchFirst(urls, 9000);
+      const offers = data.AUTOX || data.offers || (Array.isArray(data) ? data : []);
+      if (offers.length) {
+        const idx = data.AUTOX ? data : { ...data, AUTOX: offers };
+        setExamIndex(idx);
+        writeCached('exams', idx);
+        if (!examSelId && offers.length) setExamSelId(offers[0].id);
+      }
+    } catch {}
   }
   const [spin, setSpin] = useState(0);
   const startY = useRef(0);
@@ -594,9 +703,7 @@ function MainApp({ session, onLogout }) {
   function showToast(t) { setToast(t); setTimeout(() => setToast(''), 2600); }
 
   async function loadBundled() {
-    const r = await fetch('./jobs.json', { cache: 'no-store' });
-    if (!r.ok) throw new Error('jobs.json introuvable');
-    const data = await r.json();
+    const data = await fetchJSON('./jobs.json', 8000);
     const list = Array.isArray(data) ? data : data.jobs || [];
     return { list, updatedAt: data.updatedAt || '' };
   }
@@ -609,32 +716,29 @@ function MainApp({ session, onLogout }) {
       if (!/alerts\.json/.test(urls[0])) urls.push(base.replace(/[^/]*$/, 'alerts.json'));
     }
     urls.push('./alerts.json');
-    for (const u of urls) {
-      try {
-        const r = await fetch(u, { cache: 'no-store' });
-        if (!r.ok) continue;
-        const data = await r.json();
-        const list = Array.isArray(data) ? data : data.alerts || [];
-        if (list.length || data.alerts) {
-          setAlerts(list);
-          setAlertsUpdated(data.updatedAt || '');
-          // Notification immédiate si l'alerte contient de vraies nouveautés
-          try {
-            const top = list[0];
-            if (top && top.at) {
-              const lastAt = localStorage.getItem('mjh_last_alert_at') || '';
-              const fresh = top.counts ? Number(top.counts.new || 0) > 0 : true;
-              localStorage.setItem('mjh_last_alert_at', top.at);
-              if (lastAt && top.at > lastAt && fresh) {
-                const body = String(top.body || '').split('\n').filter(Boolean).slice(0, 3).join(' • ').slice(0, 220);
-                notifyPhone(top.title || 'Alerte nouveautés', body || 'Nouvelles offres disponibles');
-              }
+    try {
+      const data = await fetchFirst(urls, 9000);
+      const list = Array.isArray(data) ? data : data.alerts || [];
+      if (list.length || data.alerts) {
+        setAlerts(list);
+        setAlertsUpdated(data.updatedAt || '');
+        writeCached('alerts', list);
+        writeCached('alertsUpdated', data.updatedAt || '');
+        // Notification immédiate si l'alerte contient de vraies nouveautés
+        try {
+          const top = list[0];
+          if (top && top.at) {
+            const lastAt = localStorage.getItem('mjh_last_alert_at') || '';
+            const fresh = top.counts ? Number(top.counts.new || 0) > 0 : true;
+            localStorage.setItem('mjh_last_alert_at', top.at);
+            if (lastAt && top.at > lastAt && fresh) {
+              const body = String(top.body || '').split('\n').filter(Boolean).slice(0, 3).join(' • ').slice(0, 220);
+              notifyPhone(top.title || 'Alerte nouveautés', body || 'Nouvelles offres disponibles');
             }
-          } catch {}
-          return;
-        }
-      } catch {}
-    }
+          }
+        } catch {}
+      }
+    } catch {}
   }
 
   async function refresh(manual = true, silent = false) {
@@ -645,34 +749,50 @@ function MainApp({ session, onLogout }) {
       const remoteUrl = (remote || '').trim();
       if (remoteUrl) {
         try {
-          const r = await fetch(remoteUrl, { cache: 'no-store' });
-          if (r.ok) {
-            const data = await r.json();
-            list = Array.isArray(data) ? data : data.jobs || [];
-            upd = data.updatedAt || new Date().toISOString();
-            if (list.length) {
-              const prevCount = Number(localStorage.getItem('mjh_last_remote_jobs') || 0);
-              localStorage.setItem('mjh_last_remote_jobs', String(list.length));
-              if (prevCount > 0 && list.length > prevCount) {
-                notifyPhone(`Nouvelles offres • ${list.length - prevCount}`, `${list.length} offres suivies. Ouvrez ASSOULI AUTOX pour les consulter.`);
-              }
-              setJobs(list); setUpdatedAt(upd); if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl); return;
+          const data = await fetchJSON(remoteUrl);
+          list = Array.isArray(data) ? data : data.jobs || [];
+          upd = data.updatedAt || new Date().toISOString();
+          if (list.length) {
+            const prevCount = Number(localStorage.getItem('mjh_last_remote_jobs') || 0);
+            localStorage.setItem('mjh_last_remote_jobs', String(list.length));
+            if (prevCount > 0 && list.length > prevCount) {
+              notifyPhone(`Nouvelles offres • ${list.length - prevCount}`, `${list.length} offres suivies. Ouvrez ASSOULI AUTOX pour les consulter.`);
             }
+            setJobs(list); setUpdatedAt(upd); setOffline(false);
+            writeCached('jobs', list); writeCached('jobsUpdated', upd);
+            if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`);
+            loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl); return;
           }
-        } catch (e) { /* fallback local */ }
+        } catch (e) { /* réseau faible → cache local */ }
       }
-      const b = await loadBundled();
-      setJobs(b.list); setUpdatedAt(b.updatedAt);
-      if (!silent) showToast(`Actualisé • ${b.list.length} offres`);
+      // Réseau faible / hors ligne : on garde la dernière synchro enregistrée
+      const cached = readCached('jobs', []);
+      const cachedUpd = readCached('jobsUpdated', '');
+      if (cached.length) {
+        setJobs(cached); setUpdatedAt(cachedUpd); setOffline(true);
+        if (!silent) showToast(`Hors ligne • ${cached.length} offres enregistrées`);
+      } else {
+        const b = await loadBundled();
+        setJobs(b.list); setUpdatedAt(b.updatedAt); setOffline(true);
+        writeCached('jobs', b.list); writeCached('jobsUpdated', b.updatedAt);
+        if (!silent) showToast(`Mode hors ligne • ${b.list.length} offres`);
+      }
       loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl);
     } catch (e) {
-      if (!silent) showToast('Erreur actualisation: ' + e.message);
+      if (!silent) showToast('Réseau faible — données enregistrées affichées');
     } finally {
       setRefreshing(false); setLoading(false);
     }
   }
 
   useEffect(() => { setupNotifications(); refresh(false); }, []);
+  useEffect(() => {
+    const goOnline = () => { setOffline(false); refresh(false, true); };
+    const goOffline = () => setOffline(true);
+    window.addEventListener('online', goOnline);
+    window.addEventListener('offline', goOffline);
+    return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
+  }, [remote]);
   // Auto-refresh: every 30 min + each time the app comes back to foreground
   useEffect(() => {
     const AUTO_MS = 30 * 60 * 1000;
@@ -776,8 +896,8 @@ function MainApp({ session, onLogout }) {
     return { emploi, concours };
   }, [jobs]);
 
-  const examOffers = useMemo(() => {
-    let list = (examIndex && examIndex.offers) || [];
+  const examAUTOX = useMemo(() => {
+    let list = (examIndex && examIndex.AUTOX) || [];
     if (examFam) list = list.filter((o) => o.familyLabel === examFam);
     if (examYearF) list = list.filter((o) => o.files.some((f) => String(f.year) === String(examYearF)));
     if (examQ.trim()) {
@@ -789,13 +909,13 @@ function MainApp({ session, onLogout }) {
 
   const examFamilies = useMemo(() => {
     const m = {};
-    ((examIndex && examIndex.offers) || []).forEach((o) => { const k = o.familyLabel || 'Autres'; m[k] = (m[k] || 0) + 1; });
+    ((examIndex && examIndex.AUTOX) || []).forEach((o) => { const k = o.familyLabel || 'Autres'; m[k] = (m[k] || 0) + 1; });
     return Object.entries(m).sort((a, b) => b[1] - a[1]);
   }, [examIndex]);
 
   const examTotals = useMemo(() => {
     let sujets = 0, corriges = 0, years = 0;
-    ((examIndex && examIndex.offers) || []).forEach((o) => {
+    ((examIndex && examIndex.AUTOX) || []).forEach((o) => {
       const ys = new Set();
       o.files.forEach((f) => { ys.add(f.year); if (f.kind === 'corrige') corriges++; else sujets++; });
       years += ys.size;
@@ -805,7 +925,7 @@ function MainApp({ session, onLogout }) {
 
   const examPracticed = useMemo(() => {
     let done = 0, total = 0;
-    ((examIndex && examIndex.offers) || []).forEach((o) => {
+    ((examIndex && examIndex.AUTOX) || []).forEach((o) => {
       const ys = [...new Set(o.files.map((f) => f.year))];
       total += ys.length;
       done += ys.filter((y) => practiced[`${o.id}-${y}`]).length;
@@ -814,7 +934,7 @@ function MainApp({ session, onLogout }) {
   }, [examIndex, practiced]);
 
   const examSel = useMemo(() => {
-    const list = (examIndex && examIndex.offers) || [];
+    const list = (examIndex && examIndex.AUTOX) || [];
     return list.find((o) => o.id === examSelId) || null;
   }, [examIndex, examSelId]);
 
@@ -911,7 +1031,7 @@ function MainApp({ session, onLogout }) {
     <div className="phone" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {menuOpen && <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />}
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
-        <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><span><b>ELASSOULI</b> <em>OFFERS</em></span></div>
+        <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><span><b>ASSOULI</b> <em>AUTOX</em></span></div>
         <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
         <p className="muted">ASSOULI AUTOX • {stats.total} offres • {mStats.total} marchés publics • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
@@ -933,7 +1053,7 @@ function MainApp({ session, onLogout }) {
           <div className="brand-wrap">
             <button className="menu-btn" onClick={() => setMenuOpen(true)} title="Menu" aria-label="Menu"><Icon n="menu" /></button>
             <img src="./app-icon.png" alt="logo" className="brand-logo" />
-            <div className="brand"><b>ELASSOULI</b> <span>OFFERS</span></div>
+            <div className="brand"><b>ASSOULI</b> <span>AUTOX</span></div>
           </div>
           <div className="top-actions">
             <button className="refresh" onClick={() => setTab('setup')} title="Configuration" aria-label="Configuration"><Icon n="sliders" /></button>
@@ -941,6 +1061,11 @@ function MainApp({ session, onLogout }) {
           </div>
         </div>
       </header>
+      {offline && (
+        <div className="offline-chip" role="status">
+          <Icon n="wifi" size={14} /> Hors ligne — dernières données enregistrées
+        </div>
+      )}
       <section className="hero">
         <p className="hero-sub">ASSOULI AUTOX • offres, stages, concours & exams • actualisez à chaque ouverture</p>
         <div className="hero-stats">
@@ -1163,7 +1288,7 @@ function MainApp({ session, onLogout }) {
                 <h3>Exams &amp; Corrigés</h3>
                 <p className="muted">
                   {examIndex
-                    ? `${examIndex.offers.length} concours • ${examIndex.years[examIndex.years.length - 1]}–${examIndex.years[0]} • sujet + corrigé`
+                    ? `${examIndex.AUTOX.length} concours • ${examIndex.years[examIndex.years.length - 1]}–${examIndex.years[0]} • sujet + corrigé`
                     : 'Chargement des dossiers…'}
                 </p>
               </div>
@@ -1201,12 +1326,12 @@ function MainApp({ session, onLogout }) {
           )}
 
           {!examIndex && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div className="skeleton" key={i} />)}</div>}
-          {examIndex && examOffers.length === 0 && (
+          {examIndex && examAUTOX.length === 0 && (
             <div className="empty">Aucun exam ne correspond à ces filtres. Touchez ↻ pour actualiser.</div>
           )}
 
           <div className="exam-grid">
-            {examOffers.map((o) => {
+            {examAUTOX.map((o) => {
               const ys = [...new Set(o.files.map((f) => f.year))].sort((a, b) => b - a);
               const done = ys.filter((y) => practiced[`${o.id}-${y}`]).length;
               const pct = ys.length ? Math.round((done / ys.length) * 100) : 0;
@@ -1236,7 +1361,7 @@ function MainApp({ session, onLogout }) {
               );
             })}
           </div>
-          {examIndex && examOffers.length > 0 && (
+          {examIndex && examAUTOX.length > 0 && (
             <p className="more">Touchez un concours pour voir les sujets et corrigés par année.</p>
           )}
         </main>
@@ -1516,6 +1641,15 @@ function MainApp({ session, onLogout }) {
 
 export default function App() {
   const [session, setSession] = useState(() => readSession());
-  if (!session) return <AuthScreen onAuthed={setSession} />;
-  return <MainApp session={session} onLogout={() => { clearSession(); setSession(null); }} />;
+  const [intro, setIntro] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setIntro(false), 1700);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <>
+      {intro && <SplashIntro />}
+      {!session ? <AuthScreen onAuthed={setSession} /> : <MainApp session={session} onLogout={() => { clearSession(); setSession(null); }} />}
+    </>
+  );
 }
