@@ -77,7 +77,308 @@ function isStageJob(j) {
   return t.includes('stagiaire') || /(^|[\s(-])stage([\s).,-]|$)/.test(t);
 }
 
-export default function App() {
+// ============================================================
+//  AUTH — comptes locaux + code de vérification par e-mail
+//  L'e-mail est envoyé DEPUIS portailm.public@gmail.com (SMTP Gmail)
+//  via le plugin natif SmtpMail (Android).
+// ============================================================
+const LS_ACCOUNTS = 'mjh_accounts_v1';
+const LS_SESSION = 'mjh_session_v1';
+
+function loadAccounts() {
+  try { const a = JSON.parse(localStorage.getItem(LS_ACCOUNTS) || '[]'); return Array.isArray(a) ? a : []; } catch { return []; }
+}
+function saveAccounts(list) { try { localStorage.setItem(LS_ACCOUNTS, JSON.stringify(list)); } catch {} }
+function readSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(LS_SESSION) || 'null');
+    if (!s || !s.email) return null;
+    return loadAccounts().some((a) => a.email === s.email && a.verified) ? s : null;
+  } catch { return null; }
+}
+function writeSession(s) { try { localStorage.setItem(LS_SESSION, JSON.stringify(s)); } catch {} }
+function clearSession() { try { localStorage.removeItem(LS_SESSION); } catch {} }
+
+async function hashPassword(password, salt) {
+  const data = `${salt}::${password}::elassouli-offers`;
+  try {
+    if (window.crypto && window.crypto.subtle) {
+      const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
+      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch {}
+  let h1 = 0x811c9dc5, h2 = 0x1000193;
+  for (let i = 0; i < data.length; i++) {
+    const c = data.charCodeAt(i);
+    h1 ^= c; h1 = Math.imul(h1, 16777619);
+    h2 = (Math.imul(h2 ^ c, 2246822519) >>> 0);
+  }
+  return (h1 >>> 0).toString(16) + (h2 >>> 0).toString(16);
+}
+function newSalt() {
+  try { const a = new Uint8Array(16); window.crypto.getRandomValues(a); return Array.from(a).map((b) => b.toString(16).padStart(2, '0')).join(''); } catch { return String(Math.random()).slice(2) + Date.now().toString(16); }
+}
+function makeCode() { return String(Math.floor(100000 + Math.random() * 900000)); }
+function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e || '').trim()); }
+
+// Envoie le code DEPUIS portailm.public@gmail.com vers l'adresse de l'utilisateur.
+async function sendVerificationEmail({ to, code, name }) {
+  const cap = await import('@capacitor/core').catch(() => null);
+  if (cap && cap.Capacitor && typeof cap.Capacitor.isNativePlatform === 'function' && cap.Capacitor.isNativePlatform()) {
+    try {
+      const SmtpMail = cap.registerPlugin('SmtpMail');
+      await SmtpMail.send({ to, code, name: name || '' });
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: String((e && (e.message || e.error)) || e) };
+    }
+  }
+  return { ok: false, error: 'web' };
+}
+
+function AuthScreen({ onAuthed }) {
+  const [mode, setMode] = useState('login'); // login | signup | verify | reset | resetverify
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [codeInput, setCodeInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const [info, setInfo] = useState('');
+  const [codeInfo, setCodeInfo] = useState(null);
+  const [showPw, setShowPw] = useState(false);
+
+  function resetMsgs() { setErr(''); setInfo(''); }
+
+  function scaffold() {
+    // crée le code + envoie l'e-mail
+    const code = makeCode();
+    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: email.trim().toLowerCase() });
+    return code;
+  }
+
+  async function deliver(kind) {
+    const target = email.trim().toLowerCase();
+    setBusy(true); resetMsgs();
+    const code = scaffold();
+    const r = await sendVerificationEmail({ to: target, code, name });
+    setBusy(false);
+    if (r.ok) {
+      setInfo(`Code envoyé à ${target} depuis portailm.public@gmail.com`);
+      setMode(kind);
+      return true;
+    }
+    setErr(`Impossible d'envoyer l'e-mail : ${r.error === 'web' ? 'envoi disponible dans l’application Android' : r.error}`);
+    return false;
+  }
+
+  async function doSignup() {
+    resetMsgs();
+    if (name.trim().length < 2) return setErr('Entrez votre nom complet.');
+    if (!validEmail(email)) return setErr('Adresse e-mail invalide.');
+    if (password.length < 6) return setErr('Mot de passe : 6 caractères minimum.');
+    if (password !== confirm) return setErr('Les deux mots de passe ne correspondent pas.');
+    const target = email.trim().toLowerCase();
+    if (loadAccounts().some((a) => a.email === target)) return setErr('Un compte existe déjà avec cet e-mail. Connectez-vous.');
+    await deliver('verify');
+  }
+
+  async function completeSignup() {
+    resetMsgs();
+    if (!codeInfo) return setErr('Code expiré — renvoyez un code.');
+    if (Date.now() > codeInfo.exp) return setErr('Code expiré. Renvoyez un nouveau code.');
+    if (codeInput.trim() !== codeInfo.code) return setErr('Code incorrect. Vérifiez votre e-mail.');
+    const target = codeInfo.email;
+    const salt = newSalt();
+    const hash = await hashPassword(password, salt);
+    const accounts = loadAccounts().filter((a) => a.email !== target);
+    const acc = { name: name.trim(), email: target, salt, hash, verified: true, createdAt: new Date().toISOString() };
+    accounts.push(acc); saveAccounts(accounts);
+    const sess = { email: target, name: acc.name, since: new Date().toISOString() };
+    writeSession(sess);
+    onAuthed(sess);
+  }
+
+  async function doLogin() {
+    resetMsgs();
+    const target = email.trim().toLowerCase();
+    if (!validEmail(target)) return setErr('Adresse e-mail invalide.');
+    const acc = loadAccounts().find((a) => a.email === target);
+    if (!acc) return setErr('Aucun compte avec cet e-mail. Créez un compte.');
+    setBusy(true);
+    const h = await hashPassword(password, acc.salt);
+    setBusy(false);
+    if (h !== acc.hash) return setErr('Mot de passe incorrect.');
+    acc.lastLogin = new Date().toISOString();
+    saveAccounts(loadAccounts().map((a) => (a.email === target ? acc : a)));
+    const sess = { email: target, name: acc.name, since: new Date().toISOString() };
+    writeSession(sess);
+    onAuthed(sess);
+  }
+
+  async function doResetRequest() {
+    resetMsgs();
+    const target = email.trim().toLowerCase();
+    if (!validEmail(target)) return setErr('Adresse e-mail invalide.');
+    if (!loadAccounts().some((a) => a.email === target)) return setErr('Aucun compte avec cet e-mail.');
+    await deliver('resetverify');
+  }
+
+  async function completeReset() {
+    resetMsgs();
+    if (!codeInfo || Date.now() > codeInfo.exp) return setErr('Code expiré. Renvoyez un code.');
+    if (codeInput.trim() !== codeInfo.code) return setErr('Code incorrect.');
+    if (password.length < 6) return setErr('Nouveau mot de passe : 6 caractères minimum.');
+    if (password !== confirm) return setErr('Les deux mots de passe ne correspondent pas.');
+    const target = codeInfo.email;
+    const salt = newSalt();
+    const hash = await hashPassword(password, salt);
+    saveAccounts(loadAccounts().map((a) => (a.email === target ? { ...a, salt, hash, verified: true } : a)));
+    setInfo('Mot de passe mis à jour. Connectez-vous.');
+    setPassword(''); setConfirm(''); setCodeInput(''); setCodeInfo(null);
+    setMode('login');
+  }
+
+  async function resend() {
+    resetMsgs();
+    setBusy(true);
+    const code = makeCode();
+    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: email.trim().toLowerCase() });
+    const r = await sendVerificationEmail({ to: email.trim().toLowerCase(), code, name });
+    setBusy(false);
+    if (r.ok) setInfo('Nouveau code envoyé.');
+    else setErr(`Renvoi impossible${r.error === 'web' ? ' (application Android uniquement)' : ' : ' + r.error}`);
+  }
+
+  const isVerify = mode === 'verify' || mode === 'resetverify';
+
+  return (
+    <div className="auth-wrap">
+      <div className="auth-card">
+        <img src="./app-icon.png" alt="ELASSOULI OFFERS" className="auth-logo" />
+        <h1 className="auth-title">ELASSOULI <b>OFFERS</b></h1>
+        <p className="auth-sub">Plateforme sécurisée — offres d'emploi, marchés publics, concours & exams</p>
+
+        <div className="auth-tabs">
+          <button className={'auth-tab' + (mode === 'login' ? ' active' : '')} onClick={() => { setMode('login'); resetMsgs(); }}>Connexion</button>
+          <button className={'auth-tab' + (mode === 'signup' ? ' active' : '')} onClick={() => { setMode('signup'); resetMsgs(); }}>Créer un compte</button>
+        </div>
+
+        {mode === 'signup' && (
+          <label className="auth-field"><span>Nom complet</span>
+            <input className="auth-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex : Soulaymane Elassouli" autoComplete="name" />
+          </label>
+        )}
+
+        {!isVerify && (
+          <label className="auth-field"><span>Adresse e-mail</span>
+            <input className="auth-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="vous@exemple.com" autoComplete="email" inputMode="email" />
+          </label>
+        )}
+
+        {isVerify && (
+          <>
+            <p className="auth-note"><Icon n="mail" size={16} /> Code envoyé à <b>{codeInfo ? codeInfo.email : email}</b> par <b>portailm.public@gmail.com</b></p>
+            <label className="auth-field"><span>Code de vérification (6 chiffres)</span>
+              <input className="auth-input auth-code" value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="••••••" inputMode="numeric" autoComplete="one-time-code" />
+            </label>
+          </>
+        )}
+
+        {!isVerify && (
+          <label className="auth-field"><span>{mode === 'reset' ? 'Nouveau mot de passe' : 'Mot de passe'}</span>
+            <div className="auth-pw">
+              <input className="auth-input" type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+              <button className="auth-eye" type="button" onClick={() => setShowPw(!showPw)} aria-label="Afficher"><Icon n="eye" size={18} /></button>
+            </div>
+          </label>
+        )}
+
+        {(mode === 'signup' || mode === 'reset') && (
+          <label className="auth-field"><span>Confirmer le mot de passe</span>
+            <input className="auth-input" type={showPw ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" autoComplete="new-password" />
+          </label>
+        )}
+
+        {err && <div className="auth-error">{err}</div>}
+        {info && <div className="auth-ok">{info}</div>}
+
+        {mode === 'login' && (
+          <>
+            <button className="auth-btn" disabled={busy} onClick={doLogin}>{busy ? 'Connexion…' : 'Se connecter'}</button>
+            <button className="auth-link" onClick={() => { setMode('reset'); resetMsgs(); }}>Mot de passe oublié ?</button>
+          </>
+        )}
+        {mode === 'signup' && (
+          <>
+            <button className="auth-btn" disabled={busy} onClick={doSignup}>{busy ? 'Envoi du code…' : 'Créer mon compte'}</button>
+            <p className="auth-legal">Un code de vérification à 6 chiffres sera envoyé depuis portailm.public@gmail.com.</p>
+          </>
+        )}
+        {mode === 'verify' && (
+          <>
+            <button className="auth-btn" disabled={busy} onClick={completeSignup}>{busy ? 'Vérification…' : 'Vérifier et créer le compte'}</button>
+            <button className="auth-link" disabled={busy} onClick={resend}>Renvoyer le code</button>
+          </>
+        )}
+        {mode === 'reset' && (
+          <>
+            <button className="auth-btn" disabled={busy} onClick={doResetRequest}>{busy ? 'Envoi du code…' : 'Recevoir un code de réinitialisation'}</button>
+            <button className="auth-link" onClick={() => { setMode('login'); resetMsgs(); }}>Retour à la connexion</button>
+          </>
+        )}
+        {mode === 'resetverify' && (
+          <>
+            <button className="auth-btn" disabled={busy} onClick={completeReset}>Enregistrer le nouveau mot de passe</button>
+            <button className="auth-link" disabled={busy} onClick={resend}>Renvoyer le code</button>
+          </>
+        )}
+
+        <p className="auth-foot">Connexion sécurisée • code envoyé par e-mail • vos données restent sur l'appareil</p>
+      </div>
+    </div>
+  );
+}
+
+// ---- Marchés : régions du Maroc + mots-clés ----
+const MREGIONS = [
+  ['Tanger-Tétouan-Al Hoceïma', ['tanger', 'tetouan', 'larache', 'hoceima', 'chefchaouen', 'ouezzane', 'mdiq', 'fnideq', 'assilah', 'asilah', 'ksar el kebir', 'ksar kebir']],
+  ['Oriental', ['oujda', 'ouijda', 'nador', 'berkane', 'taourirt', 'jerada', 'figuig', 'guercif', 'driouch']],
+  ['Fès-Meknès', ['fes', 'meknes', 'taza', 'ifrane', 'boulemane', 'sefrou', 'taounate', 'hajeb', 'moulay yacoub']],
+  ['Rabat-Salé-Kénitra', ['rabat', 'sale', 'kenitra', 'skhirat', 'temara', 'tiflet', 'sidi kacem', 'sidi slimane', 'khemisset', 'khémisset']],
+  ['Béni Mellal-Khénifra', ['beni mellal', 'khouribga', 'fquih ben salah', 'khenifra', 'azilal']],
+  ['Casablanca-Settat', ['casablanca', 'mohammedia', 'settat', 'berrechid', 'jadida', 'sidi bennour', 'nouaceur', 'mediouna', 'benslimane']],
+  ['Marrakech-Safi', ['marrakech', 'safi', 'essaouira', 'kelaa', 'chichaoua', 'haouz', 'rechidia', 'youssoufia']],
+  ['Souss-Massa', ['agadir', 'inezgane', 'taroudant', 'tiznit', 'chtouka', 'ait melloul', 'biougra']],
+  ['Drâa-Tafilalet', ['errachidia', 'ouarzazate', 'zagora', 'tinghir', 'midelt']],
+  ['Guelmim-Oued Noun', ['guelmim', 'tan-tan', 'tan tan', 'sidi ifni', 'assa']],
+  ['Laâyoune-Sakia El Hamra', ['laayoune', 'laâyoune', 'boujdour', 'tarfaya']],
+  ['Dakhla-Oued Ed-Dahab', ['dakhla', 'aousserd', 'oued eddahab']],
+];
+function regionsOf(ville) {
+  const v = String(ville || '').toLowerCase();
+  if (!v.trim()) return [];
+  return MREGIONS.filter(([, keys]) => keys.some((k) => v.includes(k))).map(([r]) => r);
+}
+const MKEYWORDS = [
+  ['Topographie', ['topograph']],
+  ['Études', ['etude', 'étude']],
+  ['Travaux', ['travaux']],
+  ['Fournitures', ['fourniture']],
+  ['Services', ['service']],
+  ['Bâtiment', ['batiment', 'bâtiment']],
+  ['Routes', ['route', 'voirie']],
+  ['Eau', ['eau ', 'assainissement', 'abhm', 'abhs', 'abhb', 'abhd']],
+  ['Informatique', ['informatique', 'logiciel', 'système', 'systeme', 'digital']],
+  ['Formation', ['formation']],
+  ['Maintenance', ['maintenance', 'entretien']],
+  ['Audit', ['audit']],
+  ['Assistance', ['assistance', 'maîtrise', 'maitrise']],
+  ['Construction', ['construction', 'bâtiment', 'batiment']],
+];
+
+function MainApp({ session, onLogout }) {
   const [jobs, setJobs] = useState([]);
   const [updatedAt, setUpdatedAt] = useState('');
   const [loading, setLoading] = useState(true);
@@ -108,6 +409,9 @@ export default function App() {
   const [mCat, setMCat] = useState('');
   const [mVille, setMVille] = useState('');
   const [mSel, setMSel] = useState(null);
+  const [mType, setMType] = useState('');
+  const [mRegion, setMRegion] = useState('');
+  const [mKw, setMKw] = useState('');
 
   function togglePracticed(offerId, year) {
     setPracticed((prev) => {
@@ -451,12 +755,34 @@ export default function App() {
     else if (mStatus === 'closed') l = l.filter((m) => m.status === 'closed');
     if (mCat) l = l.filter((m) => (m.categorie || '') === mCat);
     if (mVille) l = l.filter((m) => String(m.ville || '').toLowerCase().includes(mVille.toLowerCase()));
+    if (mType) l = l.filter((m) => ((m.modePassation || String(m.typeProcedure || '').split('|')[0]).trim()) === mType);
+    if (mRegion) l = l.filter((m) => regionsOf(m.ville).includes(mRegion));
+    if (mKw) {
+      const terms = (MKEYWORDS.find(([k]) => k === mKw) || [mKw, [mKw.toLowerCase()]])[1];
+      l = l.filter((m) => {
+        const hay = [m.objet, m.categorie, m.typeProcedure, m.modePassation, m.organisme].join(' ').toLowerCase();
+        return terms.some((t) => hay.includes(t));
+      });
+    }
     if (query.trim()) {
       const s = query.trim().toLowerCase();
       l = l.filter((m) => [m.ref, m.organisme, m.objet, m.ville, m.typeProcedure, m.modePassation].join(' ').toLowerCase().includes(s));
     }
     return l;
-  }, [marches, mStatus, mCat, mVille, query]);
+  }, [marches, mStatus, mCat, mVille, mType, mRegion, mKw, query]);
+  const mTypes = useMemo(() => {
+    const m = {};
+    marches.forEach((o) => {
+      const t = (o.modePassation || String(o.typeProcedure || '').split('|')[0]).trim();
+      if (t) m[t] = (m[t] || 0) + 1;
+    });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [marches]);
+  const mRegionList = useMemo(() => {
+    const m = {};
+    marches.forEach((o) => regionsOf(o.ville).forEach((r) => { m[r] = (m[r] || 0) + 1; }));
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [marches]);
 
   function mDeadline(m) {
     if (!m.dateLimiteIso) return { label: 'Sans date', cls: 'b-muted', d: null };
@@ -481,7 +807,7 @@ export default function App() {
     if (k !== undefined) setKind(k);
     setMenuOpen(false);
     setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false);
-    setMSel(null); setMCat(''); setMVille(''); setMStatus('open');
+    setMSel(null); setMCat(''); setMVille(''); setMStatus('open'); setMType(''); setMRegion(''); setMKw('');
     try { window.scrollTo({ top: 0 }); } catch {}
   }
 
@@ -490,19 +816,21 @@ export default function App() {
       {menuOpen && <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />}
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
         <div className="drawer-brand"><img src="./app-icon.png" alt="ELASSOULI OFFERS" className="drawer-logo" /><span><b>ELASSOULI</b> <em>OFFERS</em></span></div>
+        <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
         <p className="muted">Maroc Jobs Hub • {stats.total} offres • {mStats.total} marchés publics • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
           <button className={tab === 'jobs' && kind === 'all' ? 'active' : ''} onClick={() => goTab('jobs', 'all')}><span className="dn-l"><Icon n="search" size={19} />Toutes les offres</span></button>
           <button className={tab === 'jobs' && kind === 'emploi' ? 'active' : ''} onClick={() => goTab('jobs', 'emploi')}><span className="dn-l"><Icon n="briefcase" size={19} />Emplois CDI/CDD</span></button>
           <button className={tab === 'jobs' && kind === 'stages' ? 'active' : ''} onClick={() => goTab('jobs', 'stages')}><span className="dn-l"><Icon n="cap" size={19} />Stages</span>{stats.stages > 0 && <b className="count">{stats.stages}</b>}</button>
-          <button className={tab === 'concours' ? 'active' : ''} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span></button>
-          <button className={tab === 'marches' ? 'active' : ''} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mStats.open > 0 && <b className="count">{mStats.open}</b>}</button>
-          <button className={tab === 'exams' ? 'active' : ''} onClick={() => goTab('exams')}><span className="dn-l"><Icon n="file" size={19} />Exams & Corrigés</span></button>
+          <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span></button>
+          <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mStats.open > 0 && <b className="count">{mStats.open}</b>}</button>
+          <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><span className="dn-l"><Icon n="file" size={19} />Exams & Corrigés</span></button>
           <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><span className="dn-l"><Icon n="chart" size={19} />Dashboard</span></button>
-          <button className={tab === 'alerts' ? 'active' : ''} onClick={() => goTab('alerts')}><span className="dn-l"><Icon n="bell" size={19} />Alertes</span>{unread > 0 && <b className="count red">{unread}</b>}</button>
+          <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><span className="dn-l"><Icon n="bell" size={19} />Alertes</span>{unread > 0 && <b className="count red">{unread}</b>}</button>
           <button className={tab === 'setup' ? 'active' : ''} onClick={() => goTab('setup')}><span className="dn-l"><Icon n="sliders" size={19} />Configuration</span></button>
         </nav>
         <button className="apply drawer-refresh" onClick={() => { setMenuOpen(false); refresh(true); }}><Icon n="refresh" size={18} /> Actualiser</button>
+        <button className="ghost drawer-refresh" onClick={onLogout}><Icon n="close" size={18} /> Se déconnecter</button>
       </aside>
       <header className="topbar">
         <div className="hero-top">
@@ -564,21 +892,37 @@ export default function App() {
       )}
 
       {tab === 'marches' && (
+      <>
       <div className="filters modern-filters">
         <button className={'fchip' + (mStatus === 'open' ? ' active' : '')} onClick={() => setMStatus(mStatus === 'open' ? 'all' : 'open')}><Icon n="clock" size={15} /> Ouverts ({mStats.open})</button>
         <button className={'fchip' + (mStatus === 'closed' ? ' active' : '')} onClick={() => setMStatus(mStatus === 'closed' ? 'all' : 'closed')}>Clôturés ({mStats.closed})</button>
+        <label className="fselect"><span><Icon n="briefcase" size={16} /></span><select value={mType} onChange={(e) => setMType(e.target.value)}>
+          <option value="">Type d’offre</option>
+          {mTypes.map(([t, n]) => <option key={t} value={t}>{t.length > 30 ? t.slice(0, 30) + '…' : t} ({n})</option>)}
+        </select></label>
+        <label className="fselect"><span><Icon n="pin" size={16} /></span><select value={mRegion} onChange={(e) => setMRegion(e.target.value)}>
+          <option value="">Toutes régions</option>
+          {mRegionList.map(([r, n]) => <option key={r} value={r}>{r.length > 26 ? r.slice(0, 26) + '…' : r} ({n})</option>)}
+        </select></label>
         <label className="fselect"><span><Icon n="file" size={16} /></span><select value={mCat} onChange={(e) => setMCat(e.target.value)}>
           <option value="">Catégories</option>
           {mCats.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
         </select></label>
-        <label className="fselect"><span><Icon n="pin" size={16} /></span><select value={mVille} onChange={(e) => setMVille(e.target.value)}>
+        <label className="fselect"><span><Icon n="target" size={16} /></span><select value={mVille} onChange={(e) => setMVille(e.target.value)}>
           <option value="">Toutes villes</option>
           {mVilles.map(([c, n]) => <option key={c} value={c}>{c.length > 26 ? c.slice(0, 26) + '…' : c} ({n})</option>)}
         </select></label>
-        {(query || mCat || mVille || mStatus !== 'open') && (
-          <button className="clear" onClick={() => { setQuery(''); setMCat(''); setMVille(''); setMStatus('open'); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
+        {(query || mCat || mVille || mType || mRegion || mKw || mStatus !== 'open') && (
+          <button className="clear" onClick={() => { setQuery(''); setMCat(''); setMVille(''); setMType(''); setMRegion(''); setMKw(''); setMStatus('open'); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
         )}
       </div>
+      <div className="kw-row">
+        <span className="kw-label"><Icon n="search" size={13} /> Mots-clés</span>
+        {MKEYWORDS.map(([k]) => (
+          <button key={k} className={'kw-chip' + (mKw === k ? ' active' : '')} onClick={() => setMKw(mKw === k ? '' : k)}>{k}</button>
+        ))}
+      </div>
+      </>
       )}
 
       {tab === 'marches' && (
@@ -612,7 +956,7 @@ export default function App() {
                 </div>
                 <div className="m-foot">
                   <span className="m-open">Voir le dossier <Icon n="arrow" size={14} /></span>
-                  {m.dceUrl && <button className="ghost" style={{ height: 34, padding: '0 12px', fontSize: 12.5 }} onClick={(e) => { e.stopPropagation(); openLink(m.dceUrl); }}><Icon n="download" size={14} /> DCE</button>}
+                  {m.dceUrl && <button className="ghost sm" onClick={(e) => { e.stopPropagation(); openLink(m.dceUrl); }}><Icon n="download" size={14} /> DCE</button>}
                 </div>
               </article>
             );
@@ -862,20 +1206,20 @@ export default function App() {
       )}
 
       <nav className="bottomnav" aria-label="Navigation principale">
-        <button className={tab === 'jobs' ? 'active' : ''} onClick={() => goTab('jobs')}><Icon n="briefcase" size={22} /><span>Offres</span></button>
-        <button className={tab === 'marches' ? 'active' : ''} onClick={() => goTab('marches')}><Icon n="scale" size={22} /><span>Marchés</span></button>
-        <button className={tab === 'concours' ? 'active' : ''} onClick={() => goTab('concours')}><Icon n="landmark" size={22} /><span>Concours</span></button>
+        <button className={tab === 'jobs' ? 'active' : ''} aria-current={tab === 'jobs' ? 'page' : undefined} onClick={() => goTab('jobs')}><Icon n="briefcase" size={22} /><span>Offres</span></button>
+        <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><Icon n="scale" size={22} /><span>Marchés</span></button>
+        <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><Icon n="landmark" size={22} /><span>Concours</span></button>
         <button className={'fab' + (refreshing ? ' spinning' : '')} onClick={() => refresh(true)} title="Actualiser" aria-label="Actualiser"><Icon n="refresh" size={26} /></button>
-        <button className={tab === 'exams' ? 'active' : ''} onClick={() => goTab('exams')}><Icon n="file" size={22} /><span>Exams</span></button>
-        <button className={tab === 'alerts' ? 'active' : ''} onClick={() => goTab('alerts')}><Icon n="bell" size={22} /><span>Alertes</span>{unread > 0 && <b className="nav-badge">{unread}</b>}</button>
+        <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><Icon n="file" size={22} /><span>Exams</span></button>
+        <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><Icon n="bell" size={22} /><span>Alertes</span>{unread > 0 && <b className="nav-badge">{unread}</b>}</button>
       </nav>
 
       {mSel && (() => {
         const dl = mDeadline(mSel);
         return (
           <>
-            <div className="sheet-overlay" onClick={() => setMSel(null)} />
-            <div className="sheet" role="dialog" aria-label={`Marché ${mSel.ref}`}>
+            <div className="sheet-overlay" onClick={() => setMSel(null)} aria-hidden="true" />
+            <div className="sheet" role="dialog" aria-modal="true" aria-label={`Marché ${mSel.ref}`}>
               <div className="sheet-handle" />
               <div className="sheet-head">
                 <div className="avatar" style={{ '--h': 162 }}><Icon n="gavel" size={20} /></div>
@@ -908,7 +1252,7 @@ export default function App() {
                       <Icon n="file" size={20} />
                       <span className="doc-name">{d.name || 'Avis PDF'}</span>
                       <span className="doc-size">{d.size ? (d.size / 1024 / 1024).toFixed(1) + ' Mo' : ''}</span>
-                      <button className="ghost" style={{ height: 34, padding: '0 12px', fontSize: 12.5 }} onClick={() => downloadFile(marcheDocUrl(d), `${mSel.ref}-${d.name || 'avis'}.pdf`.replace(/[^\wÀ-ÿ.-]+/g, '-').slice(0, 60))}><Icon n="download" size={14} /></button>
+                      <button className="ghost sm" onClick={() => downloadFile(marcheDocUrl(d), `${mSel.ref}-${d.name || 'avis'}.pdf`.replace(/[^\wÀ-ÿ.-]+/g, '-').slice(0, 60))}><Icon n="download" size={14} /></button>
                     </div>
                   ))}
                   {!((mSel.docs || []).length) && <p className="muted">Aucun avis PDF publié pour ce marché.</p>}
@@ -950,7 +1294,13 @@ export default function App() {
         );
       })()}
 
-      {toast && <div className="toast">{toast}</div>}
+      {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
     </div>
   );
+}
+
+export default function App() {
+  const [session, setSession] = useState(() => readSession());
+  if (!session) return <AuthScreen onAuthed={setSession} />;
+  return <MainApp session={session} onLogout={() => { clearSession(); setSession(null); }} />;
 }
