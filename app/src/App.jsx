@@ -98,7 +98,7 @@ async function notifyPhone(title, body) {
     await LocalNotifications.schedule({
       notifications: [{
         id: Math.floor(Math.random() * 2000000000),
-        title: String(title || 'ELASSOULI OFFERS').slice(0, 64),
+        title: String(title || 'ASSOULI AUTOX').slice(0, 64),
         body: String(body || 'Nouvelles offres disponibles').slice(0, 240),
         channelId: 'updates',
         schedule: { at: new Date(Date.now() + 400) },
@@ -298,7 +298,7 @@ function AuthScreen({ onAuthed }) {
   return (
     <div className="auth-wrap">
       <div className="auth-card">
-        <img src="./app-icon.png" alt="ELASSOULI OFFERS" className="auth-logo" />
+        <img src="./app-icon.png" alt="ASSOULI AUTOX" className="auth-logo" />
         <h1 className="auth-title">ELASSOULI <b>OFFERS</b></h1>
         <p className="auth-sub">Plateforme sécurisée — offres d'emploi, marchés publics, concours & exams</p>
 
@@ -654,7 +654,7 @@ function MainApp({ session, onLogout }) {
               const prevCount = Number(localStorage.getItem('mjh_last_remote_jobs') || 0);
               localStorage.setItem('mjh_last_remote_jobs', String(list.length));
               if (prevCount > 0 && list.length > prevCount) {
-                notifyPhone(`Nouvelles offres • ${list.length - prevCount}`, `${list.length} offres suivies. Ouvrez ELASSOULI OFFERS pour les consulter.`);
+                notifyPhone(`Nouvelles offres • ${list.length - prevCount}`, `${list.length} offres suivies. Ouvrez ASSOULI AUTOX pour les consulter.`);
               }
               setJobs(list); setUpdatedAt(upd); if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`); loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl); return;
             }
@@ -911,9 +911,9 @@ function MainApp({ session, onLogout }) {
     <div className="phone" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {menuOpen && <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />}
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
-        <div className="drawer-brand"><img src="./app-icon.png" alt="ELASSOULI OFFERS" className="drawer-logo" /><span><b>ELASSOULI</b> <em>OFFERS</em></span></div>
+        <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><span><b>ELASSOULI</b> <em>OFFERS</em></span></div>
         <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
-        <p className="muted">Maroc Jobs Hub • {stats.total} offres • {mStats.total} marchés publics • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
+        <p className="muted">ASSOULI AUTOX • {stats.total} offres • {mStats.total} marchés publics • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
           <button className={tab === 'jobs' && kind === 'all' ? 'active' : ''} onClick={() => goTab('jobs', 'all')}><span className="dn-l"><Icon n="search" size={19} />Toutes les offres</span></button>
           <button className={tab === 'jobs' && kind === 'emploi' ? 'active' : ''} onClick={() => goTab('jobs', 'emploi')}><span className="dn-l"><Icon n="briefcase" size={19} />Emplois CDI/CDD</span></button>
@@ -942,7 +942,7 @@ function MainApp({ session, onLogout }) {
         </div>
       </header>
       <section className="hero">
-        <p className="hero-sub">Maroc Jobs Hub • offres, stages, concours & exams • actualisez à chaque ouverture</p>
+        <p className="hero-sub">ASSOULI AUTOX • offres, stages, concours & exams • actualisez à chaque ouverture</p>
         <div className="hero-stats">
           <div className="hstat"><b>{stats.total}</b><span>offres</span></div>
           <div className="hstat green"><b>{stats.thisWeek}</b><span>≤ 7 jours</span></div>
@@ -1248,7 +1248,7 @@ function MainApp({ session, onLogout }) {
             <div className="dash-hero-top">
               <img src="./app-icon.png" alt="" className="section-logo" />
               <div>
-                <h3>ELASSOULI OFFERS</h3>
+                <h3>ASSOULI AUTOX</h3>
                 <p className="muted">{stats.total} offres • {stats.thisWeek} ≤ 7j • {stats.urgent} urgentes</p>
               </div>
             </div>
