@@ -260,40 +260,37 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /FR 3 0 R /FB 4 0 R >> >> /Contents 7 0 R >>
 endobj
 7 0 obj
-<< /Length 3154 >>
+<< /Length 2750 >>
 stream
-BT /FB 20 Tf 56.0 778.0 Td (Concours - Corrigé 2025) Tj ET
-BT /FR 10 Tf 56.0 745.6 Td (Maître de conférences à la FSA Ouarzazate spécialité informatique embarquée et génie) Tj ET
-BT /FR 10 Tf 56.0 731.4 Td (électrique) Tj ET
-BT /FR 10 Tf 56.0 717.2 Td (Organisme : Université Ibn Zohr - Agadir | Spécialité : Maître de conférences à la FSA) Tj ET
-BT /FR 10 Tf 56.0 703.0 Td (Ouarzazate spécialité informatique embarquée et génie électrique) Tj ET
-BT /FR 10 Tf 56.0 688.8 Td (Domaine : Informatique / Développement | À consulter après avoir traité le Sujet 2025.) Tj ET
-0.6 0.65 0.9 RG 0.8 w 56 674.6 m 539 674.6 l S
-BT /FB 13 Tf 56.0 656.6 Td (CORRIGÉ QCM - bonnes réponses) Tj ET
-BT /FR 9.5 Tf 72.0 636.1 Td (Q1. B. unique et non nulle -- Unicite + NOT NULL = identifiant fiable de la ligne.) Tj ET
-BT /FR 9.5 Tf 72.0 622.6 Td (Q2. C. PostgreSQL -- PostgreSQL = tables + SQL + ACID.) Tj ET
-BT /FR 9.5 Tf 72.0 609.2 Td (Q3. B. du tri fusion \(merge sort\) -- Le tri fusion divise \(log n\) puis fusionne \(n\).) Tj ET
-BT /FR 9.5 Tf 72.0 595.7 Td (Q4. B. git commit -- commit = photo locale ; push = envoi distant.) Tj ET
-BT /FR 9.5 Tf 72.0 582.2 Td (Q5. A. 3 copies, 2 supports différents, 1 hors site -- Règle de résilience contre panne +) Tj ET
-BT /FR 9.5 Tf 72.0 568.7 Td (rançongiciel.) Tj ET
-BT /FR 9.5 Tf 72.0 555.2 Td (Q6. B. TLS/SSL -- TLS chiffre la communication HTTP \(port 443\).) Tj ET
-BT /FR 9.5 Tf 72.0 541.7 Td (Q7. B. le TDD -- Test-Driven Development : test rouge, vert, refactor.) Tj ET
-BT /FR 9.5 Tf 72.0 528.2 Td (Q8. C. SELECT DISTINCT -- DISTINCT élimine les lignes en double du résultat.) Tj ET
-BT /FR 9.5 Tf 72.0 514.7 Td (Q9. B. 32 bits -- 4 octets = 32 bits \(ex : 192.168.1.1\).) Tj ET
-BT /FR 9.5 Tf 72.0 501.2 Td (Q10. B. une suite finie d'instructions non ambiguës -- Un algorithme = séquence finie, précise et) Tj ET
-BT /FR 9.5 Tf 72.0 487.7 Td (ordonnée d'opérations.) Tj ET
-BT /FB 11 Tf 56.0 462.3 Td (Éléments de corrigé \(cours + cas\) :) Tj ET
-BT /FR 10 Tf 66.0 446.6 Td (- C1 : définir les notions clés, citer le cadre \(loi/texte ou référence technique\), donner 1) Tj ET
-BT /FR 10 Tf 66.0 432.4 Td (exemple marocain.) Tj ET
-BT /FR 10 Tf 66.0 418.2 Td (- C2 : structurer en 3 temps \(constat / méthode / résultat\) avec chiffres ou délais.) Tj ET
-BT /FR 10 Tf 66.0 404.0 Td (- C3 : proposer un plan d'action concret, nommer les acteurs et les indicateurs de suivi.) Tj ET
-BT /FR 10 Tf 66.0 389.8 Td (- Cas : noter la démarche \(diagnostic, solution, planning, contrôle\) autant que le résultat) Tj ET
-BT /FR 10 Tf 66.0 375.6 Td (final.) Tj ET
-BT /FB 11 Tf 56.0 349.4 Td (Conseils méthode :) Tj ET
-BT /FR 10 Tf 66.0 333.8 Td (- Lisez tout le sujet en 5 minutes puis commencez par ce que vous maîtrisez.) Tj ET
-BT /FR 10 Tf 66.0 319.6 Td (- QCM : éliminez 2 options avant de trancher ; ne laissez aucune case vide.) Tj ET
-BT /FR 10 Tf 66.0 305.4 Td (- Rédaction : phrases courtes, vocabulaire du domaine, conclusion en 2 lignes.) Tj ET
-BT /FR 10 Tf 66.0 291.2 Td (- Refaites ce dossier à J-7 puis à J-1 pour ancrer les réflexes.) Tj ET
+BT /FB 20 Tf 56.0 778.0 Td (Concours - Corrigé 2022) Tj ET
+BT /FR 10 Tf 56.0 745.6 Td (Analyste Etudes et Régulation Confirmé) Tj ET
+BT /FR 10 Tf 56.0 731.4 Td (Organisme : Autorité de Contrôle des Assurances et de la Prévoyance Sociale | Spécialité :) Tj ET
+BT /FR 10 Tf 56.0 717.2 Td (Analyste Etudes et Régulation Confirmé) Tj ET
+BT /FR 10 Tf 56.0 703.0 Td (Domaine : Culture générale + logique | À consulter après avoir traité le Sujet 2022.) Tj ET
+0.6 0.65 0.9 RG 0.8 w 56 688.8 m 539 688.8 l S
+BT /FB 13 Tf 56.0 670.8 Td (CORRIGÉ QCM - bonnes réponses) Tj ET
+BT /FR 9.5 Tf 72.0 650.3 Td (Q1. B. Bank Al-Maghrib -- Banque centrale = politique monétaire.) Tj ET
+BT /FR 9.5 Tf 72.0 636.8 Td (Q2. B. convaincre -- Thèse + arguments + exemples.) Tj ET
+BT /FR 9.5 Tf 72.0 623.4 Td (Q3. B. le mérite et l'égalité d'accès -- Concours = mérite, transparence.) Tj ET
+BT /FR 9.5 Tf 72.0 609.9 Td (Q4. B. 30 -- Écarts +4, +6, +8, +10 -> 30.) Tj ET
+BT /FR 9.5 Tf 72.0 596.4 Td (Q5. A. 2015 -- Regionalisation avancée : 12 régions.) Tj ET
+BT /FR 9.5 Tf 72.0 582.9 Td (Q6. B. 1 cm = 1 km -- 1 cm carte = 100 000 cm terrain = 1 km.) Tj ET
+BT /FR 9.5 Tf 72.0 569.4 Td (Q7. B. 2011 -- Referendum du 1er juillet 2011.) Tj ET
+BT /FR 9.5 Tf 72.0 555.9 Td (Q8. B. l'éducation -- Droits : education, sante, expression...) Tj ET
+BT /FR 9.5 Tf 72.0 542.4 Td (Q9. B. durable -- Ephemere = qui dure très peu.) Tj ET
+BT /FR 9.5 Tf 72.0 528.9 Td (Q10. B. un acte royal -- Signé par le Roi, publié au Bulletin officiel.) Tj ET
+BT /FB 11 Tf 56.0 503.4 Td (Éléments de corrigé \(cours + cas\) :) Tj ET
+BT /FR 10 Tf 66.0 487.8 Td (- C1 : définir les notions clés, citer le cadre \(loi/texte ou référence technique\), donner 1) Tj ET
+BT /FR 10 Tf 66.0 473.6 Td (exemple marocain.) Tj ET
+BT /FR 10 Tf 66.0 459.4 Td (- C2 : structurer en 3 temps \(constat / méthode / résultat\) avec chiffres ou délais.) Tj ET
+BT /FR 10 Tf 66.0 445.2 Td (- C3 : proposer un plan d'action concret, nommer les acteurs et les indicateurs de suivi.) Tj ET
+BT /FR 10 Tf 66.0 431.0 Td (- Cas : noter la démarche \(diagnostic, solution, planning, contrôle\) autant que le résultat) Tj ET
+BT /FR 10 Tf 66.0 416.8 Td (final.) Tj ET
+BT /FB 11 Tf 56.0 390.6 Td (Conseils méthode :) Tj ET
+BT /FR 10 Tf 66.0 375.0 Td (- Lisez tout le sujet en 5 minutes puis commencez par ce que vous maîtrisez.) Tj ET
+BT /FR 10 Tf 66.0 360.8 Td (- QCM : éliminez 2 options avant de trancher ; ne laissez aucune case vide.) Tj ET
+BT /FR 10 Tf 66.0 346.6 Td (- Rédaction : phrases courtes, vocabulaire du domaine, conclusion en 2 lignes.) Tj ET
+BT /FR 10 Tf 66.0 332.4 Td (- Refaites ce dossier à J-7 puis à J-1 pour ancrer les réflexes.) Tj ET
 BT /FR 8 Tf 56.0 32 Td (Page 1/1 - Maroc Jobs Hub - Dossier d'entrainement) Tj ET
 endstream
 endobj
@@ -310,5 +307,5 @@ xref
 trailer
 << /Size 8 /Root 1 0 R >>
 startxref
-6756
+6352
 %%EOF

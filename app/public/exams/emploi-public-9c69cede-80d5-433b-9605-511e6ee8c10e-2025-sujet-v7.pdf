@@ -260,51 +260,51 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /FR 3 0 R /FB 4 0 R >> >> /Contents 7 0 R >>
 endobj
 7 0 obj
-<< /Length 2939 >>
+<< /Length 2933 >>
 stream
 BT /FB 20 Tf 56.0 778.0 Td (Concours - Sujet d'entraînement) Tj ET
-BT /FB 20 Tf 56.0 749.6 Td (2022) Tj ET
-BT /FR 10 Tf 56.0 717.2 Td (Maître de conférences à la FSA Ouarzazate spécialité informatique) Tj ET
-BT /FR 10 Tf 56.0 703.0 Td (Organisme : Université Ibn Zohr - Agadir | Spécialité : Maître de conférences à la FSA) Tj ET
-BT /FR 10 Tf 56.0 688.8 Td (Ouarzazate spécialité informatique) Tj ET
-BT /FR 10 Tf 56.0 674.6 Td (Domaine : Informatique / Développement | Durée indicative : 2h | Barème : QCM 10 pts +) Tj ET
+BT /FB 20 Tf 56.0 749.6 Td (2025) Tj ET
+BT /FR 10 Tf 56.0 717.2 Td (Analyste Etudes et Régulation Confirmé) Tj ET
+BT /FR 10 Tf 56.0 703.0 Td (Organisme : Autorité de Contrôle des Assurances et de la Prévoyance Sociale | Spécialité :) Tj ET
+BT /FR 10 Tf 56.0 688.8 Td (Analyste Etudes et Régulation Confirmé) Tj ET
+BT /FR 10 Tf 56.0 674.6 Td (Domaine : Culture générale + logique | Durée indicative : 2h | Barème : QCM 10 pts +) Tj ET
 BT /FR 10 Tf 56.0 660.4 Td (Rédaction 6 pts + Cas 4 pts) Tj ET
 0.6 0.65 0.9 RG 0.8 w 56 646.2 m 539 646.2 l S
 BT /FR 10 Tf 56.0 634.2 Td (Consignes : répondez d'abord seul et en temps limite. Cochez une seule réponse par QCM. Le) Tj ET
 BT /FR 10 Tf 56.0 620.0 Td (corrigé détaillé est dans le fichier Corrigé séparé - à consulter après l'épreuve.) Tj ET
 BT /FB 13 Tf 56.0 599.8 Td (PARTIE 1 - QCM \(10 points, 1 pt / question\)) Tj ET
-BT /FB 10 Tf 56.0 577.3 Td (Q1. Git : la commande qui enregistre un instantané local est :) Tj ET
-BT /FR 10 Tf 72.0 563.1 Td ([ ] A. git push) Tj ET
-BT /FR 10 Tf 72.0 548.9 Td ([ ] B. git commit) Tj ET
-BT /FR 10 Tf 72.0 534.7 Td ([ ] C. git clone) Tj ET
-BT /FR 10 Tf 72.0 520.5 Td ([ ] D. git fetch) Tj ET
-BT /FB 10 Tf 56.0 496.3 Td (Q2. Une sauvegarde 3-2-1 signifie :) Tj ET
-BT /FR 10 Tf 72.0 482.1 Td ([ ] A. 3 copies, 2 supports différents, 1 hors site) Tj ET
-BT /FR 10 Tf 72.0 467.9 Td ([ ] B. 3 jours de rétention) Tj ET
-BT /FR 10 Tf 72.0 453.7 Td ([ ] C. 2 serveurs, 1 switch) Tj ET
-BT /FR 10 Tf 72.0 439.5 Td ([ ] D. 1 seul fichier zip) Tj ET
-BT /FB 10 Tf 56.0 415.3 Td (Q3. Le protocole HTTPS repose sur :) Tj ET
-BT /FR 10 Tf 72.0 401.1 Td ([ ] A. FTP) Tj ET
-BT /FR 10 Tf 72.0 386.9 Td ([ ] B. TLS/SSL) Tj ET
-BT /FR 10 Tf 72.0 372.7 Td ([ ] C. SMTP) Tj ET
-BT /FR 10 Tf 72.0 358.5 Td ([ ] D. DHCP) Tj ET
-BT /FB 10 Tf 56.0 334.3 Td (Q4. Tester d'abord, coder ensuite : c'est :) Tj ET
-BT /FR 10 Tf 72.0 320.1 Td ([ ] A. le debug) Tj ET
-BT /FR 10 Tf 72.0 305.9 Td ([ ] B. le TDD) Tj ET
-BT /FR 10 Tf 72.0 291.7 Td ([ ] C. le refactoring) Tj ET
-BT /FR 10 Tf 72.0 277.5 Td ([ ] D. le versioning) Tj ET
-BT /FB 10 Tf 56.0 253.3 Td (Q5. En SQL, pour éviter les doublons on utilise :) Tj ET
-BT /FR 10 Tf 72.0 239.1 Td ([ ] A. GROUP BY) Tj ET
-BT /FR 10 Tf 72.0 224.9 Td ([ ] B. ORDER BY) Tj ET
-BT /FR 10 Tf 72.0 210.7 Td ([ ] C. SELECT DISTINCT) Tj ET
-BT /FR 10 Tf 72.0 196.5 Td ([ ] D. HAVING) Tj ET
-BT /FB 10 Tf 56.0 172.3 Td (Q6. Une adresse IPv4 comporte :) Tj ET
-BT /FR 10 Tf 72.0 158.1 Td ([ ] A. 64 bits) Tj ET
-BT /FR 10 Tf 72.0 143.9 Td ([ ] B. 32 bits) Tj ET
-BT /FR 10 Tf 72.0 129.7 Td ([ ] C. 128 bits) Tj ET
-BT /FR 10 Tf 72.0 115.5 Td ([ ] D. 16 bits) Tj ET
-BT /FB 10 Tf 56.0 91.3 Td (Q7. Un algorithme se caractérise d'abord par :) Tj ET
-BT /FR 10 Tf 72.0 77.1 Td ([ ] A. sa longueur) Tj ET
+BT /FB 10 Tf 56.0 577.3 Td (Q1. Un dahir est :) Tj ET
+BT /FR 10 Tf 72.0 563.1 Td ([ ] A. une loi votée) Tj ET
+BT /FR 10 Tf 72.0 548.9 Td ([ ] B. un acte royal) Tj ET
+BT /FR 10 Tf 72.0 534.7 Td ([ ] C. un arrêté ministériel) Tj ET
+BT /FR 10 Tf 72.0 520.5 Td ([ ] D. un jugement) Tj ET
+BT /FB 10 Tf 56.0 496.3 Td (Q2. Si 3 ouvriers font un mur en 6 jours, 6 ouvriers \(même rythme\) en :) Tj ET
+BT /FR 10 Tf 72.0 482.1 Td ([ ] A. 12 jours) Tj ET
+BT /FR 10 Tf 72.0 467.9 Td ([ ] B. 3 jours) Tj ET
+BT /FR 10 Tf 72.0 453.7 Td ([ ] C. 6 jours) Tj ET
+BT /FR 10 Tf 72.0 439.5 Td ([ ] D. 9 jours) Tj ET
+BT /FB 10 Tf 56.0 415.3 Td (Q3. Le Parlement marocain comprend :) Tj ET
+BT /FR 10 Tf 72.0 401.1 Td ([ ] A. une seule chambre) Tj ET
+BT /FR 10 Tf 72.0 386.9 Td ([ ] B. deux chambres) Tj ET
+BT /FR 10 Tf 72.0 372.7 Td ([ ] C. trois chambres) Tj ET
+BT /FR 10 Tf 72.0 358.5 Td ([ ] D. aucune) Tj ET
+BT /FB 10 Tf 56.0 334.3 Td (Q4. Le dirham marocain est géré par :) Tj ET
+BT /FR 10 Tf 72.0 320.1 Td ([ ] A. le FMI) Tj ET
+BT /FR 10 Tf 72.0 305.9 Td ([ ] B. Bank Al-Maghrib) Tj ET
+BT /FR 10 Tf 72.0 291.7 Td ([ ] C. la Bourse) Tj ET
+BT /FR 10 Tf 72.0 277.5 Td ([ ] D. les banques privées) Tj ET
+BT /FB 10 Tf 56.0 253.3 Td (Q5. Un texte argumentatif cherche à :) Tj ET
+BT /FR 10 Tf 72.0 239.1 Td ([ ] A. raconter) Tj ET
+BT /FR 10 Tf 72.0 224.9 Td ([ ] B. convaincre) Tj ET
+BT /FR 10 Tf 72.0 210.7 Td ([ ] C. décrire) Tj ET
+BT /FR 10 Tf 72.0 196.5 Td ([ ] D. divertir) Tj ET
+BT /FB 10 Tf 56.0 172.3 Td (Q6. La fonction publique repose notamment sur :) Tj ET
+BT /FR 10 Tf 72.0 158.1 Td ([ ] A. le piston) Tj ET
+BT /FR 10 Tf 72.0 143.9 Td ([ ] B. le mérite et l'égalité d'accès) Tj ET
+BT /FR 10 Tf 72.0 129.7 Td ([ ] C. le hasard) Tj ET
+BT /FR 10 Tf 72.0 115.5 Td ([ ] D. l'ancienneté seule) Tj ET
+BT /FB 10 Tf 56.0 91.3 Td (Q7. La suite 2, 6, 12, 20, ... : le terme suivant est :) Tj ET
+BT /FR 10 Tf 72.0 77.1 Td ([ ] A. 28) Tj ET
 BT /FR 8 Tf 56.0 32 Td (Page 1/2 - Maroc Jobs Hub - Dossier d'entrainement) Tj ET
 endstream
 endobj
@@ -312,38 +312,38 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /FR 3 0 R /FB 4 0 R >> >> /Contents 9 0 R >>
 endobj
 9 0 obj
-<< /Length 2482 >>
+<< /Length 2245 >>
 stream
-BT /FR 10 Tf 72.0 782.0 Td ([ ] B. une suite finie d'instructions non ambiguës) Tj ET
-BT /FR 10 Tf 72.0 767.8 Td ([ ] C. son langage) Tj ET
-BT /FR 10 Tf 72.0 753.6 Td ([ ] D. sa vitesse) Tj ET
-BT /FB 10 Tf 56.0 729.4 Td (Q8. En POO, l'encapsulation consiste à :) Tj ET
-BT /FR 10 Tf 72.0 715.2 Td ([ ] A. hériter deux classes) Tj ET
-BT /FR 10 Tf 72.0 701.0 Td ([ ] B. masquer l'état interne derrière des méthodes) Tj ET
-BT /FR 10 Tf 72.0 686.8 Td ([ ] C. dupliquer le code) Tj ET
-BT /FR 10 Tf 72.0 672.6 Td ([ ] D. supprimer les objets) Tj ET
-BT /FB 10 Tf 56.0 648.4 Td (Q9. Le DNS sert à :) Tj ET
-BT /FR 10 Tf 72.0 634.2 Td ([ ] A. chiffrer les mails) Tj ET
-BT /FR 10 Tf 72.0 620.0 Td ([ ] B. traduire un nom de domaine en adresse IP) Tj ET
-BT /FR 10 Tf 72.0 605.8 Td ([ ] C. compresser les images) Tj ET
-BT /FR 10 Tf 72.0 591.6 Td ([ ] D. filtrer le spam) Tj ET
-BT /FB 10 Tf 56.0 567.4 Td (Q10. Une clé primaire doit être :) Tj ET
-BT /FR 10 Tf 72.0 553.2 Td ([ ] A. modifiable souvent) Tj ET
-BT /FR 10 Tf 72.0 539.0 Td ([ ] B. unique et non nulle) Tj ET
-BT /FR 10 Tf 72.0 524.8 Td ([ ] C. toujours numérique) Tj ET
-BT /FR 10 Tf 72.0 510.6 Td ([ ] D. partagée) Tj ET
+BT /FR 10 Tf 72.0 782.0 Td ([ ] B. 30) Tj ET
+BT /FR 10 Tf 72.0 767.8 Td ([ ] C. 24) Tj ET
+BT /FR 10 Tf 72.0 753.6 Td ([ ] D. 36) Tj ET
+BT /FB 10 Tf 56.0 729.4 Td (Q8. La région est une collectivite territoriale depuis :) Tj ET
+BT /FR 10 Tf 72.0 715.2 Td ([ ] A. 2015) Tj ET
+BT /FR 10 Tf 72.0 701.0 Td ([ ] B. 1971) Tj ET
+BT /FR 10 Tf 72.0 686.8 Td ([ ] C. 2000) Tj ET
+BT /FR 10 Tf 72.0 672.6 Td ([ ] D. 2020) Tj ET
+BT /FB 10 Tf 56.0 648.4 Td (Q9. L'echelle d'une carte 1/100 000 signifie :) Tj ET
+BT /FR 10 Tf 72.0 634.2 Td ([ ] A. 1 cm = 100 km) Tj ET
+BT /FR 10 Tf 72.0 620.0 Td ([ ] B. 1 cm = 1 km) Tj ET
+BT /FR 10 Tf 72.0 605.8 Td ([ ] C. 1 cm = 100 m) Tj ET
+BT /FR 10 Tf 72.0 591.6 Td ([ ] D. 1 cm = 10 km) Tj ET
+BT /FB 10 Tf 56.0 567.4 Td (Q10. La Constitution marocaine en vigueur date de :) Tj ET
+BT /FR 10 Tf 72.0 553.2 Td ([ ] A. 1996) Tj ET
+BT /FR 10 Tf 72.0 539.0 Td ([ ] B. 2011) Tj ET
+BT /FR 10 Tf 72.0 524.8 Td ([ ] C. 2021) Tj ET
+BT /FR 10 Tf 72.0 510.6 Td ([ ] D. 1962) Tj ET
 BT /FB 13 Tf 56.0 482.4 Td (PARTIE 2 - Questions de cours \(6 points, 2 pts / question\)) Tj ET
-BT /FB 10 Tf 56.0 459.9 Td (C1. Expliquez la différence entre une base SQL et NoSQL, avec un exemple d'usage de chacune.) Tj ET
+BT /FB 10 Tf 56.0 459.9 Td (C1. Présentez l'organisation administrative du Maroc \(État, régions, communes\).) Tj ET
 BT /FR 10 Tf 56.0 445.7 Td (\(Réponse rédigée : 8 à 12 lignes attendues.\)) Tj ET
-BT /FB 10 Tf 56.0 421.5 Td (C2. Décrivez les étapes d'une mise en production sans interruption de service.) Tj ET
+BT /FB 10 Tf 56.0 421.5 Td (C2. Expliquez le principe du concours dans la fonction publique.) Tj ET
 BT /FR 10 Tf 56.0 407.3 Td (\(Réponse rédigée : 8 à 12 lignes attendues.\)) Tj ET
-BT /FB 10 Tf 56.0 383.1 Td (C3. Qu'est-ce que l'injection SQL et comment s'en proteger \(3 mesures\) ?) Tj ET
+BT /FB 10 Tf 56.0 383.1 Td (C3. Rédigez un paragraphe argumenté : pourquoi le service public exige-t-il exemplarité ?) Tj ET
 BT /FR 10 Tf 56.0 368.9 Td (\(Réponse rédigée : 8 à 12 lignes attendues.\)) Tj ET
 BT /FB 13 Tf 56.0 340.7 Td (PARTIE 3 - Étude de cas pratique \(4 points\)) Tj ET
-BT /FR 10 Tf 56.0 320.3 Td (Étude de cas 2022 : une commune veut numériser ses demandes d'actes \(naissance, résidence\).) Tj ET
-BT /FR 10 Tf 56.0 306.1 Td (1\) Proposez une architecture simple \(base, API, hébergement\). 2\) Listez 5 exigences de) Tj ET
-BT /FR 10 Tf 56.0 291.9 Td (sécurité. 3\) Plan de déploiement en 4 phases avec délais.) Tj ET
-BT /FR 10 Tf 56.0 269.7 Td (Fin du sujet - ouvrez le fichier Corrigé 2022 pour vérifier vos réponses.) Tj ET
+BT /FR 10 Tf 56.0 320.3 Td (Étude de cas 2025 : grand afflux au guichet d'une administration \(300 usagers/jour\). 1\)) Tj ET
+BT /FR 10 Tf 56.0 306.1 Td (Diagnostic de l'attente. 2\) Reorganisation \(tickets, plages, agents\). 3\) 3 indicateurs de) Tj ET
+BT /FR 10 Tf 56.0 291.9 Td (suivi.) Tj ET
+BT /FR 10 Tf 56.0 269.7 Td (Fin du sujet - ouvrez le fichier Corrigé 2025 pour vérifier vos réponses.) Tj ET
 BT /FR 8 Tf 56.0 32 Td (Page 2/2 - Maroc Jobs Hub - Dossier d'entrainement) Tj ET
 endstream
 endobj
@@ -357,10 +357,10 @@ xref
 0000000360 00000 n 
 0000003421 00000 n 
 0000003557 00000 n 
-0000006547 00000 n 
-0000006683 00000 n 
+0000006541 00000 n 
+0000006677 00000 n 
 trailer
 << /Size 10 /Root 1 0 R >>
 startxref
-9216
+8973
 %%EOF

@@ -260,41 +260,37 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /FR 3 0 R /FB 4 0 R >> >> /Contents 7 0 R >>
 endobj
 7 0 obj
-<< /Length 3211 >>
+<< /Length 2845 >>
 stream
-BT /FB 20 Tf 56.0 778.0 Td (Concours - Corrigé 2024) Tj ET
-BT /FR 10 Tf 56.0 745.6 Td (Maître de conférences à la FSA Ouarzazate spécialité informatique embarquée et génie) Tj ET
-BT /FR 10 Tf 56.0 731.4 Td (électrique) Tj ET
-BT /FR 10 Tf 56.0 717.2 Td (Organisme : Université Ibn Zohr - Agadir | Spécialité : Maître de conférences à la FSA) Tj ET
-BT /FR 10 Tf 56.0 703.0 Td (Ouarzazate spécialité informatique embarquée et génie électrique) Tj ET
-BT /FR 10 Tf 56.0 688.8 Td (Domaine : Informatique / Développement | À consulter après avoir traité le Sujet 2024.) Tj ET
-0.6 0.65 0.9 RG 0.8 w 56 674.6 m 539 674.6 l S
-BT /FB 13 Tf 56.0 656.6 Td (CORRIGÉ QCM - bonnes réponses) Tj ET
-BT /FR 9.5 Tf 72.0 636.1 Td (Q1. C. PostgreSQL -- PostgreSQL = tables + SQL + ACID.) Tj ET
-BT /FR 9.5 Tf 72.0 622.6 Td (Q2. B. du tri fusion \(merge sort\) -- Le tri fusion divise \(log n\) puis fusionne \(n\).) Tj ET
-BT /FR 9.5 Tf 72.0 609.2 Td (Q3. B. git commit -- commit = photo locale ; push = envoi distant.) Tj ET
-BT /FR 9.5 Tf 72.0 595.7 Td (Q4. A. 3 copies, 2 supports différents, 1 hors site -- Règle de résilience contre panne +) Tj ET
-BT /FR 9.5 Tf 72.0 582.2 Td (rançongiciel.) Tj ET
-BT /FR 9.5 Tf 72.0 568.7 Td (Q5. B. TLS/SSL -- TLS chiffre la communication HTTP \(port 443\).) Tj ET
-BT /FR 9.5 Tf 72.0 555.2 Td (Q6. B. le TDD -- Test-Driven Development : test rouge, vert, refactor.) Tj ET
-BT /FR 9.5 Tf 72.0 541.7 Td (Q7. C. SELECT DISTINCT -- DISTINCT élimine les lignes en double du résultat.) Tj ET
-BT /FR 9.5 Tf 72.0 528.2 Td (Q8. B. 32 bits -- 4 octets = 32 bits \(ex : 192.168.1.1\).) Tj ET
-BT /FR 9.5 Tf 72.0 514.7 Td (Q9. B. une suite finie d'instructions non ambiguës -- Un algorithme = séquence finie, précise et) Tj ET
-BT /FR 9.5 Tf 72.0 501.2 Td (ordonnée d'opérations.) Tj ET
-BT /FR 9.5 Tf 72.0 487.7 Td (Q10. B. masquer l'état interne derrière des méthodes -- Attributs privés + accesseurs = couplage) Tj ET
-BT /FR 9.5 Tf 72.0 474.3 Td (faible.) Tj ET
-BT /FB 11 Tf 56.0 448.8 Td (Éléments de corrigé \(cours + cas\) :) Tj ET
-BT /FR 10 Tf 66.0 433.1 Td (- C1 : définir les notions clés, citer le cadre \(loi/texte ou référence technique\), donner 1) Tj ET
-BT /FR 10 Tf 66.0 418.9 Td (exemple marocain.) Tj ET
-BT /FR 10 Tf 66.0 404.7 Td (- C2 : structurer en 3 temps \(constat / méthode / résultat\) avec chiffres ou délais.) Tj ET
-BT /FR 10 Tf 66.0 390.5 Td (- C3 : proposer un plan d'action concret, nommer les acteurs et les indicateurs de suivi.) Tj ET
-BT /FR 10 Tf 66.0 376.3 Td (- Cas : noter la démarche \(diagnostic, solution, planning, contrôle\) autant que le résultat) Tj ET
-BT /FR 10 Tf 66.0 362.1 Td (final.) Tj ET
-BT /FB 11 Tf 56.0 335.9 Td (Conseils méthode :) Tj ET
-BT /FR 10 Tf 66.0 320.3 Td (- Lisez tout le sujet en 5 minutes puis commencez par ce que vous maîtrisez.) Tj ET
-BT /FR 10 Tf 66.0 306.1 Td (- QCM : éliminez 2 options avant de trancher ; ne laissez aucune case vide.) Tj ET
-BT /FR 10 Tf 66.0 291.9 Td (- Rédaction : phrases courtes, vocabulaire du domaine, conclusion en 2 lignes.) Tj ET
-BT /FR 10 Tf 66.0 277.7 Td (- Refaites ce dossier à J-7 puis à J-1 pour ancrer les réflexes.) Tj ET
+BT /FB 20 Tf 56.0 778.0 Td (Concours - Corrigé 2025) Tj ET
+BT /FR 10 Tf 56.0 745.6 Td (Technicien en Génie Civil) Tj ET
+BT /FR 10 Tf 56.0 731.4 Td (Organisme : Agence Nationale des Ports | Spécialité : Technicien en Génie Civil) Tj ET
+BT /FR 10 Tf 56.0 717.2 Td (Domaine : Technique / Maintenance | À consulter après avoir traité le Sujet 2025.) Tj ET
+0.6 0.65 0.9 RG 0.8 w 56 703.0 m 539 703.0 l S
+BT /FB 13 Tf 56.0 685.0 Td (CORRIGÉ QCM - bonnes réponses) Tj ET
+BT /FR 9.5 Tf 72.0 664.5 Td (Q1. B. la haute tension -- H = haute tension, délivrée par l'employeur.) Tj ET
+BT /FR 9.5 Tf 72.0 651.0 Td (Q2. B. l'argon -- Gaz inerte anti-oxydation du bain de fusion.) Tj ET
+BT /FR 9.5 Tf 72.0 637.6 Td (Q3. B. 230 V -- 400 / racine\(3\) ~ 230 V.) Tj ET
+BT /FR 9.5 Tf 72.0 624.1 Td (Q4. B. l'intérieur tranche verticalement -- Hauteurs, niveaux, épaisseurs visibles.) Tj ET
+BT /FR 9.5 Tf 72.0 610.6 Td (Q5. B. newton-mètres -- Clé dynamométrique = serrage maîtrise.) Tj ET
+BT /FR 9.5 Tf 72.0 597.1 Td (Q6. B. un equipement de protection individuelle -- Casque, gants, lunettes, chaussures de) Tj ET
+BT /FR 9.5 Tf 72.0 583.6 Td (sécurité.) Tj ET
+BT /FR 9.5 Tf 72.0 570.1 Td (Q7. B. la pression -- Ex : pression d'un circuit hydraulique.) Tj ET
+BT /FR 9.5 Tf 72.0 556.6 Td (Q8. B. surcharges et courts-circuits -- Magnetique \(court-circuit\) + thermique \(surcharge\).) Tj ET
+BT /FR 9.5 Tf 72.0 543.1 Td (Q9. B. béton \(compression\) et acier \(traction\) -- Complémentarité mécanique des deux matériaux.) Tj ET
+BT /FR 9.5 Tf 72.0 529.6 Td (Q10. B. U = R x I -- Tension = résistance x intensité.) Tj ET
+BT /FB 11 Tf 56.0 504.1 Td (Éléments de corrigé \(cours + cas\) :) Tj ET
+BT /FR 10 Tf 66.0 488.5 Td (- C1 : définir les notions clés, citer le cadre \(loi/texte ou référence technique\), donner 1) Tj ET
+BT /FR 10 Tf 66.0 474.3 Td (exemple marocain.) Tj ET
+BT /FR 10 Tf 66.0 460.1 Td (- C2 : structurer en 3 temps \(constat / méthode / résultat\) avec chiffres ou délais.) Tj ET
+BT /FR 10 Tf 66.0 445.9 Td (- C3 : proposer un plan d'action concret, nommer les acteurs et les indicateurs de suivi.) Tj ET
+BT /FR 10 Tf 66.0 431.7 Td (- Cas : noter la démarche \(diagnostic, solution, planning, contrôle\) autant que le résultat) Tj ET
+BT /FR 10 Tf 66.0 417.5 Td (final.) Tj ET
+BT /FB 11 Tf 56.0 391.3 Td (Conseils méthode :) Tj ET
+BT /FR 10 Tf 66.0 375.7 Td (- Lisez tout le sujet en 5 minutes puis commencez par ce que vous maîtrisez.) Tj ET
+BT /FR 10 Tf 66.0 361.5 Td (- QCM : éliminez 2 options avant de trancher ; ne laissez aucune case vide.) Tj ET
+BT /FR 10 Tf 66.0 347.3 Td (- Rédaction : phrases courtes, vocabulaire du domaine, conclusion en 2 lignes.) Tj ET
+BT /FR 10 Tf 66.0 333.1 Td (- Refaites ce dossier à J-7 puis à J-1 pour ancrer les réflexes.) Tj ET
 BT /FR 8 Tf 56.0 32 Td (Page 1/1 - Maroc Jobs Hub - Dossier d'entrainement) Tj ET
 endstream
 endobj
@@ -311,5 +307,5 @@ xref
 trailer
 << /Size 8 /Root 1 0 R >>
 startxref
-6813
+6447
 %%EOF
