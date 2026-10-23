@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-10-23T09:45:57.118Z",
+  "updatedAt": "2026-10-23T20:13:23.780Z",
   "total": 25,
-  "open": 5,
+  "open": 4,
   "offers": [
     {
       "id": "66-2026-ofppt",
@@ -231,7 +231,7 @@
       ],
       "seenAt": "2026-10-03T18:29:45.222370",
       "source": "offer-analyzer",
-      "status": "soon"
+      "status": "closed"
     },
     {
       "id": "03-ca-2026",
