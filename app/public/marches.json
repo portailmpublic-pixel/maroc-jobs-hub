@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-10-24T09:19:20.991Z",
+  "updatedAt": "2026-10-24T19:16:07.063Z",
   "total": 25,
-  "open": 4,
+  "open": 2,
   "offers": [
     {
       "id": "66-2026-ofppt",
@@ -140,7 +140,7 @@
       ],
       "seenAt": "2026-10-03T18:28:58.732785",
       "source": "offer-analyzer",
-      "status": "soon"
+      "status": "closed"
     },
     {
       "id": "43-2026-abhdon",
@@ -183,7 +183,7 @@
       ],
       "seenAt": "2026-10-03T18:27:53.655101",
       "source": "offer-analyzer",
-      "status": "soon"
+      "status": "closed"
     },
     {
       "id": "353-26-eau-s",
