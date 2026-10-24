@@ -4,6 +4,46 @@ const DEFAULT_REMOTE = 'https://raw.githubusercontent.com/portailmpublic-pixel/m
 const LS_REMOTE = 'mjh_remote_url';
 const LS_SEEN = 'mjh_alerts_seen';
 const LS_CACHE = 'mjh_cache_';
+const LS_ACCESS = 'mjh_access_v1';
+const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
+const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
+
+function readAccess() {
+  try { return JSON.parse(localStorage.getItem(LS_ACCESS) || '{}'); } catch { return {}; }
+}
+
+function accessDisabledList(access) {
+  return ((access && access.disabled) || []).map((x) => String(x || '').trim().toLowerCase());
+}
+
+function isEmailDisabled(email) {
+  return accessDisabledList(readAccess()).includes(String(email || '').trim().toLowerCase());
+}
+
+function blockedMessage() {
+  const a = readAccess();
+  return a.message || 'Ce compte a été désactivé par l’administrateur.';
+}
+
+async function refreshAccessList() {
+  try {
+    const data = await fetchJSON(ACCESS_URL + '?t=' + Math.floor(Date.now() / 60000), 6000);
+    if (data && Array.isArray(data.disabled)) {
+      localStorage.setItem(LS_ACCESS, JSON.stringify(data));
+      return data;
+    }
+  } catch {}
+  return readAccess();
+}
+
+async function ensureEmailAllowed(email) {
+  const target = String(email || '').trim().toLowerCase();
+  if (!target) return true;
+  if (isEmailDisabled(target)) return false;
+  if (navigator.onLine === false) return true;
+  const fresh = await refreshAccessList();
+  return !accessDisabledList(fresh).includes(target);
+}
 
 function readCached(key, fallback) {
   try {
@@ -273,10 +313,11 @@ function AuthScreen({ onAuthed }) {
   const [confirm, setConfirm] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState('');
+  const [err, setErr] = useState(() => { try { const m = localStorage.getItem('mjh_blocked_msg') || ''; localStorage.removeItem('mjh_blocked_msg'); return m; } catch { return ''; } });
   const [info, setInfo] = useState('');
   const [codeInfo, setCodeInfo] = useState(null);
   const [showPw, setShowPw] = useState(false);
+  useEffect(() => { refreshAccessList(); }, []);
 
   function resetMsgs() { setErr(''); setInfo(''); }
 
@@ -309,6 +350,10 @@ function AuthScreen({ onAuthed }) {
     if (password !== confirm) return setErr('Les deux mots de passe ne correspondent pas.');
     const target = email.trim().toLowerCase();
     if (loadAccounts().some((a) => a.email === target)) return setErr('Un compte existe déjà avec cet e-mail. Connectez-vous.');
+    setBusy(true);
+    const allowed = await ensureEmailAllowed(target);
+    setBusy(false);
+    if (!allowed) return setErr(blockedMessage());
     await deliver('verify');
   }
 
@@ -332,6 +377,8 @@ function AuthScreen({ onAuthed }) {
     resetMsgs();
     const target = email.trim().toLowerCase();
     if (!validEmail(target)) return setErr('Adresse e-mail invalide.');
+    const allowed = await ensureEmailAllowed(target);
+    if (!allowed) return setErr(blockedMessage());
     const acc = loadAccounts().find((a) => a.email === target);
     if (!acc) return setErr('Aucun compte avec cet e-mail. Créez un compte.');
     setBusy(true);
@@ -535,6 +582,10 @@ function MainApp({ session, onLogout }) {
   const [updatedAt, setUpdatedAt] = useState(boot.jobsUpdated || '');
   const [loading, setLoading] = useState(!(boot.jobs || []).length);
   const [offline, setOffline] = useState(() => { try { return !navigator.onLine; } catch { return false; } });
+  const [updateInfo, setUpdateInfo] = useState(null);
+  const [updating, setUpdating] = useState(false);
+  const [updatePct, setUpdatePct] = useState(0);
+  const [appVer, setAppVer] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('dash');
   const [kind, setKind] = useState('all');
@@ -702,6 +753,56 @@ function MainApp({ session, onLogout }) {
 
   function showToast(t) { setToast(t); setTimeout(() => setToast(''), 2600); }
 
+  async function getNativeVersion() {
+    try {
+      const { Capacitor, registerPlugin } = await import('@capacitor/core');
+      if (!Capacitor.isNativePlatform()) return null;
+      const P = registerPlugin('ApkUpdater');
+      return await P.getVersion();
+    } catch { return null; }
+  }
+
+  async function checkUpdate(notify = false) {
+    try {
+      const info = await fetchJSON(UPDATE_URL + '?t=' + Date.now(), 8000);
+      const v = await getNativeVersion();
+      if (v) setAppVer(`${v.versionName} (${v.versionCode})`);
+      if (!v || !info) return;
+      if (Number(info.versionCode) > Number(v.versionCode)) {
+        setUpdateInfo(info);
+        if (notify) showToast(`Mise à jour ${info.versionName} disponible`);
+      } else if (notify) {
+        showToast('Application à jour');
+      }
+    } catch {
+      if (notify) showToast('Vérification impossible (réseau)');
+    }
+  }
+
+  async function startUpdate() {
+    if (!updateInfo || updating) return;
+    setUpdating(true); setUpdatePct(0);
+    try {
+      const { registerPlugin } = await import('@capacitor/core');
+      const P = registerPlugin('ApkUpdater');
+      await P.addListener('progress', (e) => setUpdatePct(Math.max(0, Math.min(100, Number(e.percent) || 0))));
+      await P.downloadAndInstall({ url: updateInfo.url, fileName: 'ASSOULI-AUTOX-' + updateInfo.versionName + '.apk' });
+      showToast('Téléchargé — confirmez l’installation');
+    } catch (e) {
+      showToast('Mise à jour : ' + (e.message || 'réseau faible'));
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function enforceAccess() {
+    const acc = await refreshAccessList();
+    if (accessDisabledList(acc).includes(String(session.email || '').toLowerCase())) {
+      try { localStorage.setItem('mjh_blocked_msg', acc.message || 'Ce compte a été désactivé par l’administrateur.'); } catch {}
+      onLogout();
+    }
+  }
+
   async function loadBundled() {
     const data = await fetchJSON('./jobs.json', 8000);
     const list = Array.isArray(data) ? data : data.jobs || [];
@@ -785,7 +886,7 @@ function MainApp({ session, onLogout }) {
     }
   }
 
-  useEffect(() => { setupNotifications(); refresh(false); }, []);
+  useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); enforceAccess(); }, []);
   useEffect(() => {
     const goOnline = () => { setOffline(false); refresh(false, true); };
     const goOffline = () => setOffline(true);
@@ -796,7 +897,7 @@ function MainApp({ session, onLogout }) {
   // Auto-refresh: every 30 min + each time the app comes back to foreground
   useEffect(() => {
     const AUTO_MS = 30 * 60 * 1000;
-    const tick = () => refresh(false, true);
+    const tick = () => { refresh(false, true); checkUpdate(); enforceAccess(); };
     const interval = setInterval(tick, AUTO_MS);
     const onVis = () => { if (document.visibilityState === 'visible') tick(); };
     document.addEventListener('visibilitychange', onVis);
@@ -1064,6 +1165,18 @@ function MainApp({ session, onLogout }) {
       {offline && (
         <div className="offline-chip" role="status">
           <Icon n="wifi" size={14} /> Hors ligne — dernières données enregistrées
+        </div>
+      )}
+      {updateInfo && (
+        <div className="update-banner">
+          <span className="upd-ic"><Icon n="download" size={16} /></span>
+          <div className="upd-txt">
+            <b>Mise à jour {updateInfo.versionName}</b>
+            <span>{updateInfo.notes || 'Nouvelle version disponible'}</span>
+            {updating && <div className="upd-bar"><span style={{ width: updatePct + '%' }} /></div>}
+          </div>
+          <button className="upd-btn" disabled={updating} onClick={startUpdate}>{updating ? updatePct + '%' : 'Installer'}</button>
+          {!updating && <button className="upd-x" onClick={() => setUpdateInfo(null)} aria-label="Plus tard"><Icon n="close" size={14} /></button>}
         </div>
       )}
       <section className="hero">
@@ -1452,6 +1565,15 @@ function MainApp({ session, onLogout }) {
 
       {tab === 'setup' && (
         <main className="dash">
+          <div className="panel">
+            <h3>Mises à jour</h3>
+            <p className="muted">Version installée : <b>{appVer || '…'}</b>. L’application vérifie automatiquement les nouvelles versions à chaque ouverture.</p>
+            <div className="row">
+              <button className="apply" onClick={() => checkUpdate(true)}><Icon n="download" size={16} /> Vérifier les mises à jour</button>
+              {updateInfo && <button className="ghost" onClick={startUpdate} disabled={updating}>{updating ? `Téléchargement ${updatePct}%` : `Installer ${updateInfo.versionName}`}</button>}
+            </div>
+            {updateInfo && <p className="muted">{updateInfo.notes || ''}</p>}
+          </div>
           <div className="panel">
             <h3>Actualisation automatique</h3>
             <p className="muted">Par défaut l'app lit <code>jobs.json</code> intégré (hors-ligne). Collez ci-dessous l'URL RAW GitHub de votre <code>jobs.json</code> pour recevoir les nouveautés à chaque ↻ sans republier l'APK. Les alertes suivent automatiquement (<code>alerts.json</code> à côté).</p>
