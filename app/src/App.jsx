@@ -257,7 +257,18 @@ const LS_SESSION = 'mjh_session_v1';
 function loadAccounts() {
   try { const a = JSON.parse(localStorage.getItem(LS_ACCOUNTS) || '[]'); return Array.isArray(a) ? a : []; } catch { return []; }
 }
-function saveAccounts(list) { try { localStorage.setItem(LS_ACCOUNTS, JSON.stringify(list)); } catch {} }
+async function syncNativeAccounts(list) {
+  try {
+    const cap = await import('@capacitor/core');
+    if (!cap.Capacitor.isNativePlatform()) return;
+    const P = cap.registerPlugin('LocalAccounts');
+    await P.save({ accounts: JSON.stringify(Array.isArray(list) ? list : []) });
+  } catch {}
+}
+function saveAccounts(list) {
+  try { localStorage.setItem(LS_ACCOUNTS, JSON.stringify(list)); } catch {}
+  syncNativeAccounts(list);
+}
 function readSession() {
   try {
     const s = JSON.parse(localStorage.getItem(LS_SESSION) || 'null');
@@ -268,25 +279,6 @@ function readSession() {
 function writeSession(s) { try { localStorage.setItem(LS_SESSION, JSON.stringify(s)); } catch {} }
 function clearSession() { try { localStorage.removeItem(LS_SESSION); } catch {} }
 
-async function hashPassword(password, salt) {
-  const data = `${salt}::${password}::ASSOULI-AUTOX`;
-  try {
-    if (window.crypto && window.crypto.subtle) {
-      const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(data));
-      return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
-    }
-  } catch {}
-  let h1 = 0x811c9dc5, h2 = 0x1000193;
-  for (let i = 0; i < data.length; i++) {
-    const c = data.charCodeAt(i);
-    h1 ^= c; h1 = Math.imul(h1, 16777619);
-    h2 = (Math.imul(h2 ^ c, 2246822519) >>> 0);
-  }
-  return (h1 >>> 0).toString(16) + (h2 >>> 0).toString(16);
-}
-function newSalt() {
-  try { const a = new Uint8Array(16); window.crypto.getRandomValues(a); return Array.from(a).map((b) => b.toString(16).padStart(2, '0')).join(''); } catch { return String(Math.random()).slice(2) + Date.now().toString(16); }
-}
 function makeCode() { return String(Math.floor(100000 + Math.random() * 900000)); }
 function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e || '').trim()); }
 
@@ -306,127 +298,76 @@ async function sendVerificationEmail({ to, code, name }) {
 }
 
 function AuthScreen({ onAuthed }) {
-  const [mode, setMode] = useState('login'); // login | signup | verify | reset | resetverify
+  const [mode, setMode] = useState('login'); // login | signup | verify
+  const [intent, setIntent] = useState('login'); // login | signup
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(() => { try { const m = localStorage.getItem('mjh_blocked_msg') || ''; localStorage.removeItem('mjh_blocked_msg'); return m; } catch { return ''; } });
   const [info, setInfo] = useState('');
   const [codeInfo, setCodeInfo] = useState(null);
-  const [showPw, setShowPw] = useState(false);
-  useEffect(() => { refreshAccessList(); }, []);
+  useEffect(() => { refreshAccessList(); syncNativeAccounts(loadAccounts()); }, []);
 
   function resetMsgs() { setErr(''); setInfo(''); }
 
-  function scaffold() {
-    // crée le code + envoie l'e-mail
-    const code = makeCode();
-    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: email.trim().toLowerCase() });
-    return code;
-  }
-
-  async function deliver(kind) {
-    const target = email.trim().toLowerCase();
-    setBusy(true); resetMsgs();
-    const code = scaffold();
-    const r = await sendVerificationEmail({ to: target, code, name });
-    setBusy(false);
-    if (r.ok) {
-      setMode(kind);
-      return true;
-    }
-    setErr(`Impossible d'envoyer l'e-mail : ${r.error === 'web' ? 'envoi disponible dans l’application Android' : r.error}`);
-    return false;
-  }
-
-  async function doSignup() {
+  async function sendCode(kind) {
     resetMsgs();
-    if (name.trim().length < 2) return setErr('Entrez votre nom complet.');
-    if (!validEmail(email)) return setErr('Adresse e-mail invalide.');
-    if (password.length < 6) return setErr('Mot de passe : 6 caractères minimum.');
-    if (password !== confirm) return setErr('Les deux mots de passe ne correspondent pas.');
     const target = email.trim().toLowerCase();
-    if (loadAccounts().some((a) => a.email === target)) return setErr('Un compte existe déjà avec cet e-mail. Connectez-vous.');
+    if (kind === 'signup' && name.trim().length < 2) return setErr('Entrez votre nom complet.');
+    if (!validEmail(target)) return setErr('Adresse e-mail invalide.');
     setBusy(true);
     const allowed = await ensureEmailAllowed(target);
+    if (!allowed) { setBusy(false); return setErr(blockedMessage()); }
+    const code = makeCode();
+    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: target });
+    const r = await sendVerificationEmail({ to: target, code, name: kind === 'signup' ? name.trim() : '' });
     setBusy(false);
-    if (!allowed) return setErr(blockedMessage());
-    await deliver('verify');
+    if (!r.ok) {
+      setCodeInfo(null);
+      return setErr(`Impossible d'envoyer l'e-mail : ${r.error === 'web' ? 'envoi disponible dans l’application Android' : r.error}`);
+    }
+    setIntent(kind);
+    setCodeInput('');
+    setMode('verify');
   }
 
-  async function completeSignup() {
+  async function completeVerify() {
     resetMsgs();
     if (!codeInfo) return setErr('Code expiré — renvoyez un code.');
     if (Date.now() > codeInfo.exp) return setErr('Code expiré. Renvoyez un nouveau code.');
     if (codeInput.trim() !== codeInfo.code) return setErr('Code incorrect. Vérifiez votre e-mail.');
     const target = codeInfo.email;
-    const salt = newSalt();
-    const hash = await hashPassword(password, salt);
-    const accounts = loadAccounts().filter((a) => a.email !== target);
-    const acc = { name: name.trim(), email: target, salt, hash, verified: true, createdAt: new Date().toISOString() };
-    accounts.push(acc); saveAccounts(accounts);
+    const accounts = loadAccounts();
+    const existing = accounts.find((a) => a.email === target);
+    const displayName = (existing && existing.name) || (intent === 'signup' ? name.trim() : target.split('@')[0]);
+    const acc = {
+      ...(existing || {}),
+      name: displayName,
+      email: target,
+      verified: true,
+      createdAt: (existing && existing.createdAt) || new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+    };
+    saveAccounts([...accounts.filter((a) => a.email !== target), acc]);
     const sess = { email: target, name: acc.name, since: new Date().toISOString() };
     writeSession(sess);
     onAuthed(sess);
-  }
-
-  async function doLogin() {
-    resetMsgs();
-    const target = email.trim().toLowerCase();
-    if (!validEmail(target)) return setErr('Adresse e-mail invalide.');
-    const allowed = await ensureEmailAllowed(target);
-    if (!allowed) return setErr(blockedMessage());
-    const acc = loadAccounts().find((a) => a.email === target);
-    if (!acc) return setErr('Aucun compte avec cet e-mail. Créez un compte.');
-    setBusy(true);
-    const h = await hashPassword(password, acc.salt);
-    setBusy(false);
-    if (h !== acc.hash) return setErr('Mot de passe incorrect.');
-    acc.lastLogin = new Date().toISOString();
-    saveAccounts(loadAccounts().map((a) => (a.email === target ? acc : a)));
-    const sess = { email: target, name: acc.name, since: new Date().toISOString() };
-    writeSession(sess);
-    onAuthed(sess);
-  }
-
-  async function doResetRequest() {
-    resetMsgs();
-    const target = email.trim().toLowerCase();
-    if (!validEmail(target)) return setErr('Adresse e-mail invalide.');
-    if (!loadAccounts().some((a) => a.email === target)) return setErr('Aucun compte avec cet e-mail.');
-    await deliver('resetverify');
-  }
-
-  async function completeReset() {
-    resetMsgs();
-    if (!codeInfo || Date.now() > codeInfo.exp) return setErr('Code expiré. Renvoyez un code.');
-    if (codeInput.trim() !== codeInfo.code) return setErr('Code incorrect.');
-    if (password.length < 6) return setErr('Nouveau mot de passe : 6 caractères minimum.');
-    if (password !== confirm) return setErr('Les deux mots de passe ne correspondent pas.');
-    const target = codeInfo.email;
-    const salt = newSalt();
-    const hash = await hashPassword(password, salt);
-    saveAccounts(loadAccounts().map((a) => (a.email === target ? { ...a, salt, hash, verified: true } : a)));
-    setInfo('Mot de passe mis à jour. Connectez-vous.');
-    setPassword(''); setConfirm(''); setCodeInput(''); setCodeInfo(null);
-    setMode('login');
   }
 
   async function resend() {
     resetMsgs();
+    if (!codeInfo) return setMode(intent);
     setBusy(true);
     const code = makeCode();
-    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: email.trim().toLowerCase() });
-    const r = await sendVerificationEmail({ to: email.trim().toLowerCase(), code, name });
+    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: codeInfo.email });
+    const r = await sendVerificationEmail({ to: codeInfo.email, code, name: intent === 'signup' ? name.trim() : '' });
     setBusy(false);
     if (r.ok) setInfo('Nouveau code envoyé.');
     else setErr(`Renvoi impossible${r.error === 'web' ? ' (application Android uniquement)' : ' : ' + r.error}`);
   }
 
-  const isVerify = mode === 'verify' || mode === 'resetverify';
+  const isVerify = mode === 'verify';
 
   return (
     <div className="auth-wrap">
@@ -484,56 +425,30 @@ function AuthScreen({ onAuthed }) {
           </>
         )}
 
-        {!isVerify && (
-          <label className="auth-field"><span>{mode === 'reset' ? 'Nouveau mot de passe' : 'Mot de passe'}</span>
-            <div className="auth-pw">
-              <input className="auth-input" type={showPw ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
-              <button className="auth-eye" type="button" onClick={() => setShowPw(!showPw)} aria-label="Afficher"><Icon n="eye" size={18} /></button>
-            </div>
-          </label>
-        )}
-
-        {(mode === 'signup' || mode === 'reset') && (
-          <label className="auth-field"><span>Confirmer le mot de passe</span>
-            <input className="auth-input" type={showPw ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" autoComplete="new-password" />
-          </label>
-        )}
-
         {err && <div className="auth-error">{err}</div>}
         {info && <div className="auth-ok">{info}</div>}
 
         {mode === 'login' && (
           <>
-            <button className="auth-btn" disabled={busy} onClick={doLogin}>{busy ? 'Connexion…' : 'Se connecter'}</button>
-            <button className="auth-link" onClick={() => { setMode('reset'); resetMsgs(); }}>Mot de passe oublié ?</button>
+            <button className="auth-btn" disabled={busy} onClick={() => sendCode('login')}>{busy ? 'Envoi du code…' : 'Recevoir le code'}</button>
+            <p className="auth-legal">Connexion sans mot de passe : un code à 6 chiffres arrive par e-mail.</p>
           </>
         )}
         {mode === 'signup' && (
           <>
-            <button className="auth-btn" disabled={busy} onClick={doSignup}>{busy ? 'Envoi du code…' : 'Créer mon compte'}</button>
+            <button className="auth-btn" disabled={busy} onClick={() => sendCode('signup')}>{busy ? 'Envoi du code…' : 'Créer mon compte'}</button>
             <p className="auth-legal">Un code de vérification à 6 chiffres sera envoyé depuis portailm.public@gmail.com.</p>
           </>
         )}
         {mode === 'verify' && (
           <>
-            <button className="auth-btn" disabled={busy} onClick={completeSignup}>{busy ? 'Vérification…' : 'Vérifier et créer le compte'}</button>
+            <button className="auth-btn" disabled={busy} onClick={completeVerify}>{busy ? 'Vérification…' : 'Vérifier et entrer'}</button>
             <button className="auth-link" disabled={busy} onClick={resend}>Renvoyer le code</button>
-          </>
-        )}
-        {mode === 'reset' && (
-          <>
-            <button className="auth-btn" disabled={busy} onClick={doResetRequest}>{busy ? 'Envoi du code…' : 'Recevoir un code de réinitialisation'}</button>
-            <button className="auth-link" onClick={() => { setMode('login'); resetMsgs(); }}>Retour à la connexion</button>
-          </>
-        )}
-        {mode === 'resetverify' && (
-          <>
-            <button className="auth-btn" disabled={busy} onClick={completeReset}>Enregistrer le nouveau mot de passe</button>
-            <button className="auth-link" disabled={busy} onClick={resend}>Renvoyer le code</button>
+            <button className="auth-link" disabled={busy} onClick={() => { setMode(intent); setCodeInput(''); setCodeInfo(null); resetMsgs(); }}>Changer d’e-mail</button>
           </>
         )}
 
-        <p className="auth-foot">Connexion sécurisée • code envoyé par e-mail • vos données restent sur l'appareil</p>
+        <p className="auth-foot">Connexion sans mot de passe • code à 6 chiffres par e-mail • compte mémorisé sur l’appareil</p>
       </div>
     </div>
   );
@@ -1766,6 +1681,7 @@ export default function App() {
   const [intro, setIntro] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setIntro(false), 1700);
+    syncNativeAccounts(loadAccounts());
     return () => clearTimeout(t);
   }, []);
   return (

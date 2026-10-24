@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(MailPlugin.class);
         registerPlugin(ApkUpdaterPlugin.class);
+        registerPlugin(LocalAccountsPlugin.class);
         super.onCreate(savedInstanceState);
         UpdateWorker.schedule(this);
     }

@@ -1,7 +1,7 @@
 {
-  "versionCode": 2,
-  "versionName": "1.1.0",
-  "url": "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.1.0/ASSOULI-AUTOX.apk",
-  "notes": "Mise à jour automatique, contrôle des comptes, icône et démarrage animé.",
-  "publishedAt": "2026-10-24T00:00:00Z"
+    "versionCode":  3,
+    "versionName":  "1.2.0",
+    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.2.0/ASSOULI-AUTOX.apk",
+    "notes":  "Connexion sans mot de passe (code e-mail) + detection des comptes dans l\u0027APK admin",
+    "publishedAt":  "2026-10-24T20:33:52Z"
 }

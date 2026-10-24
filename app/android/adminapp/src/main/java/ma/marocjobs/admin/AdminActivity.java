@@ -2,8 +2,10 @@ package ma.marocjobs.admin;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Base64;
@@ -49,10 +51,11 @@ public class AdminActivity extends Activity {
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private final Set<String> disabled = new LinkedHashSet<>();
+    private final List<Account> accounts = new ArrayList<>();
 
     private SharedPreferences prefs;
     private EditText tokenInput, ownerInput, repoInput, branchInput, emailInput, messageInput;
-    private TextView status, listTitle;
+    private TextView status, listTitle, accountsStatus;
     private LinearLayout listBox;
     private String sha = "";
 
@@ -61,7 +64,17 @@ public class AdminActivity extends Activity {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences("admin", MODE_PRIVATE);
         setContentView(buildUi());
+        loadDeviceAccounts();
         if (savedInstanceState == null) loadRemote();
+    }
+
+    private static class Account {
+        final String email, name, createdAt;
+        Account(String email, String name, String createdAt) {
+            this.email = email;
+            this.name = name;
+            this.createdAt = createdAt;
+        }
     }
 
     private int dp(int v) {
@@ -109,11 +122,31 @@ public class AdminActivity extends Activity {
         status.setText("Prêt.");
         root.addView(status);
 
+        TextView accTitle = new TextView(this);
+        accTitle.setText("Comptes créés sur ce téléphone");
+        accTitle.setTextColor(TEXT);
+        accTitle.setTextSize(15);
+        accTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        accTitle.setPadding(0, dp(4), 0, 0);
+        root.addView(accTitle);
+
+        accountsStatus = new TextView(this);
+        accountsStatus.setTextColor(MUTED);
+        accountsStatus.setTextSize(11.5f);
+        accountsStatus.setPadding(0, dp(4), 0, 0);
+        accountsStatus.setText("Lecture des comptes…");
+        root.addView(accountsStatus);
+
+        LinearLayout accRow = row(root);
+        Button refreshAcc = button(accRow, "Rafraîchir les comptes", true);
+        refreshAcc.setOnClickListener(v -> loadDeviceAccounts());
+
         TextView addTitle = new TextView(this);
-        addTitle.setText("Désactiver un compte");
+        addTitle.setText("Désactiver un e-mail manuellement");
         addTitle.setTextColor(TEXT);
         addTitle.setTextSize(15);
         addTitle.setTypeface(Typeface.DEFAULT_BOLD);
+        addTitle.setPadding(0, dp(20), 0, 0);
         root.addView(addTitle);
 
         emailInput = new EditText(this);
@@ -153,7 +186,7 @@ public class AdminActivity extends Activity {
         messageInput = field(root, "Message affiché au compte bloqué", prefs.getString("message", "Ce compte a été désactivé par l’administrateur."), false);
 
         listTitle = new TextView(this);
-        listTitle.setText("Comptes désactivés (0)");
+        listTitle.setText("Comptes (0)");
         listTitle.setTextColor(TEXT);
         listTitle.setTextSize(15);
         listTitle.setTypeface(Typeface.DEFAULT_BOLD);
@@ -217,45 +250,106 @@ public class AdminActivity extends Activity {
 
     private void renderList() {
         listBox.removeAllViews();
-        listTitle.setText("Comptes désactivés (" + disabled.size() + ")");
-        if (disabled.isEmpty()) {
+        Set<String> shown = new LinkedHashSet<>();
+        int active = 0;
+        for (Account a : accounts) {
+            if (a.email == null || a.email.isEmpty() || !shown.add(a.email)) continue;
+            boolean off = disabled.contains(a.email);
+            if (!off) active++;
+            addAccountRow(a.email, metaOf(a), off);
+        }
+        for (String e : new ArrayList<>(disabled)) {
+            if (shown.add(e)) addAccountRow(e, "Désactivé manuellement (hors appareil)", true);
+        }
+        listTitle.setText("Comptes — " + active + " actif(s) / " + disabled.size() + " désactivé(s)");
+        if (listBox.getChildCount() == 0) {
             TextView tv = new TextView(this);
-            tv.setText("Aucun compte désactivé.");
+            tv.setText("Aucun compte détecté. Ouvrez ASSOULI AUTOX, créez un compte, puis touchez « Rafraîchir les comptes ».");
             tv.setTextColor(MUTED);
             tv.setTextSize(12);
             listBox.addView(tv);
-            return;
         }
-        List<String> items = new ArrayList<>(disabled);
-        for (String email : items) {
-            LinearLayout r = new LinearLayout(this);
-            r.setOrientation(LinearLayout.HORIZONTAL);
-            r.setBackgroundColor(CARD);
-            r.setPadding(dp(12), dp(8), dp(8), dp(8));
-            LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            rp.topMargin = dp(6);
-            listBox.addView(r, rp);
+    }
 
-            TextView tv = new TextView(this);
-            tv.setText(email);
-            tv.setTextColor(TEXT);
-            tv.setTextSize(12.5f);
-            tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            r.addView(tv);
-
-            Button on = new Button(this);
-            on.setText("Activer");
-            on.setTextSize(10.5f);
-            on.setAllCaps(false);
-            on.setTextColor(BRAND);
-            on.setBackgroundColor(Color.TRANSPARENT);
-            on.setOnClickListener(v -> {
-                disabled.remove(email);
-                renderList();
-                status.setText("Activé localement. Touchez « Enregistrer » pour publier.");
-            });
-            r.addView(on);
+    private String metaOf(Account a) {
+        StringBuilder sb = new StringBuilder();
+        if (a.name != null && !a.name.isEmpty()) sb.append(a.name);
+        if (a.createdAt != null && a.createdAt.length() >= 10) {
+            if (sb.length() > 0) sb.append(" • ");
+            sb.append(a.createdAt, 0, 10);
         }
+        return sb.toString();
+    }
+
+    private void addAccountRow(String email, String meta, boolean off) {
+        LinearLayout r = new LinearLayout(this);
+        r.setOrientation(LinearLayout.HORIZONTAL);
+        r.setBackgroundColor(CARD);
+        r.setPadding(dp(12), dp(9), dp(6), dp(9));
+        r.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rp.topMargin = dp(6);
+        listBox.addView(r, rp);
+
+        LinearLayout left = new LinearLayout(this);
+        left.setOrientation(LinearLayout.VERTICAL);
+        left.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        r.addView(left);
+
+        TextView mail = new TextView(this);
+        mail.setText(email);
+        mail.setTextColor(TEXT);
+        mail.setTextSize(12.5f);
+        mail.setTypeface(Typeface.DEFAULT_BOLD);
+        left.addView(mail);
+
+        TextView metaTv = new TextView(this);
+        String state = off ? "Désactivé" : "Actif";
+        metaTv.setText(meta == null || meta.isEmpty() ? state : meta + " · " + state);
+        metaTv.setTextColor(off ? Color.parseColor("#FDA4AF") : BRAND);
+        metaTv.setTextSize(10.5f);
+        left.addView(metaTv);
+
+        Button toggle = new Button(this);
+        toggle.setText(off ? "Activer" : "Désactiver");
+        toggle.setTextSize(10.5f);
+        toggle.setAllCaps(false);
+        toggle.setTextColor(off ? BRAND : Color.parseColor("#FDA4AF"));
+        toggle.setBackgroundColor(Color.TRANSPARENT);
+        toggle.setOnClickListener(v -> {
+            if (off) disabled.remove(email);
+            else disabled.add(email);
+            status.setText((off ? "Activé" : "Désactivé") + " localement. Touchez « Enregistrer » pour publier.");
+            renderList();
+        });
+        r.addView(toggle);
+    }
+
+    private void loadDeviceAccounts() {
+        accounts.clear();
+        try (Cursor c = getContentResolver().query(Uri.parse("content://ma.marocjobs.hub.accounts/accounts"), null, null, null, null)) {
+            String json = "[]";
+            if (c != null && c.moveToFirst()) json = c.getString(0);
+            JSONArray arr = new JSONArray(json == null ? "[]" : json);
+            for (int i = arr.length() - 1; i >= 0; i--) {
+                JSONObject o = arr.optJSONObject(i);
+                if (o == null) continue;
+                if (!o.optBoolean("verified", true)) continue;
+                String em = o.optString("email", "").trim().toLowerCase(Locale.ROOT);
+                if (em.isEmpty()) continue;
+                accounts.add(new Account(em, o.optString("name", ""), o.optString("createdAt", "")));
+            }
+            if (accountsStatus != null) {
+                accountsStatus.setText(accounts.isEmpty()
+                    ? "Aucun compte pour le moment. Créez-en un dans ASSOULI AUTOX."
+                    : accounts.size() + " compte(s) trouvé(s) sur ce téléphone.");
+            }
+        } catch (SecurityException se) {
+            if (accountsStatus != null) accountsStatus.setText("Accès refusé : les deux APK doivent être signés avec la même clé (version debug).");
+        } catch (Exception e) {
+            if (accountsStatus != null) accountsStatus.setText("Ouvrez ASSOULI AUTOX une fois pour synchroniser les comptes.");
+        }
+        renderList();
     }
 
     private void loadRemote() {

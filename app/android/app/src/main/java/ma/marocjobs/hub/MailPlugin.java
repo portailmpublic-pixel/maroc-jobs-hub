@@ -58,13 +58,13 @@ public class MailPlugin extends Plugin {
                     });
 
                     MimeMessage msg = new MimeMessage(session);
-                    msg.setFrom(new InternetAddress(SENDER, "ELASSOULI OFFERS"));
+                    msg.setFrom(new InternetAddress(SENDER, "ASSOULI AUTOX"));
                     msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to.trim(), false));
-                    msg.setSubject("Code de vérification — ELASSOULI OFFERS", "UTF-8");
+                    msg.setSubject("Code de vérification — ASSOULI AUTOX", "UTF-8");
 
                     String html = "<div style=\"font-family:Arial,Helvetica,sans-serif;max-width:520px;margin:auto;padding:26px;border:1px solid #e5e7eb;border-radius:16px;background:#ffffff\">"
-                        + "<h2 style=\"margin:0 0 6px;color:#0f766e;font-size:22px\">ELASSOULI OFFERS</h2>"
-                        + "<p style=\"color:#475569;margin:0 0 18px\">Plateforme emploi &amp; marchés publics</p>"
+                        + "<h2 style=\"margin:0 0 6px;color:#0f766e;font-size:22px\">ASSOULI AUTOX</h2>"
+                        + "<p style=\"color:#475569;margin:0 0 18px\">Plateforme emploi, marchés publics &amp; exams</p>"
                         + "<p>Bonjour " + escape(name) + ",</p>"
                         + "<p>Voici votre code de vérification :</p>"
                         + "<p style=\"font-size:36px;font-weight:800;letter-spacing:12px;color:#0f172a;margin:20px 0;text-align:center;background:#f0fdfa;padding:14px 0;border-radius:12px\">" + code + "</p>"
