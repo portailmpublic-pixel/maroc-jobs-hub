@@ -1,7 +1,7 @@
 {
-    "versionCode":  4,
-    "versionName":  "1.3.0",
-    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.3.0/ASSOULI-AUTOX.apk",
-    "notes":  "Compte desactive = arret immediat, notifications avec icone app fermee, APK admin modernise",
-    "publishedAt":  "2026-10-24T21:20:29Z"
+    "versionCode":  5,
+    "versionName":  "1.3.1",
+    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.3.1/ASSOULI-AUTOX.apk",
+    "notes":  "Message de blocage conserve apres fermeture + corrections notifications",
+    "publishedAt":  "2026-10-24T21:23:55Z"
 }

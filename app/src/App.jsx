@@ -320,7 +320,7 @@ function AuthScreen({ onAuthed }) {
   const [email, setEmail] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState(() => { try { const m = localStorage.getItem('mjh_blocked_msg') || ''; localStorage.removeItem('mjh_blocked_msg'); return m; } catch { return ''; } });
+  const [err, setErr] = useState(() => { try { return localStorage.getItem('mjh_blocked_msg') || ''; } catch { return ''; } });
   const [info, setInfo] = useState('');
   const [codeInfo, setCodeInfo] = useState(null);
   useEffect(() => { refreshAccessList(); syncNativeAccounts(loadAccounts()); }, []);
@@ -366,6 +366,7 @@ function AuthScreen({ onAuthed }) {
       lastLogin: new Date().toISOString(),
     };
     saveAccounts([...accounts.filter((a) => a.email !== target), acc]);
+    try { localStorage.removeItem('mjh_blocked_msg'); } catch {}
     const sess = { email: target, name: acc.name, since: new Date().toISOString() };
     writeSession(sess);
     onAuthed(sess);
