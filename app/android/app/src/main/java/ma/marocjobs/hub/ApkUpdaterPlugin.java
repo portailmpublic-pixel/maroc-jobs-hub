@@ -102,21 +102,32 @@ public class ApkUpdaterPlugin extends Plugin {
         }).start();
     }
 
-    private void installApk(File apk) {
-        try {
-            Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", apk);
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(uri, "application/vnd.android.package-archive");
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-            getContext().startActivity(intent);
-        } catch (Exception e) {
-            // L'utilisateur doit autoriser les sources inconnues puis relancer
+    private void installApk(final File apk) {
+        final android.app.Activity activity = getActivity();
+        Runnable task = () -> {
             try {
-                Intent settings = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-                settings.setData(Uri.parse("package:" + getContext().getPackageName()));
-                settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getContext().startActivity(settings);
-            } catch (Exception ignored) {}
-        }
+                if (Build.VERSION.SDK_INT >= 26 && !getContext().getPackageManager().canRequestPackageInstalls()) {
+                    Intent settings = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                    settings.setData(Uri.parse("package:" + getContext().getPackageName()));
+                    settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(settings);
+                    return;
+                }
+                Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", apk);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(uri, "application/vnd.android.package-archive");
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(intent);
+            } catch (Exception e) {
+                try {
+                    Intent settings = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                    settings.setData(Uri.parse("package:" + getContext().getPackageName()));
+                    settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(settings);
+                } catch (Exception ignored) {}
+            }
+        };
+        if (activity != null) activity.runOnUiThread(task);
+        else task.run();
     }
 }
