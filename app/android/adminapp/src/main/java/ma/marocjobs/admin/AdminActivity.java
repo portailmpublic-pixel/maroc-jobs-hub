@@ -1,19 +1,31 @@
 package ma.marocjobs.admin;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Patterns;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.OvershootInterpolator;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -39,15 +51,28 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Console ASSOULI ADMIN — design « Midnight Emerald ».
+ * Détecte les comptes de l'appareil via le provider signature de l'app principale,
+ * affiche les statistiques et publie access.json sur GitHub.
+ */
 public class AdminActivity extends Activity {
 
     private static final String API = "https://api.github.com/repos/";
     private static final String PATH = "app/public/access.json";
-    private static final int BG = Color.parseColor("#05070D");
-    private static final int CARD = Color.parseColor("#0E1526");
-    private static final int TEXT = Color.parseColor("#EAF2FF");
-    private static final int MUTED = Color.parseColor("#8AA0B8");
-    private static final int BRAND = Color.parseColor("#14E0B4");
+
+    private static final int BG = 0xFF05070D;
+    private static final int BG_SOFT = 0xFF06121A;
+    private static final int CARD = 0xFF0E1526;
+    private static final int CARD_DARK = 0xFF0A1020;
+    private static final int STROKE = 0xFF1E2C42;
+    private static final int TEXT = 0xFFEAF2FF;
+    private static final int MUTED = 0xFF8AA0B8;
+    private static final int BRAND = 0xFF14E0B4;
+    private static final int CYAN = 0xFF7DD3FC;
+    private static final int DANGER = 0xFFFDA4AF;
+    private static final int DANGER_STROKE = 0xFF40232B;
+    private static final int ON_BRAND = 0xFF04231E;
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private final Set<String> disabled = new LinkedHashSet<>();
@@ -55,16 +80,23 @@ public class AdminActivity extends Activity {
 
     private SharedPreferences prefs;
     private EditText tokenInput, ownerInput, repoInput, branchInput, emailInput, messageInput;
-    private TextView status, listTitle, accountsStatus;
-    private LinearLayout listBox;
+    private TextView status, accountsStatus, activeCount, disabledCount, settingsChevron;
+    private LinearLayout listBox, settingsBody;
     private String sha = "";
+    private String accountsError;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setStatusBarColor(BG);
+        getWindow().setNavigationBarColor(BG);
         prefs = getSharedPreferences("admin", MODE_PRIVATE);
-        setContentView(buildUi());
-        if (savedInstanceState == null) loadRemote();
+        FrameLayout shell = buildUi();
+        setContentView(shell);
+        if (savedInstanceState == null) {
+            showSplash(shell);
+            loadRemote();
+        }
     }
 
     @Override
@@ -82,274 +114,732 @@ public class AdminActivity extends Activity {
         }
     }
 
-    private int dp(int v) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, v, getResources().getDisplayMetrics());
-    }
+    // ============================================================
+    //  UI
+    // ============================================================
 
-    private View buildUi() {
+    private FrameLayout buildUi() {
+        FrameLayout shell = new FrameLayout(this);
+        shell.setBackground(new GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[]{BG, BG_SOFT}
+        ));
+
+        View glowTop = glow(320, 0x2E14E0B4, 0x0014E0B4);
+        FrameLayout.LayoutParams g1 = new FrameLayout.LayoutParams(dp(320), dp(320), Gravity.TOP | Gravity.RIGHT);
+        g1.rightMargin = dp(-80);
+        g1.topMargin = dp(-120);
+        shell.addView(glowTop, g1);
+
+        View glowLeft = glow(250, 0x207DD3FC, 0x007DD3FC);
+        FrameLayout.LayoutParams g2 = new FrameLayout.LayoutParams(dp(250), dp(250), Gravity.TOP | Gravity.LEFT);
+        g2.leftMargin = dp(-90);
+        g2.topMargin = dp(110);
+        shell.addView(glowLeft, g2);
+
+        LinearLayout page = new LinearLayout(this);
+        page.setOrientation(LinearLayout.VERTICAL);
+        shell.addView(page, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
         ScrollView scroll = new ScrollView(this);
-        scroll.setBackgroundColor(BG);
+        scroll.setFillViewport(true);
+        scroll.setClipToPadding(false);
+        scroll.setVerticalScrollBarEnabled(false);
+        scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        page.addView(scroll, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(18), dp(18), dp(18), dp(28));
-        scroll.addView(root);
+        root.setPadding(dp(18), dp(22), dp(18), dp(26));
+        scroll.addView(root, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        TextView title = new TextView(this);
-        title.setText("ASSOULI ADMIN");
-        title.setTextColor(TEXT);
-        title.setTextSize(24);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        root.addView(title);
+        addHeader(root);
+        addStats(root);
+        addAccountsSection(root);
+        addManualSection(root);
+        addSettingsCard(root);
+        addFooter(root);
 
-        TextView sub = new TextView(this);
-        sub.setText("Activer / désactiver les comptes ASSOULI AUTOX (distant)");
-        sub.setTextColor(MUTED);
-        sub.setTextSize(12);
-        sub.setPadding(0, dp(2), 0, dp(14));
-        root.addView(sub);
+        page.addView(buildBottomBar(), new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        tokenInput = field(root, "Jeton GitHub (fine-grained, Contents: Read/Write)", prefs.getString("token", BuildConfig.GITHUB_TOKEN), true);
-        ownerInput = field(root, "Compte GitHub", prefs.getString("owner", "portailmpublic-pixel"), false);
-        repoInput = field(root, "Dépôt", prefs.getString("repo", "maroc-jobs-hub"), false);
-        branchInput = field(root, "Branche", prefs.getString("branch", "master"), false);
+        return shell;
+    }
 
-        LinearLayout loadRow = row(root);
-        Button load = button(loadRow, "Charger access.json", true);
-        load.setOnClickListener(v -> loadRemote());
-        Button save = button(loadRow, "Enregistrer", false);
-        save.setOnClickListener(v -> saveRemote());
+    private void addHeader(LinearLayout root) {
+        LinearLayout header = new LinearLayout(this);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        root.addView(header, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        status = new TextView(this);
-        status.setTextColor(MUTED);
-        status.setTextSize(12);
-        status.setPadding(0, dp(10), 0, dp(12));
-        status.setText("Prêt.");
-        root.addView(status);
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.mipmap.ic_launcher);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        logo.setContentDescription("Logo ASSOULI AUTOX");
+        GradientDrawable logoBg = new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            new int[]{0x3314E0B4, 0x147DD3FC}
+        );
+        logoBg.setCornerRadius(dp(17));
+        logoBg.setStroke(dp(1), 0x4D14E0B4);
+        logo.setBackground(logoBg);
+        logo.setPadding(dp(5), dp(5), dp(5), dp(5));
+        header.addView(logo, new LinearLayout.LayoutParams(dp(54), dp(54)));
 
-        TextView accTitle = new TextView(this);
-        accTitle.setText("Comptes créés sur ce téléphone");
-        accTitle.setTextColor(TEXT);
-        accTitle.setTextSize(15);
-        accTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        accTitle.setPadding(0, dp(4), 0, 0);
-        root.addView(accTitle);
+        LinearLayout block = new LinearLayout(this);
+        block.setOrientation(LinearLayout.VERTICAL);
+        block.setPadding(dp(12), 0, 0, 0);
+        header.addView(block, new LinearLayout.LayoutParams(0,
+            ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        accountsStatus = new TextView(this);
-        accountsStatus.setTextColor(MUTED);
-        accountsStatus.setTextSize(11.5f);
-        accountsStatus.setPadding(0, dp(4), 0, 0);
-        accountsStatus.setText("Lecture des comptes…");
-        root.addView(accountsStatus);
+        TextView eyebrow = text("CONSOLE SÉCURISÉE", 8.5f, BRAND, true);
+        eyebrow.setLetterSpacing(0.17f);
+        block.addView(eyebrow);
 
-        LinearLayout accRow = row(root);
-        Button refreshAcc = button(accRow, "Rafraîchir les comptes", true);
-        refreshAcc.setOnClickListener(v -> loadDeviceAccounts());
+        LinearLayout nameRow = new LinearLayout(this);
+        nameRow.setOrientation(LinearLayout.HORIZONTAL);
+        TextView a = text("ASSOULI", 21f, TEXT, true);
+        TextView b = text(" ADMIN", 21f, BRAND, true);
+        a.setLetterSpacing(0.04f);
+        b.setLetterSpacing(0.04f);
+        nameRow.addView(a);
+        nameRow.addView(b);
+        block.addView(nameRow);
 
-        TextView addTitle = new TextView(this);
-        addTitle.setText("Désactiver un e-mail manuellement");
-        addTitle.setTextColor(TEXT);
-        addTitle.setTextSize(15);
-        addTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        addTitle.setPadding(0, dp(20), 0, 0);
-        root.addView(addTitle);
+        TextView sub = text("Gestion des comptes · ASSOULI AUTOX", 10f, MUTED, false);
+        sub.setSingleLine(true);
+        sub.setEllipsize(TextUtils.TruncateAt.END);
+        sub.setPadding(0, dp(2), 0, 0);
+        block.addView(sub);
+    }
 
-        emailInput = new EditText(this);
-        emailInput.setHint("email@exemple.com");
-        emailInput.setHintTextColor(Color.parseColor("#5C7186"));
-        emailInput.setTextColor(TEXT);
-        emailInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-        emailInput.setBackgroundColor(CARD);
-        emailInput.setPadding(dp(12), dp(10), dp(12), dp(10));
-        LinearLayout.LayoutParams ep = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        ep.topMargin = dp(8);
-        root.addView(emailInput, ep);
+    private void addStats(LinearLayout root) {
+        LinearLayout stats = new LinearLayout(this);
+        stats.setOrientation(LinearLayout.HORIZONTAL);
+        root.addView(stats, topMarginParams(20));
 
-        LinearLayout addRow = row(root);
-        Button disableBtn = button(addRow, "Désactiver", false);
-        disableBtn.setOnClickListener(v -> {
-            String e = emailInput.getText().toString().trim().toLowerCase(Locale.ROOT);
-            if (e.isEmpty() || !e.contains("@")) { status.setText("Entrez un e-mail valide."); return; }
-            disabled.add(e);
-            emailInput.setText("");
-            renderList();
-            status.setText("Ajouté. Touchez « Enregistrer » pour publier.");
-        });
-        Button enableBtn = button(addRow, "Activer", true);
-        enableBtn.setOnClickListener(v -> {
-            String e = emailInput.getText().toString().trim().toLowerCase(Locale.ROOT);
-            if (e.isEmpty()) { status.setText("Entrez l’e-mail à activer."); return; }
-            if (disabled.remove(e)) {
-                renderList();
-                status.setText("Retiré. Touchez « Enregistrer » pour publier.");
-            } else {
-                status.setText("Cet e-mail n’est pas dans la liste désactivée.");
-            }
-            emailInput.setText("");
-        });
+        stats.addView(statCard("COMPTES ACTIFS", "sur cet appareil", BRAND, true),
+            weighted(1f, 0, 10));
+        stats.addView(statCard("DÉSACTIVÉS", "liste publiée", DANGER, false),
+            weighted(1f, 10, 0));
+    }
 
-        messageInput = field(root, "Message affiché au compte bloqué", prefs.getString("message", "Ce compte a été désactivé par l’administrateur."), false);
+    private LinearLayout statCard(String label, String footText, int accent, boolean activeStat) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(14), dp(14), dp(13));
+        card.setBackground(rounded(CARD, 20, STROKE, 1));
+        card.setElevation(dp(3));
 
-        listTitle = new TextView(this);
-        listTitle.setText("Comptes (0)");
-        listTitle.setTextColor(TEXT);
-        listTitle.setTextSize(15);
-        listTitle.setTypeface(Typeface.DEFAULT_BOLD);
-        listTitle.setPadding(0, dp(18), 0, dp(8));
-        root.addView(listTitle);
+        TextView l = text(label, 8.5f, MUTED, true);
+        l.setLetterSpacing(0.12f);
+        l.setSingleLine(true);
+        l.setEllipsize(TextUtils.TruncateAt.END);
+        card.addView(l);
+
+        TextView num = text("0", 29f, accent, true);
+        num.setPadding(0, dp(3), 0, dp(1));
+        card.addView(num);
+
+        TextView foot = text(footText, 9.5f, MUTED, false);
+        foot.setSingleLine(true);
+        card.addView(foot);
+
+        if (activeStat) activeCount = num;
+        else disabledCount = num;
+        return card;
+    }
+
+    private void addAccountsSection(LinearLayout root) {
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        root.addView(head, topMarginParams(26));
+
+        LinearLayout left = new LinearLayout(this);
+        left.setOrientation(LinearLayout.VERTICAL);
+        head.addView(left, new LinearLayout.LayoutParams(0,
+            ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView title = text("Comptes de cet appareil", 15f, TEXT, true);
+        left.addView(title);
+
+        accountsStatus = text("Lecture des comptes…", 10.5f, MUTED, false);
+        accountsStatus.setPadding(0, dp(2), 0, 0);
+        left.addView(accountsStatus);
+
+        TextView refresh = text("Actualiser", 10.5f, BRAND, true);
+        refresh.setGravity(Gravity.CENTER);
+        refresh.setPadding(dp(12), dp(9), dp(12), dp(9));
+        refresh.setBackground(ripple(rounded(0x1414E0B4, 99, 0x3314E0B4, 1), 0x22FFFFFF));
+        refresh.setClickable(true);
+        refresh.setFocusable(true);
+        refresh.setOnClickListener(v -> loadDeviceAccounts());
+        head.addView(refresh, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         listBox = new LinearLayout(this);
         listBox.setOrientation(LinearLayout.VERTICAL);
-        root.addView(listBox);
-
-        TextView foot = new TextView(this);
-        foot.setText("Sécurité : le jeton reste sur ce téléphone. Il doit avoir le droit « Contents: Read and write » sur ce dépôt uniquement.");
-        foot.setTextColor(MUTED);
-        foot.setTextSize(10.5f);
-        foot.setPadding(0, dp(18), 0, 0);
-        root.addView(foot);
-
-        return scroll;
+        root.addView(listBox, topMarginParams(10));
     }
 
-    private EditText field(LinearLayout parent, String label, String value, boolean secret) {
-        TextView l = new TextView(this);
-        l.setText(label);
-        l.setTextColor(MUTED);
-        l.setTextSize(11);
+    private void addManualSection(LinearLayout root) {
+        TextView title = text("Ajouter un e-mail", 15f, TEXT, true);
+        root.addView(title, topMarginParams(26));
+
+        TextView sub = text("Bloquer ou débloquer un compte manuellement, même hors appareil.",
+            10.5f, MUTED, false);
+        sub.setPadding(0, dp(2), 0, 0);
+        root.addView(sub);
+
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(14), dp(14), dp(14), dp(12));
+        card.setBackground(rounded(CARD, 20, STROKE, 1));
+        root.addView(card, topMarginParams(10));
+
+        emailInput = input("email@exemple.com");
+        card.addView(emailInput, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        card.addView(row, topMarginParams(10));
+
+        TextView disableBtn = smallButton("Désactiver", DANGER);
+        disableBtn.setOnClickListener(v -> {
+            String e = emailInput.getText().toString().trim().toLowerCase(Locale.ROOT);
+            if (e.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(e).matches()) {
+                setStatus("Entrez un e-mail valide.", DANGER);
+                return;
+            }
+            if (!disabled.add(e)) {
+                setStatus("Cet e-mail est déjà désactivé.", MUTED);
+                return;
+            }
+            emailInput.setText("");
+            renderList();
+            setStatus("E-mail ajouté · touchez Publier pour appliquer.", CYAN);
+        });
+        row.addView(disableBtn, weighted(1f, 0, 8));
+
+        TextView enableBtn = smallButton("Activer", BRAND);
+        enableBtn.setOnClickListener(v -> {
+            String e = emailInput.getText().toString().trim().toLowerCase(Locale.ROOT);
+            if (e.isEmpty()) {
+                setStatus("Entrez l'e-mail à activer.", DANGER);
+                return;
+            }
+            if (!disabled.remove(e)) {
+                setStatus("Cet e-mail n'est pas dans la liste désactivée.", MUTED);
+                return;
+            }
+            emailInput.setText("");
+            renderList();
+            setStatus("E-mail retiré · touchez Publier pour appliquer.", CYAN);
+        });
+        row.addView(enableBtn, weighted(1f, 8, 0));
+    }
+
+    private void addSettingsCard(LinearLayout root) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(13), dp(16), dp(14));
+        card.setBackground(rounded(CARD, 20, STROKE, 1));
+        root.addView(card, topMarginParams(26));
+
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        head.setClickable(true);
+        head.setFocusable(true);
+        card.addView(head, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout left = new LinearLayout(this);
+        left.setOrientation(LinearLayout.VERTICAL);
+        head.addView(left, new LinearLayout.LayoutParams(0,
+            ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView t = text("Connexion GitHub", 13.5f, TEXT, true);
+        left.addView(t);
+        TextView s = text("Jeton, dépôt et message de blocage", 10f, MUTED, false);
+        s.setPadding(0, dp(2), 0, 0);
+        left.addView(s);
+
+        settingsChevron = text("▾", 18f, MUTED, false);
+        settingsChevron.setGravity(Gravity.CENTER);
+        settingsChevron.setPadding(dp(8), dp(2), dp(2), dp(2));
+        head.addView(settingsChevron);
+
+        settingsBody = new LinearLayout(this);
+        settingsBody.setOrientation(LinearLayout.VERTICAL);
+        settingsBody.setVisibility(View.GONE);
+        card.addView(settingsBody);
+
+        head.setOnClickListener(v -> {
+            boolean open = settingsBody.getVisibility() == View.VISIBLE;
+            settingsBody.setVisibility(open ? View.GONE : View.VISIBLE);
+            settingsChevron.animate().rotation(open ? 0f : 180f).setDuration(220).start();
+        });
+
+        tokenInput = field(settingsBody, "Jeton GitHub (Contents: Read/Write)",
+            prefs.getString("token", BuildConfig.GITHUB_TOKEN), true, false);
+        ownerInput = field(settingsBody, "Compte GitHub",
+            prefs.getString("owner", "portailmpublic-pixel"), false, false);
+        repoInput = field(settingsBody, "Dépôt",
+            prefs.getString("repo", "maroc-jobs-hub"), false, false);
+        branchInput = field(settingsBody, "Branche",
+            prefs.getString("branch", "master"), false, false);
+        messageInput = field(settingsBody, "Message affiché au compte bloqué",
+            prefs.getString("message", "Ce compte a été désactivé par l’administrateur."), false, true);
+    }
+
+    private void addFooter(LinearLayout root) {
+        TextView foot = text(
+            "Sécurité · le jeton reste sur ce téléphone. Il doit avoir le droit « Contents: Read and write » sur ce dépôt uniquement.",
+            9.5f, MUTED, false);
+        foot.setLineSpacing(dp(2), 1f);
+        root.addView(foot, topMarginParams(18));
+    }
+
+    private LinearLayout buildBottomBar() {
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.VERTICAL);
+        wrap.setBackgroundColor(0xFF070C14);
+
+        View divider = new View(this);
+        divider.setBackgroundColor(0xFF1A2638);
+        wrap.addView(divider, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
+
+        status = text("Prêt · connexion sécurisée", 10.5f, MUTED, false);
+        status.setSingleLine(true);
+        status.setEllipsize(TextUtils.TruncateAt.END);
+        status.setPadding(dp(18), dp(9), dp(18), 0);
+        wrap.addView(status, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout actions = new LinearLayout(this);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        actions.setPadding(dp(14), dp(8), dp(14), dp(12));
+
+        TextView reload = actionButton("↻  Recharger", false);
+        reload.setOnClickListener(v -> loadRemote());
+        actions.addView(reload, weighted(1f, 0, 8));
+
+        TextView publish = actionButton("Publier les modifications", true);
+        publish.setOnClickListener(v -> saveRemote());
+        actions.addView(publish, weighted(1.7f, 8, 0));
+
+        wrap.addView(actions, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        return wrap;
+    }
+
+    private TextView actionButton(String label, boolean primary) {
+        TextView b = text(label, 12f, primary ? ON_BRAND : TEXT, true);
+        b.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        b.setGravity(Gravity.CENTER);
+        b.setSingleLine(true);
+        b.setEllipsize(TextUtils.TruncateAt.END);
+        b.setPadding(dp(10), 0, dp(10), 0);
+        b.setClickable(true);
+        b.setFocusable(true);
+
+        GradientDrawable bg;
+        if (primary) {
+            bg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{BRAND, CYAN});
+            bg.setCornerRadius(dp(14));
+        } else {
+            bg = rounded(0xFF141E30, 14, 0xFF2A3B55, 1);
+        }
+        b.setBackground(ripple(bg, primary ? 0x44FFFFFF : 0x22FFFFFF));
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            0, dp(46), 1f);
+        lp.setMarginStart(dp(0));
+        lp.setMarginEnd(dp(0));
+        b.setLayoutParams(lp);
+        return b;
+    }
+
+    private TextView smallButton(String label, int color) {
+        TextView b = text(label, 10.5f, color, true);
+        b.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        b.setGravity(Gravity.CENTER);
+        b.setPadding(dp(12), dp(9), dp(12), dp(9));
+        b.setClickable(true);
+        b.setFocusable(true);
+        GradientDrawable bg = rounded(withAlpha(color, 0.09f), 99, withAlpha(color, 0.48f), 1);
+        b.setBackground(ripple(bg, 0x22FFFFFF));
+        return b;
+    }
+
+    private EditText field(LinearLayout parent, String label, String value,
+                           boolean secret, boolean multiline) {
+        TextView l = text(label, 9.5f, MUTED, false);
         l.setPadding(0, dp(12), 0, dp(4));
         parent.addView(l);
 
-        EditText e = new EditText(this);
-        e.setText(value);
-        e.setTextColor(TEXT);
-        e.setSingleLine(true);
-        e.setBackgroundColor(CARD);
-        e.setPadding(dp(12), dp(10), dp(12), dp(10));
-        if (secret) e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        parent.addView(e, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        EditText e = input("");
+        e.setText(value == null ? "" : value);
+        if (secret) {
+            e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        } else if (!multiline) {
+            e.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
+        if (multiline) {
+            e.setSingleLine(false);
+            e.setMinLines(2);
+            e.setGravity(Gravity.TOP | Gravity.START);
+            e.setInputType(InputType.TYPE_CLASS_TEXT
+                | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        }
+        parent.addView(e, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return e;
     }
 
-    private LinearLayout row(LinearLayout parent) {
-        LinearLayout r = new LinearLayout(this);
-        r.setOrientation(LinearLayout.HORIZONTAL);
-        r.setPadding(0, dp(12), 0, 0);
-        parent.addView(r);
-        return r;
-    }
-
-    private Button button(LinearLayout row, String text, boolean primary) {
-        Button b = new Button(this);
-        b.setText(text);
-        b.setTextSize(12.5f);
-        b.setAllCaps(false);
-        b.setTextColor(primary ? Color.parseColor("#03251E") : TEXT);
-        if (primary) b.setBackgroundColor(BRAND);
-        else b.setBackgroundColor(Color.parseColor("#1A2438"));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-        lp.rightMargin = dp(8);
-        row.addView(b, lp);
-        return b;
+    private EditText input(String hint) {
+        EditText e = new EditText(this);
+        e.setHint(hint);
+        e.setHintTextColor(0xFF5C7186);
+        e.setTextColor(TEXT);
+        e.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.5f);
+        e.setSingleLine(true);
+        e.setBackground(rounded(CARD_DARK, 14, 0xFF22324A, 1));
+        e.setPadding(dp(14), dp(12), dp(14), dp(12));
+        e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        return e;
     }
 
     private void renderList() {
         listBox.removeAllViews();
         Set<String> shown = new LinkedHashSet<>();
+        int deviceCount = 0;
         int active = 0;
+
         for (Account a : accounts) {
             if (a.email == null || a.email.isEmpty() || !shown.add(a.email)) continue;
+            deviceCount++;
             boolean off = disabled.contains(a.email);
             if (!off) active++;
-            addAccountRow(a.email, metaOf(a), off);
+            addAccountRow(a, off, false);
         }
         for (String e : new ArrayList<>(disabled)) {
-            if (shown.add(e)) addAccountRow(e, "Désactivé manuellement (hors appareil)", true);
+            if (shown.add(e)) addAccountRow(new Account(e, "", ""), true, true);
         }
-        listTitle.setText("Comptes — " + active + " actif(s) / " + disabled.size() + " désactivé(s)");
-        if (listBox.getChildCount() == 0) {
-            TextView tv = new TextView(this);
-            tv.setText("Aucun compte détecté. Ouvrez ASSOULI AUTOX, créez un compte, puis touchez « Rafraîchir les comptes ».");
-            tv.setTextColor(MUTED);
-            tv.setTextSize(12);
-            listBox.addView(tv);
+
+        activeCount.setText(String.valueOf(active));
+        disabledCount.setText(String.valueOf(disabled.size()));
+
+        if (accountsStatus != null) {
+            if (accountsError != null && !accountsError.isEmpty()) {
+                accountsStatus.setText(accountsError);
+            } else {
+                accountsStatus.setText(deviceCount + (deviceCount == 1 ? " compte" : " comptes")
+                    + " · " + active + " actif(s)");
+            }
         }
+
+        if (listBox.getChildCount() == 0) addEmptyState();
     }
 
-    private String metaOf(Account a) {
-        StringBuilder sb = new StringBuilder();
-        if (a.name != null && !a.name.isEmpty()) sb.append(a.name);
-        if (a.createdAt != null && a.createdAt.length() >= 10) {
-            if (sb.length() > 0) sb.append(" • ");
-            sb.append(a.createdAt, 0, 10);
-        }
-        return sb.toString();
+    private void addEmptyState() {
+        LinearLayout empty = new LinearLayout(this);
+        empty.setOrientation(LinearLayout.VERTICAL);
+        empty.setGravity(Gravity.CENTER);
+        empty.setPadding(dp(22), dp(24), dp(22), dp(24));
+        empty.setBackground(rounded(CARD, 20, STROKE, 1));
+        listBox.addView(empty, topMarginParams(8));
+
+        TextView icon = text("◎", 27f, BRAND, true);
+        icon.setGravity(Gravity.CENTER);
+        empty.addView(icon);
+
+        TextView t = text("Aucun compte détecté", 13f, TEXT, true);
+        t.setGravity(Gravity.CENTER);
+        t.setPadding(0, dp(6), 0, 0);
+        empty.addView(t);
+
+        TextView s = text("Ouvrez ASSOULI AUTOX, créez un compte, puis touchez Actualiser.",
+            10.5f, MUTED, false);
+        s.setGravity(Gravity.CENTER);
+        s.setPadding(0, dp(5), 0, 0);
+        empty.addView(s);
     }
 
-    private void addAccountRow(String email, String meta, boolean off) {
+    private void addAccountRow(Account a, boolean off, boolean manual) {
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
-        r.setBackgroundColor(CARD);
-        r.setPadding(dp(12), dp(9), dp(6), dp(9));
-        r.setGravity(android.view.Gravity.CENTER_VERTICAL);
-        LinearLayout.LayoutParams rp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        rp.topMargin = dp(6);
-        listBox.addView(r, rp);
+        r.setGravity(Gravity.CENTER_VERTICAL);
+        r.setPadding(dp(12), dp(12), dp(9), dp(12));
+        r.setBackground(rounded(CARD, 18, off ? DANGER_STROKE : STROKE, 1));
+        r.setElevation(dp(2));
+        listBox.addView(r, topMarginParams(8));
 
-        LinearLayout left = new LinearLayout(this);
-        left.setOrientation(LinearLayout.VERTICAL);
-        left.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        r.addView(left);
+        String display = (a.name != null && !a.name.trim().isEmpty())
+            ? a.name.trim() : prettyLocal(a.email);
 
-        TextView mail = new TextView(this);
-        mail.setText(email);
-        mail.setTextColor(TEXT);
-        mail.setTextSize(12.5f);
-        mail.setTypeface(Typeface.DEFAULT_BOLD);
-        left.addView(mail);
+        TextView avatar = text(initialOf(display.isEmpty() ? a.email : display),
+            16f, off ? DANGER : BRAND, true);
+        avatar.setGravity(Gravity.CENTER);
+        GradientDrawable av = new GradientDrawable();
+        av.setShape(GradientDrawable.OVAL);
+        av.setColor(off ? 0xFF2A141A : 0xFF102535);
+        av.setStroke(dp(1), off ? 0xFF5A2630 : 0xFF25465A);
+        avatar.setBackground(av);
+        r.addView(avatar, new LinearLayout.LayoutParams(dp(42), dp(42)));
 
-        TextView metaTv = new TextView(this);
+        LinearLayout mid = new LinearLayout(this);
+        mid.setOrientation(LinearLayout.VERTICAL);
+        LinearLayout.LayoutParams mp = new LinearLayout.LayoutParams(0,
+            ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        mp.setMarginStart(dp(11));
+        mp.setMarginEnd(dp(7));
+        r.addView(mid, mp);
+
+        TextView title = text(display, 13f, TEXT, true);
+        title.setSingleLine(true);
+        title.setEllipsize(TextUtils.TruncateAt.END);
+        mid.addView(title);
+
+        TextView mail = text(a.email, 10.5f, MUTED, false);
+        mail.setSingleLine(true);
+        mail.setEllipsize(TextUtils.TruncateAt.END);
+        mail.setPadding(0, dp(1), 0, 0);
+        mid.addView(mail);
+
         String state = off ? "Désactivé" : "Actif";
-        metaTv.setText(meta == null || meta.isEmpty() ? state : meta + " · " + state);
-        metaTv.setTextColor(off ? Color.parseColor("#FDA4AF") : BRAND);
-        metaTv.setTextSize(10.5f);
-        left.addView(metaTv);
+        String date = dateFr(a.createdAt);
+        String meta;
+        if (manual) meta = "Désactivé manuellement · hors appareil";
+        else if (date.isEmpty()) meta = state;
+        else meta = "Créé le " + date + " · " + state;
 
-        Button toggle = new Button(this);
-        toggle.setText(off ? "Activer" : "Désactiver");
-        toggle.setTextSize(10.5f);
-        toggle.setAllCaps(false);
-        toggle.setTextColor(off ? BRAND : Color.parseColor("#FDA4AF"));
-        toggle.setBackgroundColor(Color.TRANSPARENT);
+        TextView metaTv = text(meta, 9.3f, off ? DANGER : BRAND, false);
+        metaTv.setSingleLine(true);
+        metaTv.setEllipsize(TextUtils.TruncateAt.END);
+        metaTv.setPadding(0, dp(2), 0, 0);
+        mid.addView(metaTv);
+
+        TextView toggle = smallButton(off ? "Activer" : "Désactiver", off ? BRAND : DANGER);
         toggle.setOnClickListener(v -> {
-            if (off) disabled.remove(email);
-            else disabled.add(email);
-            status.setText((off ? "Activé" : "Désactivé") + " localement. Touchez « Enregistrer » pour publier.");
+            if (off) disabled.remove(a.email);
+            else disabled.add(a.email);
             renderList();
+            setStatus((off ? "Compte activé" : "Compte désactivé")
+                + " localement · touchez Publier.", CYAN);
         });
         r.addView(toggle);
     }
 
+    // ============================================================
+    //  Splash animé
+    // ============================================================
+
+    private void showSplash(FrameLayout shell) {
+        FrameLayout overlay = new FrameLayout(this);
+        overlay.setBackground(new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            new int[]{0xFF07161D, 0xFF02040A}
+        ));
+        overlay.setClickable(true);
+        overlay.setFocusable(true);
+        shell.addView(overlay, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        View glow = glow(330, 0x6614E0B4, 0x007DD3FC);
+        FrameLayout.LayoutParams glp = new FrameLayout.LayoutParams(
+            dp(330), dp(330), Gravity.CENTER);
+        glp.topMargin = dp(-54);
+        overlay.addView(glow, glp);
+
+        glow.setAlpha(0f);
+        glow.setScaleX(0.72f);
+        glow.setScaleY(0.72f);
+        glow.animate().alpha(0.9f).scaleX(1.08f).scaleY(1.08f)
+            .setStartDelay(80).setDuration(900)
+            .setInterpolator(new DecelerateInterpolator()).start();
+
+        LinearLayout col = new LinearLayout(this);
+        col.setOrientation(LinearLayout.VERTICAL);
+        col.setGravity(Gravity.CENTER_HORIZONTAL);
+        col.setClipChildren(false);
+        FrameLayout.LayoutParams clp = new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+            Gravity.CENTER);
+        overlay.addView(col, clp);
+
+        FrameLayout stage = new FrameLayout(this);
+        stage.setClipChildren(false);
+        col.addView(stage, new LinearLayout.LayoutParams(dp(196), dp(196)));
+
+        View ring1 = ring(0x6614E0B4);
+        stage.addView(ring1, centerLp(146));
+        animateRing(ring1, 0);
+
+        View ring2 = ring(0x447DD3FC);
+        stage.addView(ring2, centerLp(186));
+        animateRing(ring2, 150);
+
+        FrameLayout logoCard = new FrameLayout(this);
+        GradientDrawable cardBg = new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            new int[]{0xFF17323A, 0xFF08111C}
+        );
+        cardBg.setCornerRadius(dp(36));
+        cardBg.setStroke(dp(1), 0x5514E0B4);
+        logoCard.setBackground(cardBg);
+        logoCard.setElevation(dp(18));
+        stage.addView(logoCard, centerLp(136));
+
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.mipmap.ic_launcher);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        logo.setPadding(dp(7), dp(7), dp(7), dp(7));
+        logo.setContentDescription("ASSOULI AUTOX");
+        logoCard.addView(logo, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        logoCard.setAlpha(0f);
+        logoCard.setScaleX(0.62f);
+        logoCard.setScaleY(0.62f);
+        logoCard.animate().alpha(1f).scaleX(1f).scaleY(1f)
+            .setStartDelay(90).setDuration(680)
+            .setInterpolator(new OvershootInterpolator(1.3f)).start();
+
+        LinearLayout word = new LinearLayout(this);
+        word.setOrientation(LinearLayout.HORIZONTAL);
+        word.setGravity(Gravity.CENTER);
+        TextView w1 = text("ASSOULI", 23f, TEXT, true);
+        TextView w2 = text(" ADMIN", 23f, BRAND, true);
+        w1.setLetterSpacing(0.07f);
+        w2.setLetterSpacing(0.07f);
+        word.addView(w1);
+        word.addView(w2);
+        col.addView(word);
+
+        TextView tag = text("GESTION DES COMPTES  •  SÉCURISÉE", 8.5f, MUTED, true);
+        tag.setLetterSpacing(0.15f);
+        tag.setGravity(Gravity.CENTER);
+        tag.setPadding(0, dp(8), 0, 0);
+        col.addView(tag);
+
+        word.setAlpha(0f);
+        word.setTranslationY(dp(12));
+        word.animate().alpha(1f).translationY(0f)
+            .setStartDelay(300).setDuration(520)
+            .setInterpolator(new DecelerateInterpolator()).start();
+
+        tag.setAlpha(0f);
+        tag.setTranslationY(dp(8));
+        tag.animate().alpha(1f).translationY(0f)
+            .setStartDelay(420).setDuration(500)
+            .setInterpolator(new DecelerateInterpolator()).start();
+
+        FrameLayout track = new FrameLayout(this);
+        track.setBackground(rounded(0x14FFFFFF, 99, 0x00000000, 0));
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(dp(200), dp(3));
+        tlp.topMargin = dp(24);
+        col.addView(track, tlp);
+
+        View bar = new View(this);
+        GradientDrawable barBg = new GradientDrawable(
+            GradientDrawable.Orientation.LEFT_RIGHT, new int[]{BRAND, CYAN});
+        barBg.setCornerRadius(dp(99));
+        bar.setBackground(barBg);
+        FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams(0,
+            ViewGroup.LayoutParams.MATCH_PARENT);
+        track.addView(bar, blp);
+
+        track.setAlpha(0f);
+        track.animate().alpha(1f).setStartDelay(480).setDuration(300).start();
+
+        ValueAnimator va = ValueAnimator.ofInt(dp(14), dp(200));
+        va.setStartDelay(520);
+        va.setDuration(1050);
+        va.setInterpolator(new DecelerateInterpolator());
+        va.addUpdateListener(a -> {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) bar.getLayoutParams();
+            lp.width = (int) a.getAnimatedValue();
+            bar.setLayoutParams(lp);
+        });
+        va.start();
+
+        TextView foot = text("ASSOULI AUTOX  ·  ADMIN", 8f, withAlpha(MUTED, 0.8f), true);
+        foot.setLetterSpacing(0.2f);
+        foot.setGravity(Gravity.CENTER);
+        FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
+            Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        flp.bottomMargin = dp(34);
+        overlay.addView(foot, flp);
+
+        overlay.postDelayed(() -> {
+            if (isFinishing() || isDestroyed()) return;
+            overlay.animate().alpha(0f).setDuration(320).withEndAction(() -> {
+                if (!isFinishing() && !isDestroyed()) shell.removeView(overlay);
+            }).start();
+        }, 1720);
+    }
+
+    private void animateRing(View v, long delay) {
+        v.setAlpha(0f);
+        v.setScaleX(0.72f);
+        v.setScaleY(0.72f);
+        v.animate().alpha(0.8f).scaleX(0.96f).scaleY(0.96f)
+            .setStartDelay(delay).setDuration(360)
+            .withEndAction(() -> v.animate().alpha(0f)
+                .scaleX(1.45f).scaleY(1.45f)
+                .setDuration(880)
+                .setInterpolator(new DecelerateInterpolator())
+                .start())
+            .start();
+    }
+
+    private View ring(int stroke) {
+        View v = new View(this);
+        GradientDrawable g = new GradientDrawable();
+        g.setShape(GradientDrawable.OVAL);
+        g.setColor(Color.TRANSPARENT);
+        g.setStroke(dp(1), stroke);
+        v.setBackground(g);
+        return v;
+    }
+
+    private FrameLayout.LayoutParams centerLp(int size) {
+        return new FrameLayout.LayoutParams(dp(size), dp(size), Gravity.CENTER);
+    }
+
+    // ============================================================
+    //  Comptes de l'appareil (provider signature)
+    // ============================================================
+
     private void loadDeviceAccounts() {
-        accounts.clear();
-        try (Cursor c = getContentResolver().query(Uri.parse("content://ma.marocjobs.hub.accounts/accounts"), null, null, null, null)) {
+        accountsError = null;
+        try (Cursor c = getContentResolver().query(
+            Uri.parse("content://ma.marocjobs.hub.accounts/accounts"),
+            null, null, null, null)) {
             String json = "[]";
             if (c != null && c.moveToFirst()) json = c.getString(0);
             parseAccounts(json);
             prefs.edit().putString("accounts_cache", json == null ? "[]" : json).apply();
-            if (accountsStatus != null) {
-                accountsStatus.setText(accounts.isEmpty()
-                    ? "Aucun compte pour le moment. Créez-en un dans ASSOULI AUTOX."
-                    : accounts.size() + " compte(s) trouvé(s) sur ce téléphone.");
-            }
         } catch (SecurityException se) {
             parseAccounts(prefs.getString("accounts_cache", "[]"));
-            if (accountsStatus != null) accountsStatus.setText("Accès refusé : réinstallez l'APK admin après l'app principale (même clé de signature).");
+            accountsError = "Accès refusé : réinstallez l'APK admin après l'app principale (même clé de signature).";
         } catch (Exception e) {
             parseAccounts(prefs.getString("accounts_cache", "[]"));
-            if (accountsStatus != null) accountsStatus.setText(accounts.isEmpty()
+            accountsError = accounts.isEmpty()
                 ? "Ouvrez ASSOULI AUTOX une fois pour synchroniser les comptes."
-                : "Liste mémorisée (dernière synchronisation).");
+                : null;
         }
         renderList();
     }
@@ -369,14 +859,21 @@ public class AdminActivity extends Activity {
         } catch (Exception ignored) {}
     }
 
+    // ============================================================
+    //  GitHub access.json
+    // ============================================================
+
     private void loadRemote() {
         savePrefs();
         final String owner = ownerInput.getText().toString().trim();
         final String repo = repoInput.getText().toString().trim();
         final String branch = branchInput.getText().toString().trim();
         final String token = tokenInput.getText().toString().trim();
-        if (owner.isEmpty() || repo.isEmpty()) { status.setText("Compte / dépôt manquant."); return; }
-        status.setText("Chargement…");
+        if (owner.isEmpty() || repo.isEmpty()) {
+            setStatus("Compte / dépôt manquant.", DANGER);
+            return;
+        }
+        setStatus("Chargement de la liste distante…", CYAN);
         pool.execute(() -> {
             try {
                 String url = API + owner + "/" + repo + "/contents/" + PATH + "?ref=" + branch;
@@ -387,15 +884,19 @@ public class AdminActivity extends Activity {
                 JSONObject root = new JSONObject(json);
                 JSONArray arr = root.optJSONArray("disabled");
                 disabled.clear();
-                if (arr != null) for (int i = 0; i < arr.length(); i++) disabled.add(arr.optString(i).toLowerCase(Locale.ROOT));
+                if (arr != null) {
+                    for (int i = 0; i < arr.length(); i++) {
+                        disabled.add(arr.optString(i).toLowerCase(Locale.ROOT));
+                    }
+                }
                 String msg = root.optString("message", "");
                 runOnUiThread(() -> {
                     if (!msg.isEmpty()) messageInput.setText(msg);
                     renderList();
-                    status.setText("Chargé : " + disabled.size() + " compte(s) désactivé(s).");
+                    setStatus("Synchronisé · " + disabled.size() + " compte(s) désactivé(s).", BRAND);
                 });
             } catch (Exception e) {
-                runOnUiThread(() -> status.setText("Erreur chargement : " + e.getMessage()));
+                runOnUiThread(() -> setStatus("Erreur chargement : " + shortMsg(e), DANGER));
             }
         });
     }
@@ -406,10 +907,16 @@ public class AdminActivity extends Activity {
         final String repo = repoInput.getText().toString().trim();
         final String branch = branchInput.getText().toString().trim();
         final String token = tokenInput.getText().toString().trim();
-        if (token.isEmpty()) { status.setText("Jeton GitHub requis pour enregistrer."); return; }
-        if (owner.isEmpty() || repo.isEmpty()) { status.setText("Compte / dépôt manquant."); return; }
+        if (token.isEmpty()) {
+            setStatus("Jeton GitHub requis pour publier.", DANGER);
+            return;
+        }
+        if (owner.isEmpty() || repo.isEmpty()) {
+            setStatus("Compte / dépôt manquant.", DANGER);
+            return;
+        }
         final String message = messageInput.getText().toString().trim();
-        status.setText("Enregistrement…");
+        setStatus("Publication en cours…", CYAN);
         pool.execute(() -> {
             try {
                 String url = API + owner + "/" + repo + "/contents/" + PATH;
@@ -424,8 +931,10 @@ public class AdminActivity extends Activity {
                 fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
                 payload.put("updatedAt", fmt.format(new Date()));
                 payload.put("disabled", arr);
-                payload.put("message", message.isEmpty() ? "Ce compte a été désactivé par l’administrateur." : message);
+                payload.put("message", message.isEmpty()
+                    ? "Ce compte a été désactivé par l’administrateur." : message);
 
+                final String accessJson = payload.toString();
                 byte[] bytes = payload.toString(2).getBytes(StandardCharsets.UTF_8);
                 JSONObject body = new JSONObject();
                 body.put("message", "Admin: update disabled accounts");
@@ -433,12 +942,16 @@ public class AdminActivity extends Activity {
                 body.put("branch", branch);
                 if (!sha.isEmpty()) body.put("sha", sha);
 
-                JSONObject res = request("PUT", url, body.toString().getBytes(StandardCharsets.UTF_8), token);
+                JSONObject res = request("PUT", url,
+                    body.toString().getBytes(StandardCharsets.UTF_8), token);
                 JSONObject content = res.optJSONObject("content");
                 if (content != null) sha = content.optString("sha", sha);
-                runOnUiThread(() -> status.setText("Publié ✓ Les appareils appliqueront au prochain contrôle."));
+                runOnUiThread(() -> {
+                    setStatus("Publié ✓ appliqué au prochain contrôle des appareils.", BRAND);
+                    sendAccessBroadcast(accessJson);
+                });
             } catch (Exception e) {
-                runOnUiThread(() -> status.setText("Erreur enregistrement : " + e.getMessage()));
+                runOnUiThread(() -> setStatus("Erreur publication : " + shortMsg(e), DANGER));
             }
         });
     }
@@ -465,8 +978,22 @@ public class AdminActivity extends Activity {
             while ((line = br.readLine()) != null) sb.append(line);
             br.close();
         }
-        if (code < 200 || code >= 300) throw new Exception("HTTP " + code + " " + sb.toString().replaceAll("\\s+", " ").substring(0, Math.min(90, sb.length())));
+        if (code < 200 || code >= 300) {
+            String detail = sb.toString().replaceAll("\\s+", " ");
+            if (detail.length() > 110) detail = detail.substring(0, 110) + "…";
+            throw new Exception("HTTP " + code + (detail.isEmpty() ? "" : " · " + detail));
+        }
         return new JSONObject(sb.toString());
+    }
+
+    /** Prévient immédiatement l'app principale sur ce téléphone (même signature). */
+    private void sendAccessBroadcast(String json) {
+        try {
+            Intent i = new Intent("ma.marocjobs.hub.ACTION_ACCESS_CHANGED");
+            i.setPackage("ma.marocjobs.hub");
+            i.putExtra("access", json);
+            sendBroadcast(i, "ma.marocjobs.hub.permission.READ_ACCOUNTS");
+        } catch (Exception ignored) {}
     }
 
     private void savePrefs() {
@@ -477,5 +1004,108 @@ public class AdminActivity extends Activity {
             .putString("branch", branchInput.getText().toString().trim())
             .putString("message", messageInput.getText().toString().trim())
             .apply();
+    }
+
+    // ============================================================
+    //  Helpers
+    // ============================================================
+
+    private TextView text(String value, float sizeSp, int color, boolean bold) {
+        TextView t = new TextView(this);
+        t.setText(value);
+        t.setTextColor(color);
+        t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp);
+        t.setTypeface(bold ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+        return t;
+    }
+
+    private void setStatus(String message, int color) {
+        if (status == null) return;
+        status.setText(message);
+        status.setTextColor(color);
+    }
+
+    private int dp(int v) {
+        return (int) TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, v, getResources().getDisplayMetrics());
+    }
+
+    private int withAlpha(int color, float alpha) {
+        int a = Math.round(255 * Math.max(0f, Math.min(1f, alpha)));
+        return Color.argb(a, Color.red(color), Color.green(color), Color.blue(color));
+    }
+
+    private GradientDrawable rounded(int fill, int radiusDp, int strokeColor, int strokeWidthDp) {
+        GradientDrawable g = new GradientDrawable();
+        g.setShape(GradientDrawable.RECTANGLE);
+        g.setColor(fill);
+        g.setCornerRadius(dp(radiusDp));
+        if (strokeWidthDp > 0) g.setStroke(dp(strokeWidthDp), strokeColor);
+        return g;
+    }
+
+    private RippleDrawable ripple(Drawable content, int rippleColor) {
+        return new RippleDrawable(ColorStateList.valueOf(rippleColor), content, null);
+    }
+
+    private View glow(int size, int center, int edge) {
+        View v = new View(this);
+        GradientDrawable g = new GradientDrawable();
+        g.setShape(GradientDrawable.OVAL);
+        g.setGradientType(GradientDrawable.RADIAL_GRADIENT);
+        g.setGradientRadius(dp(size / 2));
+        g.setGradientCenter(0.5f, 0.5f);
+        g.setColors(new int[]{center, edge});
+        v.setBackground(g);
+        return v;
+    }
+
+    private LinearLayout.LayoutParams topMarginParams(int topDp) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = dp(topDp);
+        return lp;
+    }
+
+    private LinearLayout.LayoutParams weighted(float weight, int startDp, int endDp) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+            0, ViewGroup.LayoutParams.WRAP_CONTENT, weight);
+        lp.setMarginStart(dp(startDp));
+        lp.setMarginEnd(dp(endDp));
+        return lp;
+    }
+
+    private String prettyLocal(String email) {
+        if (email == null || email.isEmpty()) return "Compte";
+        int at = email.indexOf('@');
+        String s = at > 0 ? email.substring(0, at) : email;
+        s = s.replace('.', ' ').replace('_', ' ').replace('-', ' ').trim();
+        if (s.isEmpty()) return "Compte";
+        return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    }
+
+    private String initialOf(String value) {
+        if (value != null) {
+            for (int i = 0; i < value.length(); i++) {
+                char c = value.charAt(i);
+                if (Character.isLetterOrDigit(c)) {
+                    return String.valueOf(Character.toUpperCase(c));
+                }
+            }
+        }
+        return "A";
+    }
+
+    private String dateFr(String iso) {
+        if (iso == null || iso.length() < 10) return "";
+        String[] p = iso.substring(0, 10).split("-");
+        if (p.length == 3) return p[2] + "/" + p[1] + "/" + p[0];
+        return iso.substring(0, 10);
+    }
+
+    private String shortMsg(Exception e) {
+        String m = e.getMessage();
+        if (m == null || m.isEmpty()) m = e.getClass().getSimpleName();
+        return m.length() > 140 ? m.substring(0, 140) + "…" : m;
     }
 }

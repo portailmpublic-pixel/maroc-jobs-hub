@@ -6,13 +6,16 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -86,13 +89,40 @@ public class UpdateWorker extends Worker {
 
     static void schedule(Context ctx) {
         try {
+            ensureChannel(ctx);
             Constraints c = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
             PeriodicWorkRequest req = new PeriodicWorkRequest.Builder(UpdateWorker.class, 15, TimeUnit.MINUTES)
                 .setConstraints(c)
                 .build();
-            WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, req);
+            // UPDATE remplace l'ancien travail (icône / réglages corrigés).
+            WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
+                WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, req);
+
+            // Une vérification rapide à chaque ouverture de l'app.
+            OneTimeWorkRequest once = new OneTimeWorkRequest.Builder(UpdateWorker.class)
+                .setConstraints(c)
+                .build();
+            WorkManager.getInstance(ctx).enqueueUniqueWork(
+                WORK_NAME + "-now", ExistingWorkPolicy.REPLACE, once);
+        } catch (Exception ignored) {}
+    }
+
+    static void ensureChannel(Context ctx) {
+        try {
+            if (Build.VERSION.SDK_INT < 26) return;
+            NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            NotificationChannel ch = new NotificationChannel(
+                CHANNEL_ID, "Nouveautés ASSOULI AUTOX", NotificationManager.IMPORTANCE_HIGH);
+            ch.setDescription("Nouvelles offres, marchés publics, concours et examens");
+            ch.enableVibration(true);
+            ch.enableLights(true);
+            ch.setLightColor(0xFF14E0B4);
+            ch.setShowBadge(true);
+            ch.setLockscreenVisibility(android.app.Notification.VISIBILITY_PUBLIC);
+            nm.createNotificationChannel(ch);
         } catch (Exception ignored) {}
     }
 
@@ -102,7 +132,7 @@ public class UpdateWorker extends Worker {
         con.setReadTimeout(20000);
         con.setInstanceFollowRedirects(true);
         con.setRequestProperty("Cache-Control", "no-cache");
-        con.setRequestProperty("User-Agent", "ELASSOULI-OFFERS-App");
+        con.setRequestProperty("User-Agent", "ASSOULI-AUTOX-App");
         try {
             int code = con.getResponseCode();
             if (code < 200 || code >= 300) throw new Exception("HTTP " + code);
@@ -119,25 +149,26 @@ public class UpdateWorker extends Worker {
 
     static void notifyNow(Context ctx, String title, String text) {
         try {
+            ensureChannel(ctx);
             NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm == null) return;
-            if (Build.VERSION.SDK_INT >= 26) {
-                NotificationChannel ch = new NotificationChannel(CHANNEL_ID, "Nouveautés ASSOULI AUTOX", NotificationManager.IMPORTANCE_HIGH);
-                ch.setDescription("Nouvelles offres, marchés publics, concours et examens");
-                ch.enableVibration(true);
-                nm.createNotificationChannel(ch);
-            }
             Intent intent = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= 23) flags |= PendingIntent.FLAG_IMMUTABLE;
             PendingIntent pi = PendingIntent.getActivity(ctx, 0, intent == null ? new Intent() : intent, flags);
 
             NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.stat_notify_more)
+                .setSmallIcon(R.drawable.ic_stat_autox)
+                .setLargeIcon(BitmapFactory.decodeResource(ctx.getResources(), R.drawable.ic_notif_large))
+                .setColor(0xFF14E0B4)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(text))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_RECOMMENDATION)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setShowWhen(true)
+                .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
                 .setContentIntent(pi);
 

@@ -27,7 +27,7 @@ function blockedMessage() {
 
 async function refreshAccessList() {
   try {
-    const data = await fetchJSON(ACCESS_URL + '?t=' + Math.floor(Date.now() / 60000), 6000);
+    const data = await fetchJSON(ACCESS_URL + '?t=' + Math.floor(Date.now() / 15000), 6000);
     if (data && Array.isArray(data.disabled)) {
       localStorage.setItem(LS_ACCESS, JSON.stringify(data));
       return data;
@@ -43,6 +43,17 @@ async function ensureEmailAllowed(email) {
   if (navigator.onLine === false) return true;
   const fresh = await refreshAccessList();
   return !accessDisabledList(fresh).includes(target);
+}
+
+// Ferme réellement l'application Android (pas seulement la session)
+async function closeAppNow() {
+  try {
+    const cap = await import('@capacitor/core');
+    if (!cap.Capacitor.isNativePlatform()) return false;
+    const P = cap.registerPlugin('AppControl');
+    await P.close();
+    return true;
+  } catch { return false; }
 }
 
 function readCached(key, fallback) {
@@ -205,11 +216,13 @@ async function setupNotifications() {
     try {
       await LocalNotifications.createChannel({
         id: 'updates',
-        name: 'Nouveautés ASSOULI',
+        name: 'Nouveautés ASSOULI AUTOX',
         description: 'Nouvelles offres, marchés publics, concours et examens',
         importance: 5,
         visibility: 1,
         vibration: true,
+        lights: true,
+        lightColor: '#14E0B4',
       });
     } catch {}
   } catch {}
@@ -228,6 +241,9 @@ async function notifyPhone(title, body) {
         title: String(title || 'ASSOULI AUTOX').slice(0, 64),
         body: String(body || 'Nouvelles offres disponibles').slice(0, 240),
         channelId: 'updates',
+        smallIcon: 'ic_stat_autox',
+        largeIcon: 'ic_notif_large',
+        iconColor: '#14E0B4',
         schedule: { at: new Date(Date.now() + 400) },
         autoCancel: true,
       }],
@@ -534,6 +550,7 @@ function MainApp({ session, onLogout }) {
   const [mType, setMType] = useState('');
   const [mRegion, setMRegion] = useState('');
   const [mKw, setMKw] = useState('');
+  const closingRef = useRef(false);
 
   function togglePracticed(offerId, year) {
     setPracticed((prev) => {
@@ -710,11 +727,15 @@ function MainApp({ session, onLogout }) {
     }
   }
 
-  async function enforceAccess() {
-    const acc = await refreshAccessList();
+  async function enforceAccess(prefetched) {
+    if (closingRef.current) return;
+    const acc = prefetched || await refreshAccessList();
     if (accessDisabledList(acc).includes(String(session.email || '').toLowerCase())) {
+      closingRef.current = true;
       try { localStorage.setItem('mjh_blocked_msg', acc.message || 'Ce compte a été désactivé par l’administrateur.'); } catch {}
       onLogout();
+      // Laisse le temps d'écrire le message, puis ferme vraiment l'APK.
+      setTimeout(() => { closeAppNow(); }, 260);
     }
   }
 
@@ -803,21 +824,51 @@ function MainApp({ session, onLogout }) {
 
   useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); enforceAccess(); }, []);
   useEffect(() => {
-    const goOnline = () => { setOffline(false); refresh(false, true); };
+    const goOnline = () => { setOffline(false); refresh(false, true); enforceAccess(); };
     const goOffline = () => setOffline(true);
     window.addEventListener('online', goOnline);
     window.addEventListener('offline', goOffline);
     return () => { window.removeEventListener('online', goOnline); window.removeEventListener('offline', goOffline); };
   }, [remote]);
+  // L'APK admin publie access.json puis prévient l'app sur le même téléphone.
+  useEffect(() => {
+    const onAccessChanged = () => {
+      let data = null;
+      try {
+        const raw = window.__mjhAccess;
+        window.__mjhAccess = null;
+        if (raw) {
+          data = JSON.parse(raw);
+          if (data && Array.isArray(data.disabled)) {
+            localStorage.setItem(LS_ACCESS, JSON.stringify(data));
+          } else {
+            data = null;
+          }
+        }
+      } catch {}
+      enforceAccess(data);
+    };
+    window.addEventListener('access-changed', onAccessChanged);
+    return () => window.removeEventListener('access-changed', onAccessChanged);
+  }, [session]);
   // Auto-refresh: every 30 min + each time the app comes back to foreground
   useEffect(() => {
     const AUTO_MS = 30 * 60 * 1000;
+    const ACCESS_MS = 20 * 1000;
     const tick = () => { refresh(false, true); checkUpdate(); enforceAccess(); };
     const interval = setInterval(tick, AUTO_MS);
+    const accessInterval = setInterval(() => {
+      if (document.visibilityState === 'visible' && navigator.onLine !== false) enforceAccess();
+    }, ACCESS_MS);
     const onVis = () => { if (document.visibilityState === 'visible') tick(); };
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('resume', tick); // Capacitor resume event
-    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVis); window.removeEventListener('resume', tick); };
+    return () => {
+      clearInterval(interval);
+      clearInterval(accessInterval);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('resume', tick);
+    };
   }, [remote]);
   useEffect(() => { try { localStorage.setItem(LS_REMOTE, remote); } catch {} }, [remote]);
   useEffect(() => {
@@ -1095,7 +1146,6 @@ function MainApp({ session, onLogout }) {
         </div>
       )}
       <section className="hero">
-        <p className="hero-sub">ASSOULI AUTOX • offres, stages, concours & exams • actualisez à chaque ouverture</p>
         <div className="hero-stats">
           <div className="hstat"><b>{stats.total}</b><span>offres</span></div>
           <div className="hstat green"><b>{stats.thisWeek}</b><span>≤ 7 jours</span></div>

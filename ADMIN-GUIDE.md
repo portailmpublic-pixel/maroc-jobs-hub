@@ -26,6 +26,10 @@ File: `ASSOULI-ADMIN.apk` — package `ma.marocjobs.hub.admin`.
 
 **Keep this APK private**: it contains a GitHub write token.
 
+**Version 1.2.0+** opens with an animated Midnight Emerald splash and a modern
+dashboard: live counters (Actifs / Désactivés), rounded account cards, a fixed
+Recharger / Publier bar, and a collapsible GitHub settings card.
+
 The admin APK automatically lists the accounts created on the phone where both apps
 are installed (name, e-mail, date, Actif / Désactivé). It also remembers the last list
 even if the main app is closed or its data is cleared.
@@ -33,14 +37,15 @@ even if the main app is closed or its data is cleared.
 Usage:
 1. Install **ASSOULI AUTOX 1.2.0+** first, open it and create/log in to an account.
 2. Install and open **ASSOULI ADMIN** (same signing key — both debug APKs are).
-3. The accounts appear under **Comptes créés sur ce téléphone**.
-   Tap **Désactiver** / **Activer** on a row, then **Enregistrer** to publish.
+3. The accounts appear under **Comptes de cet appareil**.
+   Tap **Désactiver** / **Activer** on a row, then **Publier les modifications**.
 4. You can still disable an e-mail that is not on this phone with the manual field.
 
 Effect on phones:
 - Disabled e-mail is blocked at login **and** signup.
-- A user already logged in is logged out automatically (on launch/resume and every
-  30-minute check) with the admin message shown.
+- If the main app is open on the same phone, the admin broadcast closes it within
+  seconds. Otherwise it is stopped at the next launch/resume (plus a 20-second check).
+- The admin message is shown the next time the app opens.
 - Works remotely; no need to rebuild the app.
 
 > The list is per-phone (the two APKs share it through a signature-protected provider).
@@ -62,7 +67,16 @@ $env:JAVA_HOME="C:\Users\hp\Documents\JOB\MarocJobs-APK\.sdk\jdk-17.0.11+9"
 
 Result: `app/android/adminapp/build/outputs/apk/debug/adminapp-debug.apk`.
 
-## 3. Files used remotely
+## 3. Notifications (app closed)
+
+- A background worker checks `alerts.json` even when the app is closed
+  (about every 15 minutes, Wi-Fi/data required) and posts a notification when
+  new offers are published.
+- The notification uses the ASSOULI AUTOX icon and opens the app when tapped.
+- Android 13+: allow notifications on first launch. If you blocked them, enable
+  them in Android Settings → Apps → ASSOULI AUTOX → Notifications.
+
+## 4. Files used remotely
 
 - Update manifest: `app/public/app-version.json`
 - Disabled accounts: `app/public/access.json`

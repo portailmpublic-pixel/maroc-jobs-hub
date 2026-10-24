@@ -10,13 +10,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="ASSOULI ADMIN"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.Material">
+        android:theme="@style/AdminTheme">
 
         <activity
             android:name=".AdminActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:label="ASSOULI ADMIN">
+            android:label="ASSOULI ADMIN"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
