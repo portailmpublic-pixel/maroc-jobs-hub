@@ -1,0 +1,37 @@
+apply plugin: 'com.android.application'
+
+// Jeton GitHub local (jamais publie) : app/android/adminapp/admin-token.txt
+def adminToken = ""
+def tokenFile = file("admin-token.txt")
+if (tokenFile.exists()) {
+    adminToken = tokenFile.text.trim()
+}
+
+android {
+    namespace "ma.marocjobs.admin"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "ma.marocjobs.hub.admin"
+        minSdk 22
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+        buildConfigField "String", "GITHUB_TOKEN", "\"${adminToken}\""
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
