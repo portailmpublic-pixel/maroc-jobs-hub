@@ -64,8 +64,13 @@ public class AdminActivity extends Activity {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences("admin", MODE_PRIVATE);
         setContentView(buildUi());
-        loadDeviceAccounts();
         if (savedInstanceState == null) loadRemote();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (listBox != null) loadDeviceAccounts();
     }
 
     private static class Account {
@@ -330,7 +335,29 @@ public class AdminActivity extends Activity {
         try (Cursor c = getContentResolver().query(Uri.parse("content://ma.marocjobs.hub.accounts/accounts"), null, null, null, null)) {
             String json = "[]";
             if (c != null && c.moveToFirst()) json = c.getString(0);
-            JSONArray arr = new JSONArray(json == null ? "[]" : json);
+            parseAccounts(json);
+            prefs.edit().putString("accounts_cache", json == null ? "[]" : json).apply();
+            if (accountsStatus != null) {
+                accountsStatus.setText(accounts.isEmpty()
+                    ? "Aucun compte pour le moment. Créez-en un dans ASSOULI AUTOX."
+                    : accounts.size() + " compte(s) trouvé(s) sur ce téléphone.");
+            }
+        } catch (SecurityException se) {
+            parseAccounts(prefs.getString("accounts_cache", "[]"));
+            if (accountsStatus != null) accountsStatus.setText("Accès refusé : réinstallez l'APK admin après l'app principale (même clé de signature).");
+        } catch (Exception e) {
+            parseAccounts(prefs.getString("accounts_cache", "[]"));
+            if (accountsStatus != null) accountsStatus.setText(accounts.isEmpty()
+                ? "Ouvrez ASSOULI AUTOX une fois pour synchroniser les comptes."
+                : "Liste mémorisée (dernière synchronisation).");
+        }
+        renderList();
+    }
+
+    private void parseAccounts(String json) {
+        accounts.clear();
+        try {
+            JSONArray arr = new JSONArray(json == null || json.trim().isEmpty() ? "[]" : json);
             for (int i = arr.length() - 1; i >= 0; i--) {
                 JSONObject o = arr.optJSONObject(i);
                 if (o == null) continue;
@@ -339,17 +366,7 @@ public class AdminActivity extends Activity {
                 if (em.isEmpty()) continue;
                 accounts.add(new Account(em, o.optString("name", ""), o.optString("createdAt", "")));
             }
-            if (accountsStatus != null) {
-                accountsStatus.setText(accounts.isEmpty()
-                    ? "Aucun compte pour le moment. Créez-en un dans ASSOULI AUTOX."
-                    : accounts.size() + " compte(s) trouvé(s) sur ce téléphone.");
-            }
-        } catch (SecurityException se) {
-            if (accountsStatus != null) accountsStatus.setText("Accès refusé : les deux APK doivent être signés avec la même clé (version debug).");
-        } catch (Exception e) {
-            if (accountsStatus != null) accountsStatus.setText("Ouvrez ASSOULI AUTOX une fois pour synchroniser les comptes.");
-        }
-        renderList();
+        } catch (Exception ignored) {}
     }
 
     private void loadRemote() {
