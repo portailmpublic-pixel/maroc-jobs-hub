@@ -218,6 +218,15 @@ function Icon({ n, size = 20 }) {
   );
 }
 
+function Wordmark({ tag: Tag = 'span', className = '', onDark = false }) {
+  return (
+    <Tag className={'wordmark' + (onDark ? ' on-dark' : '') + (className ? ' ' + className : '')}>
+      <span className="wm-a">ASSOULI</span>
+      <span className="wm-x">AUTOX</span>
+    </Tag>
+  );
+}
+
 function SplashIntro() {
   return (
     <div className="splash-intro" aria-hidden="true">
@@ -231,7 +240,7 @@ function SplashIntro() {
         <span className="splash-shine" />
       </div>
       <div className="splash-word">
-        <span className="splash-name">ASSOULI <b>AUTOX</b></span>
+        <Wordmark className="splash-name" onDark />
         <span className="splash-tag">Offres • Marchés • Concours • Exams</span>
       </div>
       <div className="splash-bar"><span /></div>
@@ -1069,7 +1078,7 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
     <div className="auth-wrap">
       <div className="auth-card">
         <img src="./app-icon.png" alt="ASSOULI AUTOX" className="auth-logo" />
-        <h1 className="auth-title">ASSOULI <b>AUTOX</b></h1>
+        <Wordmark tag="h1" className="auth-title" />
         <p className="auth-sub">Plateforme sécurisée — offres d'emploi, marchés publics, concours & exams</p>
 
         <div className="auth-tabs">
@@ -2184,7 +2193,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     <div className="phone" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {menuOpen && <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />}
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
-        <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><span><b>ASSOULI</b> <em>AUTOX</em></span></div>
+        <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><Wordmark className="drawer-wordmark" /></div>
         <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
         <div className="drawer-theme">
           <span>Thème</span>
@@ -2213,7 +2222,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           <div className="brand-wrap">
             <button className="menu-btn" onClick={() => setMenuOpen(true)} title="Menu" aria-label="Menu"><Icon n="menu" /></button>
             <img src="./app-icon.png" alt="logo" className="brand-logo" />
-            <div className="brand"><b>ASSOULI</b> <span>AUTOX</span></div>
+            <Wordmark className="brand" onDark />
           </div>
           <div className="top-actions">
             <button className="refresh" onClick={() => setTab('setup')} title="Configuration" aria-label="Configuration"><Icon n="sliders" /></button>
@@ -2588,7 +2597,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             <div className="dash-hero-top">
               <img src="./app-icon.png" alt="" className="section-logo" />
               <div>
-                <h3>ASSOULI AUTOX</h3>
+                <Wordmark tag="h3" className="dash-wordmark" onDark />
                 <p className="muted">{stats.total} offres • {stats.thisWeek} ≤ 7j • {stats.urgent} urgentes</p>
               </div>
             </div>
