@@ -5,12 +5,43 @@ const LS_REMOTE = 'mjh_remote_url';
 const LS_SEEN = 'mjh_alerts_seen';
 const LS_CACHE = 'mjh_cache_';
 const LS_ACCESS = 'mjh_access_v1';
+const LS_ACCESS_AT = 'mjh_access_checked_v1';
 const LS_MARCHES_SESSION = 'mjh_marches_session_v1';
+const LS_THEME = 'mjh_theme_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
 const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
 
 function readAccess() {
   try { return JSON.parse(localStorage.getItem(LS_ACCESS) || '{}'); } catch { return {}; }
+}
+
+// ---- Apparence : clair / sombre / auto ----
+function readThemePref() {
+  try {
+    const v = localStorage.getItem(LS_THEME);
+    return v === 'dark' || v === 'light' ? v : 'auto';
+  } catch { return 'auto'; }
+}
+
+function systemTheme() {
+  try { return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  catch { return 'light'; }
+}
+
+function resolveTheme(pref) {
+  return pref === 'dark' || pref === 'light' ? pref : systemTheme();
+}
+
+function applyTheme(pref) {
+  const theme = resolveTheme(pref);
+  const root = document.documentElement;
+  root.dataset.theme = theme;
+  root.dataset.themePref = pref;
+  root.style.colorScheme = theme;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#070C16' : '#0B2B4B');
+  try { localStorage.setItem(LS_THEME, pref); } catch {}
+  return theme;
 }
 
 function accessDisabledList(access) {
@@ -37,14 +68,16 @@ function blockedMessage() {
   return a.message || 'Ce compte a été désactivé par l’administrateur.';
 }
 
-async function refreshAccessList() {
+async function refreshAccessList(opts = {}) {
   try {
-    const data = await fetchJSON(ACCESS_URL + '?t=' + Math.floor(Date.now() / 15000), 6000);
-    if (data && Array.isArray(data.disabled)) {
+    const data = await fetchJSON(ACCESS_URL + '?v=' + Date.now(), 8000, { cache: 'no-store' });
+    if (data && (Array.isArray(data.disabled) || Array.isArray(data.marches))) {
       localStorage.setItem(LS_ACCESS, JSON.stringify(data));
       return data;
     }
-  } catch {}
+  } catch (e) {
+    if (opts.throwOnError) throw e;
+  }
   return readAccess();
 }
 
@@ -107,11 +140,11 @@ function bootCache() {
   return BOOT;
 }
 
-async function fetchJSON(url, timeoutMs = 12000) {
+async function fetchJSON(url, timeoutMs = 12000, opts = {}) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => { try { ctrl.abort(); } catch {} }, timeoutMs);
   try {
-    const r = await fetch(url, { cache: 'default', signal: ctrl.signal });
+    const r = await fetch(url, { cache: 'default', ...opts, signal: ctrl.signal });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return await r.json();
   } finally {
@@ -174,6 +207,9 @@ const ICONS = {
   spark: <><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" /><path d="M19 16l.9 2.1L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.9z" /></>,
   building2: <><path d="M4 21V7l8-4 8 4v14M9 21v-4h6v4M8 9h.01M12 9h.01M16 9h.01M8 13h.01M12 13h.01M16 13h.01" /></>,
   bookmark: <path d="M6 4h12v17l-6-4-6 4z" />,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
+  moon: <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z" />,
+  auto: <><circle cx="12" cy="12" r="9" /><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" /></>,
 };
 
 function Icon({ n, size = 20 }) {
@@ -956,7 +992,7 @@ async function sendVerificationEmail({ to, code, name }) {
   return { ok: false, error: 'web' };
 }
 
-function AuthScreen({ onAuthed }) {
+function AuthScreen({ onAuthed, themePref, onThemeChange }) {
   const [mode, setMode] = useState('login'); // login | signup | verify
   const [intent, setIntent] = useState('login'); // login | signup
   const [name, setName] = useState('');
@@ -1109,6 +1145,14 @@ function AuthScreen({ onAuthed }) {
         )}
 
         <p className="auth-foot">Connexion sans mot de passe • code à 6 chiffres par e-mail • compte mémorisé sur l’appareil</p>
+        <div className="auth-theme" aria-label="Thème de l’application">
+          <span>Thème</span>
+          <div className="theme-seg compact">
+            <button className={themePref === 'light' ? 'active' : ''} onClick={() => onThemeChange('light')}><Icon n="sun" size={13} /> Clair</button>
+            <button className={themePref === 'dark' ? 'active' : ''} onClick={() => onThemeChange('dark')}><Icon n="moon" size={13} /> Sombre</button>
+            <button className={themePref === 'auto' ? 'active' : ''} onClick={() => onThemeChange('auto')}><Icon n="auto" size={13} /> Auto</button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1227,7 +1271,7 @@ function fmtDay(iso) {
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-function MainApp({ session, onLogout }) {
+function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const boot = bootCache();
   const [jobs, setJobs] = useState(boot.jobs || []);
   const [updatedAt, setUpdatedAt] = useState(boot.jobsUpdated || '');
@@ -1274,6 +1318,15 @@ function MainApp({ session, onLogout }) {
   const [mLimit, setMLimit] = useState(120);
   // ---- Accès spécial Marchés publics (autorisation publiée par l'APK admin) ----
   const [access, setAccess] = useState(() => readAccess());
+  const [accessBusy, setAccessBusy] = useState(false);
+  const [accessAt, setAccessAt] = useState(() => {
+    try {
+      const n = Number(localStorage.getItem(LS_ACCESS_AT) || 0);
+      return Number.isFinite(n) ? n : 0;
+    } catch { return 0; }
+  });
+  const [accessErr, setAccessErr] = useState('');
+  const accessBusyRef = useRef(false);
   const [mArchEmail, setMArchEmail] = useState(() => { try { return localStorage.getItem(LS_MARCHES_SESSION) || ''; } catch { return ''; } });
   const [mGateStep, setMGateStep] = useState('email'); // email | code
   const [mGateEmail, setMGateEmail] = useState(session.email || '');
@@ -1495,6 +1548,36 @@ function MainApp({ session, onLogout }) {
     : { icon: './app-icon.png', ico: 'sliders', label: 'Configuration' };
 
   function showToast(t) { setToast(t); setTimeout(() => setToast(''), 2600); }
+
+  // Vérification immédiate de la liste publiée par l'admin. Utilisée à
+  // l'ouverture de l'onglet Marchés, au retour dans l'app et par le bouton
+  // « Vérifier maintenant ». Le cache HTTP est contourné (no-store + horodatage).
+  async function checkAccessNow(opts = {}) {
+    if (accessBusyRef.current) return access;
+    accessBusyRef.current = true;
+    setAccessBusy(true);
+    setAccessErr('');
+    try {
+      const fresh = await refreshAccessList({ throwOnError: true });
+      const wasAllowed = isMarchesAllowed(mArchEmail, access) || isMarchesAllowed(session.email, access);
+      const nowAllowed = isMarchesAllowed(mArchEmail, fresh) || isMarchesAllowed(session.email, fresh);
+      setAccess(fresh || {});
+      const stamp = Date.now();
+      setAccessAt(stamp);
+      try { localStorage.setItem(LS_ACCESS_AT, String(stamp)); } catch {}
+      if (nowAllowed && !wasAllowed) showToast('Accès Marchés publics débloqué');
+      if (!nowAllowed && wasAllowed) showToast('Accès Marchés publics révoqué');
+      if (accessDisabledList(fresh).includes(String(session.email || '').toLowerCase())) enforceAccess(fresh);
+      return fresh;
+    } catch {
+      setAccessErr('Vérification impossible — vérifiez votre connexion.');
+      if (opts.interactive) showToast('Vérification impossible (réseau)');
+      return access;
+    } finally {
+      accessBusyRef.current = false;
+      setAccessBusy(false);
+    }
+  }
 
   // ---- Connexion dédiée « Marchés publics » ----
   async function sendMarchesCode() {
@@ -1738,9 +1821,9 @@ function MainApp({ session, onLogout }) {
     }
   }
 
-  useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); enforceAccess(); }, []);
+  useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); checkAccessNow(); }, []);
   useEffect(() => {
-    const goOnline = () => { setOffline(false); refresh(false, true); enforceAccess(); };
+    const goOnline = () => { setOffline(false); refresh(false, true); checkAccessNow(); };
     const goOffline = () => setOffline(true);
     window.addEventListener('online', goOnline);
     window.addEventListener('offline', goOffline);
@@ -1772,7 +1855,7 @@ function MainApp({ session, onLogout }) {
   useEffect(() => {
     const AUTO_MS = 30 * 60 * 1000;
     const ACCESS_MS = 20 * 1000;
-    const tick = () => { refresh(false, true); checkUpdate(); enforceAccess(); };
+    const tick = () => { refresh(false, true); checkUpdate(); checkAccessNow(); };
     const interval = setInterval(tick, AUTO_MS);
     const accessInterval = setInterval(() => {
       if (document.visibilityState === 'visible' && navigator.onLine !== false) enforceAccess();
@@ -1787,6 +1870,28 @@ function MainApp({ session, onLogout }) {
       window.removeEventListener('resume', tick);
     };
   }, [remote]);
+  // Retour au premier plan via le plugin natif Capacitor : l'autorisation
+  // et une éventuelle révocation s'appliquent dès la réouverture de l'app.
+  useEffect(() => {
+    let remove = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { Capacitor } = await import('@capacitor/core');
+        if (!Capacitor.isNativePlatform()) return;
+        const { App } = await import('@capacitor/app');
+        const handle = await App.addListener('appStateChange', (state) => {
+          if (state && state.isActive) {
+            checkAccessNow();
+            refresh(false, true);
+          }
+        });
+        if (cancelled) handle.remove();
+        else remove = () => handle.remove();
+      } catch {}
+    })();
+    return () => { cancelled = true; if (remove) remove(); };
+  }, []);
   useEffect(() => { try { localStorage.setItem(LS_REMOTE, remote); } catch {} }, [remote]);
   useEffect(() => {
     if (tab === 'alerts') {
@@ -1940,6 +2045,9 @@ function MainApp({ session, onLogout }) {
     ? mArchEmail
     : (isMarchesAllowed(session.email, access) ? session.email : '');
   const mArchAllowed = !!mArchVia;
+  const accessCheckedLabel = accessAt
+    ? new Date(accessAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    : '';
 
   // Nouveautés détectées par le collecteur (premier passage) sur 24 h.
   const mNewIds = useMemo(() => {
@@ -2064,6 +2172,12 @@ function MainApp({ session, onLogout }) {
     setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false);
     setMCat(''); setMVille(''); setMStatus('open'); setMType(''); setMRegion(''); setMKw(''); setMQuick('');
     try { window.scrollTo({ top: 0 }); } catch {}
+    // L'autorisation Marchés doit être relue tout de suite, sans attendre
+    // le prochain cycle de vérification (20 s).
+    if (t === 'marches') {
+      setMGateErr(''); setMGateMsg('');
+      checkAccessNow();
+    }
   }
 
   return (
@@ -2072,6 +2186,14 @@ function MainApp({ session, onLogout }) {
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
         <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><span><b>ASSOULI</b> <em>AUTOX</em></span></div>
         <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
+        <div className="drawer-theme">
+          <span>Thème</span>
+          <div className="theme-seg compact">
+            <button className={themePref === 'light' ? 'active' : ''} onClick={() => onThemeChange('light')} aria-label="Thème clair"><Icon n="sun" size={13} /> Clair</button>
+            <button className={themePref === 'dark' ? 'active' : ''} onClick={() => onThemeChange('dark')} aria-label="Thème sombre"><Icon n="moon" size={13} /> Sombre</button>
+            <button className={themePref === 'auto' ? 'active' : ''} onClick={() => onThemeChange('auto')} aria-label="Thème automatique"><Icon n="auto" size={13} /> Auto</button>
+          </div>
+        </div>
         <p className="muted">ASSOULI AUTOX • {stats.total} offres • {mArchAllowed ? `${mStats.total} marchés publics` : 'Marchés sur autorisation'} • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
           <button className={tab === 'jobs' ? 'active' : ''} aria-current={tab === 'jobs' ? 'page' : undefined} onClick={() => goTab('jobs')}><span className="dn-l"><Icon n="briefcase" size={19} />Offres d’emploi</span>{kinds.emploi > 0 && <b className="count">{kinds.emploi}</b>}</button>
@@ -2161,9 +2283,18 @@ function MainApp({ session, onLogout }) {
 
             {mGateErr && <div className="auth-error">{mGateErr}</div>}
             {mGateMsg && <div className="auth-ok">{mGateMsg}</div>}
+            {accessErr && <div className="auth-error">{accessErr}</div>}
+
+            <div className="m-gate-check">
+              <button className="ghost m-gate-check-btn" disabled={accessBusy} onClick={() => checkAccessNow({ interactive: true })}>
+                <Icon n={accessBusy ? 'refresh' : 'shield'} size={15} />
+                {accessBusy ? 'Vérification…' : 'Vérifier maintenant'}
+              </button>
+              <span>{accessAt ? `Dernière vérification à ${accessCheckedLabel}` : 'Liste d’accès pas encore vérifiée'}</span>
+            </div>
 
             <button className="ghost m-gate-request" onClick={requestMarchesAccess}><Icon n="shield" size={16} /> Demander l’autorisation</button>
-            <p className="m-gate-note">L’administration active ou retire l’accès à distance. Toute révocation reverrouille cet espace.</p>
+            <p className="m-gate-note">L’administration active ou retire l’accès à distance. L’accès est revérifié à l’ouverture de cet onglet et à chaque retour dans l’application.</p>
           </section>
         </main>
       )}
@@ -2558,6 +2689,20 @@ function MainApp({ session, onLogout }) {
 
       {tab === 'setup' && (
         <main className="dash setup-tools">
+          <div className="panel theme-panel">
+            <div className="section-header"><h3>Apparence</h3><span className="theme-current">{themePref === 'auto' ? 'Suit le téléphone' : themePref === 'dark' ? 'Sombre' : 'Clair'}</span></div>
+            <div className="theme-seg">
+              <button className={themePref === 'light' ? 'active' : ''} onClick={() => onThemeChange('light')}>
+                <Icon n="sun" size={19} /><b>Clair</b><small>Lisible en plein jour</small>
+              </button>
+              <button className={themePref === 'dark' ? 'active' : ''} onClick={() => onThemeChange('dark')}>
+                <Icon n="moon" size={19} /><b>Sombre</b><small>Reposant le soir</small>
+              </button>
+              <button className={themePref === 'auto' ? 'active' : ''} onClick={() => onThemeChange('auto')}>
+                <Icon n="auto" size={19} /><b>Auto</b><small>Réglage Android</small>
+              </button>
+            </div>
+          </div>
           <div className="panel">
             <div className="section-header"><h3>Outils</h3></div>
             <div className="tool-grid">
@@ -2621,15 +2766,35 @@ function MainApp({ session, onLogout }) {
 export default function App() {
   const [session, setSession] = useState(() => readSession());
   const [intro, setIntro] = useState(true);
+  const [themePref, setThemePref] = useState(() => readThemePref());
   useEffect(() => {
     const t = setTimeout(() => setIntro(false), 1700);
     syncNativeAccounts(loadAccounts());
     return () => clearTimeout(t);
   }, []);
+  useEffect(() => {
+    applyTheme(themePref);
+    let mq = null;
+    const onSystemTheme = () => { if (themePref === 'auto') applyTheme('auto'); };
+    try {
+      mq = window.matchMedia('(prefers-color-scheme: dark)');
+      if (mq.addEventListener) mq.addEventListener('change', onSystemTheme);
+      else if (mq.addListener) mq.addListener(onSystemTheme);
+    } catch {}
+    return () => {
+      try {
+        if (!mq) return;
+        if (mq.removeEventListener) mq.removeEventListener('change', onSystemTheme);
+        else if (mq.removeListener) mq.removeListener(onSystemTheme);
+      } catch {}
+    };
+  }, [themePref]);
   return (
     <>
       {intro && <SplashIntro />}
-      {!session ? <AuthScreen onAuthed={setSession} /> : <MainApp session={session} onLogout={() => { clearSession(); clearMarchesSession(); setSession(null); }} />}
+      {!session
+        ? <AuthScreen onAuthed={setSession} themePref={themePref} onThemeChange={setThemePref} />
+        : <MainApp session={session} themePref={themePref} onThemeChange={setThemePref} onLogout={() => { clearSession(); clearMarchesSession(); setSession(null); }} />}
     </>
   );
 }

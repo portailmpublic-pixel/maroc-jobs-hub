@@ -6,3 +6,5 @@ app/ios/
 *.log
 .DS_Store
 *.apk
+
+design/icon-qa/
