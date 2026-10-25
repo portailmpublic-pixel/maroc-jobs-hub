@@ -4,7 +4,7 @@
 
 ```powershell
 cd C:\Users\hp\Documents\JOB\MarocJobs-APK
-.\publish-update.ps1 -Version 1.4.0 -Notes "Corrections + nouvelles offres"
+.\publish-update.ps1 -Version 1.5.0 -Notes "Corrections + nouvelles offres"
 ```
 
 What it does:
@@ -36,7 +36,7 @@ are installed (name, e-mail, date, Actif / Désactivé). It also remembers the l
 even if the main app is closed or its data is cleared.
 
 Usage:
-1. Install **ASSOULI AUTOX 1.4.0+** first, open it and create/log in to an account.
+1. Install **ASSOULI AUTOX 1.5.0+** first, open it and create/log in to an account.
 2. Install and open **ASSOULI ADMIN 1.3.0+** (same signing key — both debug APKs are).
 3. The accounts appear under **Comptes de cet appareil**.
    - **Désactiver / Activer** blocks or restores the whole account.

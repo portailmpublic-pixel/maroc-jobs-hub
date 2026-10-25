@@ -168,6 +168,12 @@ const ICONS = {
   shield: <><path d="M12 3 5 6v5.5c0 4.5 3 7.6 7 9.5 4-1.9 7-5 7-9.5V6z" /><path d="m9 12 2 2 4-4" /></>,
   phone: <path d="M5 4h4l1.8 4.2-2.2 1.4a11.5 11.5 0 0 0 4.8 4.8l1.4-2.2L19 14v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />,
   gavel: <><path d="m5 9 4 4M9.5 4.5 14 9M12.5 7.5l4.5 4.5M4 20h9M15 14l5-5M18.5 17.5 21 15" /></>,
+  back: <path d="M15 19l-7-7 7-7" />,
+  share: <><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="M8.6 10.6l6.8-4.2M8.6 13.4l6.8 4.2" /></>,
+  info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6M12 7.5h.01" /></>,
+  spark: <><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z" /><path d="M19 16l.9 2.1L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.9z" /></>,
+  building2: <><path d="M4 21V7l8-4 8 4v14M9 21v-4h6v4M8 9h.01M12 9h.01M16 9h.01M8 13h.01M12 13h.01M16 13h.01" /></>,
+  bookmark: <path d="M6 4h12v17l-6-4-6 4z" />,
 };
 
 function Icon({ n, size = 20 }) {
@@ -201,10 +207,14 @@ function hueOf(s) { return ((String(s || '?').charCodeAt(0) || 63) * 47) % 360; 
 
 function daysUntil(deadline) {
   if (!deadline) return null;
-  const d = new Date(deadline + 'T23:59:59');
+  // Les dates du flux sont des jours civils : le jour de clôture = 0
+  // (dernier jour), le lendemain = 1, la veille = -1.
+  const day = String(deadline).slice(0, 10);
+  const d = new Date(day + 'T00:00:00');
   if (isNaN(d)) return null;
   const now = new Date();
-  return Math.ceil((d - now) / 86400000);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((d - today) / 86400000);
 }
 
 function deadlineInfo(j) {
@@ -224,6 +234,615 @@ async function openLink(url) {
     if (Browser && Browser.open) { await Browser.open({ url }); return; }
   } catch {}
   window.open(url, '_blank', 'noopener');
+}
+
+// Partage natif (Android) avec repli sur le presse-papiers.
+async function shareItem({ title, text, url }) {
+  try {
+    const { Share } = await import('@capacitor/share');
+    await Share.share({ title, text, url, dialogTitle: 'Partager avec' });
+    return true;
+  } catch {}
+  try {
+    if (navigator.share) { await navigator.share({ title, text, url }); return true; }
+  } catch {}
+  try {
+    await navigator.clipboard.writeText([text, url].filter(Boolean).join('\n'));
+    return 'copied';
+  } catch { return false; }
+}
+
+function shortText(s, n) {
+  const t = String(s || '').replace(/\s+/g, ' ').trim();
+  return t.length > n ? t.slice(0, n - 1) + '…' : t;
+}
+
+function daysBetween(a, b) {
+  if (!a || !b) return null;
+  const t1 = Date.parse(String(a).length <= 10 ? a + 'T00:00:00' : a);
+  const t2 = Date.parse(String(b).length <= 10 ? b + 'T23:59:59' : b);
+  if (isNaN(t1) || isNaN(t2)) return null;
+  return Math.max(1, Math.round((t2 - t1) / 86400000));
+}
+
+function timelinePct(published, deadline) {
+  const total = daysBetween(published, deadline);
+  if (!total) return 0;
+  const left = daysUntil(String(deadline || '').slice(0, 10));
+  if (left === null) return 0;
+  return Math.max(4, Math.min(100, Math.round(((total - Math.max(0, left)) / total) * 100)));
+}
+
+// ============================================================
+//  CARTES & FICHES LOCALES — mêmes données, lecture plus claire
+// ============================================================
+const TYPE_LABEL = {
+  job: 'Offre d’emploi',
+  stage: 'Stage & pré-embauche',
+  concours: 'Concours État',
+  marche: 'Marché public',
+  exam: 'Examen',
+  alert: 'Alerte',
+};
+
+function OfferCard({ job, type = 'job', onOpen }) {
+  if (!job) return null;
+  const dl = deadlineInfo(job);
+  const initial = (job.company || job.sourceLabel || '?').trim().charAt(0).toUpperCase();
+  const isStage = type === 'stage';
+  const isConcours = type === 'concours';
+  const tone = isStage ? 'stage' : isConcours ? 'concours' : 'emploi';
+  const badge = isStage ? 'Stage' : isConcours ? 'Concours' : 'Emploi';
+  const posts = Math.max(1, Number(job.postsCount) || 1);
+  const fresh = job.publishedDate && (Date.now() - Date.parse(job.publishedDate)) < 7 * 86400000;
+  const open = () => onOpen(type, job.id);
+
+  return (
+    <article
+      className={`offer-card tone-${tone}`}
+      role="button"
+      tabIndex={0}
+      onClick={open}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } }}
+      aria-label={`${badge} : ${job.title}`}
+    >
+      <div className="offer-top">
+        <div className="offer-avatar" style={{ '--h': hueOf(initial) }}>{initial}</div>
+        <div className="offer-head">
+          <div className="offer-kicker">
+            <span className={`offer-badge ${tone}`}>{isStage && <Icon n="cap" size={11} />}{isConcours && <Icon n="landmark" size={11} />}{badge}</span>
+            <span className="offer-source">{job.sourceLabel || job.source}</span>
+            {fresh && <span className="offer-fresh">Nouveau</span>}
+          </div>
+          <h3>{job.title || 'Sans intitulé'}</h3>
+          <p className="offer-company"><Icon n="building" size={13} />{job.company || 'Organisme non précisé'}</p>
+        </div>
+        <span className="offer-arrow" aria-hidden="true"><Icon n="arrow" size={15} /></span>
+      </div>
+
+      <div className="offer-meta">
+        <span className="offer-meta-item"><Icon n="pin" size={13} />{job.city || 'Maroc'}</span>
+        {job.contract && <span className="offer-meta-item"><Icon n="file" size={13} />{job.contract}</span>}
+        <span className="offer-meta-item"><Icon n="briefcase" size={13} />{posts} poste{posts > 1 ? 's' : ''}</span>
+      </div>
+
+      {(job.specialty || job.diploma || job.experience) && (
+        <div className="offer-tags">
+          {job.specialty && <span className="chip blue"><Icon n="target" size={11} />{shortText(job.specialty, 32)}</span>}
+          {job.diploma && <span className="chip muted"><Icon n="cap" size={11} />{shortText(job.diploma, 28)}</span>}
+          {!job.specialty && job.experience && <span className="chip muted"><Icon n="briefcase" size={11} />{shortText(job.experience, 28)}</span>}
+        </div>
+      )}
+
+      <div className="offer-foot">
+        <span className={'chip ' + dl.cls}>{dl.label}</span>
+        <span className="offer-open">Voir la fiche <Icon n="arrow" size={13} /></span>
+      </div>
+    </article>
+  );
+}
+
+function DSection({ icon, title, hint, children, className = '' }) {
+  return (
+    <section className={'d-section ' + className}>
+      <div className="d-section-head">
+        <span className="d-section-icon"><Icon n={icon} size={16} /></span>
+        <h2>{title}</h2>
+        {hint && <span className="d-section-hint">{hint}</span>}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function DTimeline({ from, to, labelFrom = 'Publication', labelTo = 'Clôture' }) {
+  const left = to ? daysUntil(String(to).slice(0, 10)) : null;
+  const pct = timelinePct(from, to);
+  const late = left !== null && left < 0;
+  const note = left === null
+    ? 'Aucune date limite annoncée : vérifiez l’avis officiel.'
+    : left < 0
+      ? `Date limite dépassée depuis ${Math.abs(left)} jour${Math.abs(left) > 1 ? 's' : ''}.`
+      : left === 0
+        ? 'Dernier jour pour candidater : vérifiez l’heure limite officielle.'
+        : `Il reste ${left} jour${left > 1 ? 's' : ''} avant la clôture.`;
+  return (
+    <div className={'d-timeline' + (late ? ' late' : '')}>
+      <div className="d-timeline-track"><i style={{ width: (late ? 100 : pct) + '%' }} /></div>
+      <div className="d-timeline-ends">
+        <span><b>{from ? fmtDay(from) : '—'}</b><small>{labelFrom}</small></span>
+        <span className="right"><b>{to ? fmtDay(to) : 'Sans limite'}</b><small>{labelTo}</small></span>
+      </div>
+      <p className="d-timeline-note"><Icon n={late ? 'info' : 'clock'} size={14} />{note}</p>
+    </div>
+  );
+}
+
+function DRelated({ items, type, onOpen }) {
+  if (!items || !items.length) return null;
+  return (
+    <div className="d-related">
+      {items.map((j) => {
+        const dl = deadlineInfo(j);
+        return (
+          <button type="button" className="d-related-item" key={j.id} onClick={() => onOpen(type, j.id)}>
+            <span className="d-related-title">{j.title}</span>
+            <span className="d-related-sub">{j.company || j.sourceLabel} · {j.city || 'Maroc'}</span>
+            <span className={'d-related-dl ' + dl.cls}>{dl.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function DetailPage({
+  type,
+  job,
+  marche,
+  exam,
+  alert,
+  marcheDeadline,
+  isNew,
+  related,
+  practiced,
+  dlMsg,
+  onClose,
+  onShare,
+  onOpenDetail,
+  onGoTab,
+  onTogglePracticed,
+  examUrl,
+  onDownloadExam,
+  onDownloadFile,
+}) {
+  const scrollRef = useRef(null);
+  const itemId = (job && job.id) || (marche && marche.id) || (exam && exam.id) || (alert && alert.id) || '';
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [type, itemId]);
+
+  const tone = type === 'job' ? 'emploi' : type;
+  const label = TYPE_LABEL[type] || 'Détail';
+
+  // ---- Données de partage, adaptées au type de fiche ----
+  function share() {
+    if (type === 'marche' && marche) {
+      return onShare({
+        title: `${marche.ref ? 'Marché ' + marche.ref + ' — ' : ''}${marche.organisme || 'Marché public'}`,
+        text: shortText(marche.objet, 180),
+        url: marche.portalHref || marche.dceUrl || marche.detailUrl || '',
+      });
+    }
+    if (type === 'exam' && exam) {
+      return onShare({ title: exam.title, text: `${exam.company || ''} · ${exam.files.length} fichiers sujet / corrigé`, url: exam.url || '' });
+    }
+    if (type === 'alert' && alert) {
+      return onShare({ title: alert.title, text: shortText(alert.body, 220), url: '' });
+    }
+    if (job) {
+      return onShare({ title: job.title, text: `${job.company || ''}${job.city ? ' · ' + job.city : ''}${job.deadline ? ' · avant le ' + job.deadline : ''}`, url: job.url || '' });
+    }
+    return null;
+  }
+
+  let body = null;
+  let actions = null;
+  let hero = null;
+
+  // ================= EMPLOI / STAGE / CONCOURS =================
+  if (job && (type === 'job' || type === 'stage' || type === 'concours')) {
+    const dl = deadlineInfo(job);
+    const initial = (job.company || '?').trim().charAt(0).toUpperCase();
+    const posts = Math.max(1, Number(job.postsCount) || 1);
+    const isStage = type === 'stage';
+    const isConcours = type === 'concours';
+    const tips = isConcours
+      ? [
+        'Téléchargez l’avis officiel et vérifiez les pièces demandées.',
+        'Préparez diplômes, CIN et attestations avant l’ouverture du dépôt.',
+        'Entraînez-vous avec les sujets et corrigés dans l’onglet Exams.',
+      ]
+      : isStage
+        ? [
+          'Mettez en avant vos projets, stages et compétences pratiques.',
+          'Précisez la durée et la période souhaitées dans votre message.',
+          'Adaptez votre CV aux mots-clés de l’offre avant d’envoyer.',
+        ]
+        : [
+          'Relisez l’offre et repérez les compétences indispensables.',
+          'Adaptez votre CV et votre lettre à l’intitulé exact du poste.',
+          'Candidatez avant la date limite : le site officiel fait foi.',
+        ];
+
+    hero = (
+      <div className={`d-hero tone-${isStage ? 'stage' : isConcours ? 'concours' : 'emploi'}`}>
+        <div className="d-hero-top">
+          <div className="d-hero-avatar" style={{ '--h': hueOf(initial) }}>{initial}</div>
+          <div className="d-hero-copy">
+            <span className="d-eyebrow">{isStage ? 'Stage & pré-embauche' : isConcours ? 'Concours État' : 'Offre d’emploi'}</span>
+            <h1>{job.title}</h1>
+            <p className="d-sub"><Icon n="building" size={14} />{job.company || 'Organisme non précisé'}{job.city ? ` · ${job.city}` : ''}</p>
+          </div>
+        </div>
+        <div className="d-chips">
+          <span className={'chip ' + dl.cls}>{dl.label}</span>
+          {job.contract && <span className="chip">{job.contract}</span>}
+          <span className="chip blue">{job.sourceLabel || job.source}</span>
+          {job.category === 'stages' && <span className="chip b-stage"><Icon n="cap" size={11} />Stage</span>}
+        </div>
+        <div className="d-kpis">
+          <div><b>{job.publishedDate ? fmtDay(job.publishedDate) : '—'}</b><span>Publié</span></div>
+          <div><b>{job.deadline ? fmtDay(job.deadline) : 'Libre'}</b><span>Date limite</span></div>
+          <div><b>{posts}</b><span>Poste{posts > 1 ? 's' : ''}</span></div>
+        </div>
+      </div>
+    );
+
+    actions = (
+      <div className="d-actions-inner">
+        {job.url && <button className="d-btn-primary" onClick={() => openLink(job.url)}><Icon n="arrow" size={17} />{isConcours ? 'Avis officiel / dossier' : 'Postuler sur le site'}</button>}
+        <button className="d-btn-ghost" onClick={share} aria-label="Partager"><Icon n="share" size={17} /></button>
+      </div>
+    );
+
+    body = (
+      <div className="d-body">
+        {job.description && (
+          <DSection icon="file" title={isConcours ? 'Avis & mission' : 'Le poste en bref'}>
+            <p className="d-prose">{job.description}</p>
+          </DSection>
+        )}
+
+        {(job.requirements || []).length > 0 && (
+          <DSection icon="check" title={isConcours ? 'Conditions d’accès' : 'Profil recherché'} hint={`${job.requirements.length} points`}>
+            <ul className="d-bullets">
+              {job.requirements.map((r, i) => <li key={i}><span className="d-bullet-check"><Icon n="check" size={12} /></span>{r}</li>)}
+            </ul>
+          </DSection>
+        )}
+
+        <DSection icon="chart" title="Informations clés">
+          <div className="d-facts">
+            <div className="d-fact"><span>Contrat</span><b>{job.contract || 'Non précisé'}</b></div>
+            <div className="d-fact"><span>Diplôme</span><b>{job.diploma || 'Non précisé'}</b></div>
+            <div className="d-fact"><span>Expérience</span><b>{job.experience || 'Non précisée'}</b></div>
+            <div className="d-fact"><span>Spécialité</span><b>{job.specialty || 'Non précisée'}</b></div>
+            {job.fonction && <div className="d-fact"><span>Fonction</span><b>{job.fonction}</b></div>}
+            {job.sector && <div className="d-fact"><span>Secteur</span><b>{job.sector}</b></div>}
+            <div className="d-fact"><span>Ville</span><b>{job.city || 'Maroc'}</b></div>
+            <div className="d-fact"><span>Source</span><b>{job.sourceLabel || job.source || '—'}</b></div>
+            {isConcours && job.concoursDate && <div className="d-fact"><span>Épreuve</span><b>{fmtDay(job.concoursDate)}</b></div>}
+          </div>
+        </DSection>
+
+        <DSection icon="clock" title="Calendrier" hint={isConcours ? 'Ouverture → clôture' : 'Publication → clôture'}>
+          <DTimeline from={job.publishedDate} to={job.deadline} labelFrom={isConcours ? 'Ouverture' : 'Publication'} />
+        </DSection>
+
+        <DSection icon="spark" title="Conseils ASSOULI">
+          <ul className="d-tips">
+            {tips.map((t, i) => <li key={i}><span>{i + 1}</span>{t}</li>)}
+          </ul>
+          {isConcours && (
+            <button className="d-inline-link" onClick={() => onGoTab('exams')}><Icon n="file" size={15} />Voir les sujets & corrigés<Icon n="arrow" size={14} /></button>
+          )}
+        </DSection>
+
+        <DSection icon={isStage ? 'cap' : isConcours ? 'landmark' : 'briefcase'} title="Offres similaires" hint={related && related.length ? `${related.length} suggestion${related.length > 1 ? 's' : ''}` : ''}>
+          {related && related.length
+            ? <DRelated items={related} type={type} onOpen={onOpenDetail} />
+            : <p className="d-muted">Aucune autre offre comparable pour le moment.</p>}
+        </DSection>
+
+        <p className="d-source">Référence : <b>{job.id}</b> · données publiques de {job.sourceLabel || job.source}. Vérifiez toujours l’offre sur le site officiel avant d’envoyer votre candidature.</p>
+      </div>
+    );
+  }
+
+  // ================= MARCHÉ PUBLIC =================
+  if (type === 'marche' && marche) {
+    const dl = marcheDeadline || { label: 'Sans date', cls: 'b-muted' };
+    const cat = catSlug(marche.categorie);
+    const hue = MCAT_HUE[cat] ?? 200;
+    const official = marche.portalHref || marche.dceUrl || '';
+    const kws = (Array.isArray(marche.keywords) ? marche.keywords : []).map(kwLabel).filter(Boolean).slice(0, 10);
+    const contact = marche.contact || {};
+
+    hero = (
+      <div className="d-hero tone-marche">
+        <div className="d-hero-top">
+          <div className="d-hero-avatar" style={{ '--h': hue }}><Icon n="gavel" size={22} /></div>
+          <div className="d-hero-copy">
+            <span className="d-eyebrow">{marche.ref ? `Réf. ${marche.ref}` : 'Consultation publique'}{isNew ? ' · Nouveau' : ''}</span>
+            <h1>{marche.organisme || 'Organisme public'}</h1>
+            <p className="d-sub">{shortText(marche.objet, 170)}</p>
+          </div>
+        </div>
+        <div className="d-chips">
+          <span className={'chip ' + dl.cls}>{dl.label}</span>
+          {marche.categorie && <span className="chip ref-chip">{marche.categorie}</span>}
+          {marche.ville && <span className="chip blue"><Icon n="pin" size={11} />{marche.ville}</span>}
+        </div>
+        <div className="d-kpis">
+          <div><b>{marche.dateLimite || '—'}</b><span>Clôture</span></div>
+          <div><b>{marche.modePassation || marche.categorie || '—'}</b><span>Mode</span></div>
+          <div><b>{marche.estimation || marche.caution || '—'}</b><span>{marche.estimation ? 'Estimation' : marche.caution ? 'Caution' : 'Montant'}</span></div>
+        </div>
+      </div>
+    );
+
+    actions = (
+      <div className="d-actions-inner">
+        {official && <button className="d-btn-primary" onClick={() => openLink(official)}><Icon n="arrow" size={17} />Portail officiel</button>}
+        <button className="d-btn-ghost" onClick={share} aria-label="Partager"><Icon n="share" size={17} /></button>
+      </div>
+    );
+
+    body = (
+      <div className="d-body">
+        <DSection icon="file" title="Objet de la consultation">
+          <p className="d-prose">{marche.objet || '—'}</p>
+          {kws.length > 0 && <div className="chips" style={{ marginTop: 10 }}>{kws.map((k) => <span className="chip m-kw" key={k}>{k}</span>)}</div>}
+        </DSection>
+
+        <DSection icon="chart" title="Chiffres clés">
+          <div className="d-facts">
+            <div className="d-fact"><span>Estimation</span><b>{marche.estimation || 'Non communiquée'}</b></div>
+            <div className="d-fact"><span>Caution provisoire</span><b>{marche.caution || 'Non communiquée'}</b></div>
+            <div className="d-fact"><span>Qualification & capacité</span><b>{marche.qc || 'Non précisée'}</b></div>
+            <div className="d-fact"><span>Prix du DCE</span><b>{marche.prixAcquisition && marche.prixAcquisition !== '0,00 MAD' ? marche.prixAcquisition : 'Gratuit / non précisé'}</b></div>
+          </div>
+        </DSection>
+
+        <DSection icon="clock" title="Calendrier">
+          <DTimeline
+            from={(marche.firstSeenAt || '').slice(0, 10)}
+            to={(marche.dateLimiteIso || '').slice(0, 10)}
+            labelFrom="Repéré le"
+            labelTo="Clôture"
+          />
+        </DSection>
+
+        <DSection icon="download" title="Dossier officiel" hint={marche.dceSize || ''}>
+          <p className="d-prose d-prose-sm">Le règlement de consultation, le CPS et le dépôt électronique sont disponibles sur le portail officiel des marchés publics.</p>
+          {(marche.docs || []).length > 0 && (
+            <div className="d-docs">
+              {(marche.docs || []).map((d, i) => (
+                <div className="d-doc" key={(d.file || 'doc') + i}>
+                  <span className="d-doc-ic"><Icon n="file" size={16} /></span>
+                  <span className="d-doc-name">{d.name || 'Avis PDF'}</span>
+                  {d.size ? <span className="d-doc-size">{(d.size / 1024 / 1024).toFixed(1)} Mo</span> : null}
+                  <button className="d-btn-mini" onClick={() => onDownloadFile(marcheDocUrl(d), `${marche.ref || 'marche'}-${d.name || 'avis'}.pdf`.replace(/[^\wÀ-ÿ.-]+/g, '-').slice(0, 60))} aria-label="Télécharger"><Icon n="download" size={14} /></button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="d-inline-actions">
+            {official && <button className="d-inline-link" onClick={() => openLink(official)}><Icon n="arrow" size={15} />Ouvrir le portail officiel</button>}
+            {marche.detailUrl && marche.detailUrl !== official && <button className="d-inline-link" onClick={() => openLink(marche.detailUrl)}><Icon n="eye" size={15} />Fiche détaillée</button>}
+          </div>
+        </DSection>
+
+        <DSection icon="info" title="Informations clés">
+          <div className="d-rows">
+            {marche.dateLimite && <div className="d-row"><span>Clôture</span><b>{marche.dateLimite}</b></div>}
+            {marche.modePassation && <div className="d-row"><span>Mode de passation</span><b>{marche.modePassation}</b></div>}
+            {marche.typeProcedure && <div className="d-row"><span>Type d’offre</span><b>{marche.typeProcedure}</b></div>}
+            {marche.lieuOuverture && <div className="d-row"><span>Ouverture des plis</span><b>{marche.lieuOuverture}</b></div>}
+            {marche.adresseRetrait && <div className="d-row"><span>Retrait du dossier</span><b>{marche.adresseRetrait}</b></div>}
+            {marche.adresseDepot && <div className="d-row"><span>Dépôt des plis</span><b>{marche.adresseDepot}</b></div>}
+            {marche.ref && <div className="d-row"><span>Référence</span><b>{marche.ref}</b></div>}
+          </div>
+        </DSection>
+
+        {(contact.nom || contact.email || contact.tel || contact.fax) && (
+          <DSection icon="mail" title="Contact">
+            <div className="d-rows">
+              {contact.nom && <div className="d-row"><span>Nom</span><b>{contact.nom}</b></div>}
+              {contact.email && <div className="d-row"><span>E-mail</span><b><a href={`mailto:${contact.email}`}>{contact.email}</a></b></div>}
+              {contact.tel && <div className="d-row"><span>Téléphone</span><b><a href={`tel:${contact.tel}`}>{contact.tel}</a></b></div>}
+              {contact.fax && <div className="d-row"><span>Fax</span><b>{contact.fax}</b></div>}
+            </div>
+            <div className="d-inline-actions">
+              {contact.email && <button className="d-inline-link" onClick={() => openLink(`mailto:${contact.email}`)}><Icon n="mail" size={15} />Envoyer un e-mail</button>}
+              {contact.tel && <button className="d-inline-link" onClick={() => openLink(`tel:${contact.tel}`)}><Icon n="phone" size={15} />Appeler</button>}
+            </div>
+          </DSection>
+        )}
+
+        <p className="d-source">Source : <b>Portail marocain des marchés publics (PMMP)</b> — consultation relayée par {marche.source || 'appeldoffres.ma'}.{marche.firstSeenAt ? ` Repérée le ${fmtDay(marche.firstSeenAt)}.` : ''} Données publiques : vérifiez toujours le dossier officiel avant de soumissionner.</p>
+      </div>
+    );
+  }
+
+  // ================= EXAMENS =================
+  if (type === 'exam' && exam) {
+    const years = [...new Set(exam.files.map((f) => f.year))].sort((a, b) => b - a);
+    const doneCount = years.filter((y) => practiced[`${exam.id}-${y}`]).length;
+    const pct = years.length ? Math.round((doneCount / years.length) * 100) : 0;
+    const sujets = exam.files.filter((f) => f.kind !== 'corrige').length;
+    const corriges = exam.files.filter((f) => f.kind === 'corrige').length;
+
+    hero = (
+      <div className="d-hero tone-exam">
+        <div className="d-hero-top">
+          <div className="d-hero-avatar"><Icon n="file" size={22} /></div>
+          <div className="d-hero-copy">
+            <span className="d-eyebrow">Sujets & corrigés</span>
+            <h1>{exam.title}</h1>
+            <p className="d-sub"><Icon n="building" size={14} />{exam.company}{exam.specialty ? ` · ${exam.specialty}` : ''}</p>
+          </div>
+        </div>
+        <div className="d-chips">
+          {exam.familyLabel && <span className="chip blue">{exam.familyLabel}</span>}
+          <span className="chip">{years.length} années</span>
+          <span className="chip b-green">{doneCount}/{years.length} pratiqués</span>
+        </div>
+        <div className="d-kpis">
+          <div><b>{sujets}</b><span>Sujets</span></div>
+          <div><b>{corriges}</b><span>Corrigés</span></div>
+          <div><b>{pct}%</b><span>Progression</span></div>
+        </div>
+      </div>
+    );
+
+    body = (
+      <div className="d-body">
+        <DSection icon="chart" title="Ma progression" hint={`${doneCount} / ${years.length} années`}>
+          <div className="d-progress"><div className="d-progress-track"><i style={{ width: pct + '%' }} /></div><b>{pct}%</b></div>
+          <p className="d-muted">Marquez une année comme pratiquée après avoir travaillé le sujet et corrigé vos réponses.</p>
+        </DSection>
+
+        {dlMsg && <p className="d-alert-line"><Icon n="download" size={14} />{dlMsg}</p>}
+
+        <DSection icon="calendar" title="Sujets par année" hint="Sujet + corrigé">
+          {years.map((y) => {
+            const sujet = exam.files.find((f) => f.year === y && f.kind !== 'corrige');
+            const corrige = exam.files.find((f) => f.year === y && f.kind === 'corrige');
+            const done = !!practiced[`${exam.id}-${y}`];
+            const q = encodeURIComponent(`concours ${exam.company} ${exam.specialty || exam.fonction || ''} épreuve PDF ${y} Maroc`.replace(/\s+/g, ' ').trim());
+            return (
+              <div className={'d-year' + (done ? ' done' : '')} key={y}>
+                <div className="d-year-head">
+                  <b className="d-year-num">{y}</b>
+                  {done ? <span className="chip b-green"><Icon n="check" size={11} />Pratiqué</span> : <span className="chip muted">À faire</span>}
+                  <button className="d-mark" onClick={() => onTogglePracticed(exam.id, y)}>{done ? 'À refaire' : 'Marquer pratiqué'}</button>
+                </div>
+                {(sujet || corrige) ? (
+                  <>
+                    {sujet && (
+                      <div className="d-file">
+                        <span className="ex-tag">Sujet</span>
+                        <span className="d-file-meta">{sujet.detail || (sujet.size ? Math.round(sujet.size / 1024) + ' Ko' : 'PDF')}</span>
+                        <div className="d-file-btns">
+                          <button className="d-btn-mini" onClick={() => openLink(examUrl(sujet))} aria-label="Voir le sujet"><Icon n="eye" size={14} /></button>
+                          <button className="d-btn-mini primary" onClick={() => onDownloadExam(sujet, `${exam.company}-${y}-sujet`)} aria-label="Télécharger le sujet"><Icon n="download" size={14} /></button>
+                        </div>
+                      </div>
+                    )}
+                    {corrige && (
+                      <div className="d-file corrige">
+                        <span className="ex-tag blue">Corrigé</span>
+                        <span className="d-file-meta">{corrige.detail || (corrige.size ? Math.round(corrige.size / 1024) + ' Ko' : 'PDF')}</span>
+                        <div className="d-file-btns">
+                          <button className="d-btn-mini" onClick={() => openLink(examUrl(corrige))} aria-label="Voir le corrigé"><Icon n="eye" size={14} /></button>
+                          <button className="d-btn-mini primary" onClick={() => onDownloadExam(corrige, `${exam.company}-${y}-corrige`)} aria-label="Télécharger le corrigé"><Icon n="download" size={14} /></button>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : <p className="d-muted">Aucun fichier pour cette année.</p>}
+                <button className="d-inline-link" onClick={() => openLink(`https://www.google.com/search?q=${q}+filetype:pdf`)}><Icon n="search" size={14} />Chercher le sujet officiel</button>
+              </div>
+            );
+          })}
+        </DSection>
+
+        <p className="d-source">Téléchargement direct · les PDF s’ouvrent aussi dans le lecteur du téléphone. Ces sujets sont des supports d’entraînement : vérifiez les épreuves officielles auprès de l’organisme.</p>
+      </div>
+    );
+  }
+
+  // ================= ALERTE =================
+  if (type === 'alert' && alert) {
+    const counts = alert.counts || {};
+    hero = (
+      <div className="d-hero tone-alert">
+        <div className="d-hero-top">
+          <div className="d-hero-avatar"><Icon n="bell" size={22} /></div>
+          <div className="d-hero-copy">
+            <span className="d-eyebrow">Alerte nouveautés</span>
+            <h1>{alert.title}</h1>
+            <p className="d-sub"><Icon n="clock" size={14} />{fmtWhen(alert.at)}</p>
+          </div>
+        </div>
+        <div className="d-kpis">
+          <div><b>{counts.new || 0}</b><span>Nouvelles</span></div>
+          <div><b>{counts.total || '—'}</b><span>Total suivi</span></div>
+          <div><b>{fmtDay(alert.at)}</b><span>Date</span></div>
+        </div>
+      </div>
+    );
+
+    actions = (
+      <div className="d-actions-inner">
+        <button className="d-btn-primary" onClick={() => onGoTab('jobs')}><Icon n="briefcase" size={17} />Voir les offres</button>
+        <button className="d-btn-ghost" onClick={share} aria-label="Partager"><Icon n="share" size={17} /></button>
+      </div>
+    );
+
+    body = (
+      <div className="d-body">
+        <DSection icon="bell" title="Détail de l’alerte">
+          <p className="d-alert-body">{alert.body}</p>
+        </DSection>
+        <DSection icon="spark" title="Que faire maintenant ?">
+          <ul className="d-tips">
+            <li><span>1</span>Ouvrez l’onglet Offres pour voir les nouvelles publications.</li>
+            <li><span>2</span>Filtrez par ville ou spécialité pour gagner du temps.</li>
+            <li><span>3</span>Activez les alertes en arrière-plan dans Configuration.</li>
+          </ul>
+        </DSection>
+        <p className="d-source">Alerte générée automatiquement à partir des données publiques. Les nouveautés sont comparées à l’actualisation précédente.</p>
+      </div>
+    );
+  }
+
+  if (!hero) {
+    return (
+      <div className="detail" role="dialog" aria-modal="true" aria-label="Fiche indisponible">
+        <header className="detail-bar">
+          <button className="detail-back" onClick={onClose} aria-label="Retour"><Icon n="back" size={20} /></button>
+          <span className="detail-bar-title">Fiche indisponible</span>
+          <span style={{ width: 38, flex: 'none' }} />
+        </header>
+        <div className="detail-scroll">
+          <div className="d-body">
+            <DSection icon="info" title="Cette fiche n’est plus disponible">
+              <p className="d-prose">Les données ont été actualisées et cette fiche n’en fait plus partie. Revenez à la liste pour consulter les offres à jour.</p>
+              <button className="d-inline-link" onClick={onClose}><Icon n="back" size={15} />Revenir à la liste</button>
+            </DSection>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`detail tone-${tone}`} role="dialog" aria-modal="true" aria-label={label}>
+      <header className="detail-bar">
+        <button className="detail-back" onClick={onClose} aria-label="Retour"><Icon n="back" size={20} /></button>
+        <span className="detail-bar-title">{label}</span>
+        <button className="detail-share" onClick={share} aria-label="Partager"><Icon n="share" size={18} /></button>
+      </header>
+      <div className="detail-scroll" ref={scrollRef}>
+        {hero}
+        {body}
+        {actions && <div className="d-actions">{actions}</div>}
+      </div>
+    </div>
+  );
 }
 
 // ---- Notifications téléphone (barre d'état Android) ----
@@ -620,12 +1239,15 @@ function MainApp({ session, onLogout }) {
   const [appVer, setAppVer] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('dash');
-  const [kind, setKind] = useState('all');
+  // Fiche locale ouverte (emploi, stage, concours, marché, exam, alerte).
+  const [detail, setDetail] = useState(null);
   const [query, setQuery] = useState('');
   const [city, setCity] = useState('');
   const [source, setSource] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [urgentOnly, setUrgentOnly] = useState(false);
+  // Rendu progressif : on n'ajoute pas 1 900 cartes au DOM d'un coup.
+  const [jLimit, setJLimit] = useState(120);
   const [toast, setToast] = useState('');
   const [remote, setRemote] = useState(() => { try { return localStorage.getItem(LS_REMOTE) || DEFAULT_REMOTE; } catch { return DEFAULT_REMOTE; } });
   const [alerts, setAlerts] = useState(boot.alerts || []);
@@ -635,11 +1257,9 @@ function MainApp({ session, onLogout }) {
   const [dlMsg, setDlMsg] = useState('');
   // ---- Exams (same Sujet + Corrige data as the web app) ----
   const [examIndex, setExamIndex] = useState(boot.exams || null);
-  const [examSelId, setExamSelId] = useState('');
   const [examQ, setExamQ] = useState('');
   const [examFam, setExamFam] = useState('');
   const [examYearF, setExamYearF] = useState('');
-  const [examOpen, setExamOpen] = useState(false);
   const [practiced, setPracticed] = useState(() => { try { return JSON.parse(localStorage.getItem('mjh_apk_practiced') || '{}'); } catch { return {}; } });
   // ---- Marchés Publics (flux direct PMMP + BDC) ----
   const [marches, setMarches] = useState(boot.marches || []);
@@ -647,11 +1267,11 @@ function MainApp({ session, onLogout }) {
   const [mStatus, setMStatus] = useState('open');
   const [mCat, setMCat] = useState('');
   const [mVille, setMVille] = useState('');
-  const [mSel, setMSel] = useState(null);
   const [mType, setMType] = useState('');
   const [mRegion, setMRegion] = useState('');
   const [mKw, setMKw] = useState('');
   const [mQuick, setMQuick] = useState('');
+  const [mLimit, setMLimit] = useState(120);
   // ---- Accès spécial Marchés publics (autorisation publiée par l'APK admin) ----
   const [access, setAccess] = useState(() => readAccess());
   const [mArchEmail, setMArchEmail] = useState(() => { try { return localStorage.getItem(LS_MARCHES_SESSION) || ''; } catch { return ''; } });
@@ -663,6 +1283,72 @@ function MainApp({ session, onLogout }) {
   const [mGateErr, setMGateErr] = useState('');
   const [mGateMsg, setMGateMsg] = useState('');
   const closingRef = useRef(false);
+
+  // ---- Fiches locales (pas de sortie vers le navigateur) ----
+  function openDetail(type, id) {
+    if (!id) return;
+    setDetail({ type, id });
+  }
+  function closeDetail() { setDetail(null); }
+
+  async function handleShare(payload) {
+    const r = await shareItem(payload);
+    if (r === 'copied') showToast('Lien copié dans le presse-papiers');
+    else if (r) showToast('Partagé ✓');
+    else showToast('Partage indisponible sur cet appareil');
+  }
+
+  const detailJob = detail && (detail.type === 'job' || detail.type === 'stage' || detail.type === 'concours')
+    ? jobs.find((j) => j.id === detail.id)
+    : null;
+  const detailMarche = detail && detail.type === 'marche'
+    ? marches.find((m) => m.id === detail.id)
+    : null;
+  const detailExam = detail && detail.type === 'exam'
+    ? (((examIndex && examIndex.AUTOX) || []).find((o) => o.id === detail.id) || null)
+    : null;
+  const detailAlert = detail && detail.type === 'alert'
+    ? alerts.find((a) => a.id === detail.id)
+    : null;
+
+  // Fiches liées : même ville ou même spécialité, dans la même famille.
+  const detailRelated = useMemo(() => {
+    if (!detailJob) return [];
+    const sameFamily = (j) => {
+      if (detail.type === 'concours') return j.kind === 'concours';
+      if (detail.type === 'stage') return isStageJob(j);
+      return j.kind !== 'concours' && !isStageJob(j);
+    };
+    return jobs
+      .filter((j) => j.id !== detailJob.id && sameFamily(j)
+        && ((detailJob.city && j.city === detailJob.city) || (detailJob.specialty && j.specialty === detailJob.specialty)))
+      .slice(0, 4);
+  }, [jobs, detailJob, detail]);
+
+  // Empêche le contenu derrière la fiche de défiler.
+  useEffect(() => {
+    if (!detail) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, [detail]);
+
+  // Bouton Retour Android : ferme la fiche, sinon revient aux offres.
+  const navRef = useRef({ detail: null, tab: 'jobs', menuOpen: false });
+  navRef.current = { detail, tab, menuOpen };
+  useEffect(() => {
+    let handle = null;
+    import('@capacitor/app').then(({ App }) => {
+      App.addListener('backButton', () => {
+        const s = navRef.current;
+        if (s.menuOpen) { setMenuOpen(false); return; }
+        if (s.detail) { setDetail(null); return; }
+        if (s.tab !== 'jobs') { goTab('jobs'); return; }
+        App.exitApp();
+      }).then((h) => { handle = h; });
+    }).catch(() => {});
+    return () => { try { handle && handle.remove(); } catch {} };
+  }, []);
 
   function togglePracticed(offerId, year) {
     setPracticed((prev) => {
@@ -792,7 +1478,6 @@ function MainApp({ session, onLogout }) {
         const idx = data.AUTOX ? data : { ...data, AUTOX: offers };
         setExamIndex(idx);
         writeCached('exams', idx);
-        if (!examSelId && offers.length) setExamSelId(offers[0].id);
       }
     } catch {}
   }
@@ -800,10 +1485,8 @@ function MainApp({ session, onLogout }) {
   const startY = useRef(0);
 
   // Current section visual: icon + label follow the page the user chose
-  const section = tab === 'jobs'
-    ? (kind === 'stages' ? { icon: './app-icon.png', ico: 'cap', label: 'Stages & Pré-embauche' }
-      : kind === 'emploi' ? { icon: './app-icon.png', ico: 'briefcase', label: 'Emplois CDI/CDD' }
-      : { icon: './app-icon.png', ico: 'search', label: 'Toutes les offres' })
+  const section = tab === 'jobs' ? { icon: './app-icon.png', ico: 'briefcase', label: 'Emplois CDI · CDD' }
+    : tab === 'stages' ? { icon: './app-icon.png', ico: 'cap', label: 'Stages & Pré-embauche' }
     : tab === 'concours' ? { icon: './app-icon.png', ico: 'landmark', label: 'Concours État' }
     : tab === 'marches' ? { icon: './app-icon.png', ico: 'scale', label: 'Marchés Publics' }
     : tab === 'exams' ? { icon: './app-icon.png', ico: 'file', label: 'Exams & Corrigés' }
@@ -1118,10 +1801,10 @@ function MainApp({ session, onLogout }) {
   // Contextual filter lists: options follow the current page (concours page → concours values, stages → stages values…)
   const baseJobs = useMemo(() => {
     if (tab === 'concours') return jobs.filter((j) => j.kind === 'concours');
-    if (tab === 'jobs' && kind === 'stages') return jobs.filter(isStageJob);
-    if (tab === 'jobs' && kind === 'emploi') return jobs.filter((j) => (j.kind || 'emploi') === 'emploi' && !isStageJob(j));
+    if (tab === 'stages') return jobs.filter(isStageJob);
+    if (tab === 'jobs') return jobs.filter((j) => j.kind !== 'concours' && !isStageJob(j));
     return jobs;
-  }, [jobs, tab, kind]);
+  }, [jobs, tab]);
 
   const sources = useMemo(() => {
     const m = {};
@@ -1155,10 +1838,7 @@ function MainApp({ session, onLogout }) {
   }, [jobs]);
 
   const filtered = useMemo(() => {
-    let l = [...jobs];
-    if (kind === 'stages') l = l.filter(isStageJob);
-    else if (kind !== 'all') l = l.filter((j) => (j.kind || 'emploi') === kind);
-    if (kind === 'emploi') l = l.filter((j) => !isStageJob(j));
+    let l = [...baseJobs];
     if (urgentOnly) l = l.filter((j) => { const d = daysUntil(j.deadline); return d !== null && d >= 0 && d <= 7; });
     if (city) l = l.filter((j) => (j.city || '').toLowerCase().includes(city.toLowerCase()));
     if (source) l = l.filter((j) => j.source === source);
@@ -1167,23 +1847,32 @@ function MainApp({ session, onLogout }) {
       const s = query.trim().toLowerCase();
       l = l.filter((j) => [j.title, j.company, j.city, j.description, (j.requirements || []).join(' ')].join(' ').toLowerCase().includes(s));
     }
-    l.sort((a, b) => (b.publishedDate || '').localeCompare(a.publishedDate || ''));
+    if (tab === 'concours') l.sort((a, b) => (a.deadline || '9999').localeCompare(b.deadline || '9999'));
+    else l.sort((a, b) => (b.publishedDate || '').localeCompare(a.publishedDate || ''));
     return l;
-  }, [jobs, kind, query, city, source, specialty, urgentOnly]);
+  }, [baseJobs, tab, query, city, source, specialty, urgentOnly]);
 
-  // Same data views as the web app
-  const concoursList = useMemo(() => {
-    let l = jobs.filter((j) => j.kind === 'concours');
-    if (urgentOnly) l = l.filter((j) => { const d = daysUntil(j.deadline); return d !== null && d >= 0 && d <= 7; });
-    if (query.trim()) {
-      const s = query.trim().toLowerCase();
-      l = l.filter((j) => [j.title, j.company, j.specialty, j.fonction, j.city].join(' ').toLowerCase().includes(s));
-    }
-    if (city) l = l.filter((j) => (j.city || '').toLowerCase().includes(city.toLowerCase()));
-    if (specialty) l = l.filter((j) => (j.specialty || '') === specialty);
-    l.sort((a, b) => (a.deadline || '9999').localeCompare(b.deadline || '9999'));
-    return l;
-  }, [jobs, query, city, specialty, urgentOnly]);
+  // Un nouveau filtre repart du premier lot.
+  useEffect(() => { setJLimit(120); }, [tab, query, city, source, specialty, urgentOnly]);
+  useEffect(() => { setMLimit(120); }, [tab, query, mStatus, mCat, mVille, mType, mRegion, mKw, mQuick]);
+
+  // Indicateurs de la page courante (emplois / stages / concours).
+  const pageStats = useMemo(() => {
+    const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+    let urgent = 0, posts = 0, fresh = 0;
+    const companies = new Set();
+    baseJobs.forEach((j) => {
+      const d = daysUntil(j.deadline);
+      if (d !== null && d >= 0 && d <= 7) urgent++;
+      posts += Math.max(1, Number(j.postsCount) || 1);
+      if (j.company) companies.add(j.company);
+      if (j.publishedDate) {
+        const pd = new Date(j.publishedDate);
+        if (!isNaN(pd) && pd >= weekAgo) fresh++;
+      }
+    });
+    return { total: baseJobs.length, urgent, posts, companies: companies.size, fresh };
+  }, [baseJobs]);
 
   const contracts = useMemo(() => {
     const m = {};
@@ -1192,9 +1881,13 @@ function MainApp({ session, onLogout }) {
   }, [jobs]);
 
   const kinds = useMemo(() => {
-    let emploi = 0, concours = 0;
-    jobs.forEach((j) => { if (j.kind === 'concours') concours++; else emploi++; });
-    return { emploi, concours };
+    let emploi = 0, concours = 0, stages = 0;
+    jobs.forEach((j) => {
+      if (j.kind === 'concours') concours++;
+      else if (isStageJob(j)) stages++;
+      else emploi++;
+    });
+    return { emploi, concours, stages };
   }, [jobs]);
 
   const examAUTOX = useMemo(() => {
@@ -1233,16 +1926,6 @@ function MainApp({ session, onLogout }) {
     });
     return { done, total };
   }, [examIndex, practiced]);
-
-  const examSel = useMemo(() => {
-    const list = (examIndex && examIndex.AUTOX) || [];
-    return list.find((o) => o.id === examSelId) || null;
-  }, [examIndex, examSelId]);
-
-  const examYears = useMemo(() => {
-    if (!examSel) return [];
-    return [...new Set(examSel.files.map((f) => f.year))].sort().reverse();
-  }, [examSel]);
 
   // ---- Marchés Publics views ----
   const mStats = useMemo(() => {
@@ -1316,10 +1999,8 @@ function MainApp({ session, onLogout }) {
     if (mType) l = l.filter((m) => ((m.modePassation || String(m.typeProcedure || '').split('|')[0]).trim()) === mType);
     if (mRegion) l = l.filter((m) => regionsOf(m.ville).includes(mRegion));
     if (mQuick === 'soon') l = l.filter((m) => {
-      const end = m.dateLimiteIso ? Date.parse(m.dateLimiteIso) + (m.dateOnly ? 86399999 : 0) : 0;
-      if (!end) return false;
-      const d = end - Date.now();
-      return d >= 0 && d <= 7 * 86400000;
+      const d = mDeadline(m).d;
+      return d !== null && d >= 0 && d <= 7;
     });
     if (mQuick === 'new') l = l.filter((m) => mNewIds.has(m.id));
     if (mKw) {
@@ -1356,9 +2037,11 @@ function MainApp({ session, onLogout }) {
 
   function mDeadline(m) {
     if (!m.dateLimiteIso) return { label: 'Sans date', cls: 'b-muted', d: null };
-    const end = new Date(m.dateLimiteIso).getTime() + 86400000 - 1;
-    const d = Math.ceil((end - Date.now()) / 86400000);
+    const d = m.dateOnly
+      ? daysUntil(String(m.dateLimiteIso).slice(0, 10))
+      : Math.ceil((Date.parse(m.dateLimiteIso) - Date.now()) / 86400000);
     const raw = m.dateLimite || m.dateLimiteIso.slice(0, 16).replace('T', ' ');
+    if (d === null) return { label: `Sans date`, cls: 'b-muted', d: null };
     if (d < 0) return { label: `Clôturé • ${raw}`, cls: 'b-red', d };
     if (d === 0) return { label: `Dernier jour • ${raw}`, cls: 'b-red pulse', d };
     if (d <= 3) return { label: `J-${d} • ${raw}`, cls: 'b-red', d };
@@ -1372,13 +2055,14 @@ function MainApp({ session, onLogout }) {
     if (dy > 110 && window.scrollY <= 5 && !refreshing) refresh(true);
   }
 
-  function goTab(t, k) {
+  function goTab(t) {
     setTab(t);
-    if (k !== undefined) setKind(k);
+    setDetail(null);
     setMenuOpen(false);
-    setExamOpen(false);
+    setJLimit(120);
+    setMLimit(120);
     setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false);
-    setMSel(null); setMCat(''); setMVille(''); setMStatus('open'); setMType(''); setMRegion(''); setMKw(''); setMQuick('');
+    setMCat(''); setMVille(''); setMStatus('open'); setMType(''); setMRegion(''); setMKw(''); setMQuick('');
     try { window.scrollTo({ top: 0 }); } catch {}
   }
 
@@ -1390,14 +2074,13 @@ function MainApp({ session, onLogout }) {
         <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
         <p className="muted">ASSOULI AUTOX • {stats.total} offres • {mArchAllowed ? `${mStats.total} marchés publics` : 'Marchés sur autorisation'} • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
-          <button className={tab === 'jobs' && kind === 'all' ? 'active' : ''} onClick={() => goTab('jobs', 'all')}><span className="dn-l"><Icon n="search" size={19} />Toutes les offres</span></button>
-          <button className={tab === 'jobs' && kind === 'emploi' ? 'active' : ''} onClick={() => goTab('jobs', 'emploi')}><span className="dn-l"><Icon n="briefcase" size={19} />Emplois CDI/CDD</span></button>
-          <button className={tab === 'jobs' && kind === 'stages' ? 'active' : ''} onClick={() => goTab('jobs', 'stages')}><span className="dn-l"><Icon n="cap" size={19} />Stages</span>{stats.stages > 0 && <b className="count">{stats.stages}</b>}</button>
-          <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span></button>
+          <button className={tab === 'jobs' ? 'active' : ''} aria-current={tab === 'jobs' ? 'page' : undefined} onClick={() => goTab('jobs')}><span className="dn-l"><Icon n="briefcase" size={19} />Offres d’emploi</span>{kinds.emploi > 0 && <b className="count">{kinds.emploi}</b>}</button>
+          <button className={tab === 'stages' ? 'active' : ''} aria-current={tab === 'stages' ? 'page' : undefined} onClick={() => goTab('stages')}><span className="dn-l"><Icon n="cap" size={19} />Stages & pré-embauche</span>{kinds.stages > 0 && <b className="count">{kinds.stages}</b>}</button>
+          <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span>{kinds.concours > 0 && <b className="count">{kinds.concours}</b>}</button>
           <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mArchAllowed && mStats.open > 0 && <b className="count">{compactNum(mStats.open)}</b>}{!mArchAllowed && <b className="count"><Icon n="lock" size={11} /></b>}</button>
           <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><span className="dn-l"><Icon n="file" size={19} />Exams & Corrigés</span></button>
-          <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><span className="dn-l"><Icon n="chart" size={19} />Dashboard</span></button>
           <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><span className="dn-l"><Icon n="bell" size={19} />Alertes</span>{unread > 0 && <b className="count red">{unread}</b>}</button>
+          <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><span className="dn-l"><Icon n="chart" size={19} />Dashboard</span></button>
           <button className={tab === 'setup' ? 'active' : ''} onClick={() => goTab('setup')}><span className="dn-l"><Icon n="sliders" size={19} />Configuration</span></button>
         </nav>
         <button className="apply drawer-refresh" onClick={() => { setMenuOpen(false); refresh(true); }}><Icon n="refresh" size={18} /> Actualiser</button>
@@ -1428,14 +2111,14 @@ function MainApp({ session, onLogout }) {
           {!updating && <button className="upd-x" onClick={() => setUpdateInfo(null)} aria-label="Plus tard"><Icon n="close" size={14} /></button>}
         </div>
       )}
-      {(tab === 'jobs' || tab === 'concours') && (
+      {(tab === 'jobs' || tab === 'stages' || tab === 'concours') && (
       <section className="hero">
         <div className="hero-stats">
-          <div className="hstat"><b>{stats.total}</b><span>offres</span></div>
-          <div className="hstat green"><b>{stats.thisWeek}</b><span>≤ 7 jours</span></div>
-          <div className="hstat orange"><b>{stats.urgent}</b><span>urgentes</span></div>
-          <div className="hstat stages"><b>{stats.stages}</b><span>stages</span></div>
-          <div className="hstat violet"><b>{stats.concours}</b><span>concours</span></div>
+          <div className="hstat"><b>{pageStats.total}</b><span>{tab === 'stages' ? 'stages' : tab === 'concours' ? 'concours' : 'offres'}</span></div>
+          <div className="hstat green"><b>{pageStats.fresh}</b><span>≤ 7 jours</span></div>
+          <div className="hstat orange"><b>{pageStats.urgent}</b><span>urgentes</span></div>
+          <div className="hstat stages"><b>{pageStats.posts}</b><span>postes</span></div>
+          <div className="hstat violet"><b>{pageStats.companies}</b><span>entreprises</span></div>
         </div>
         <div className="updated">{refreshing ? 'Actualisation…' : loading ? 'Chargement…' : `Dernière actualisation : ${(updatedAt || '').slice(0, 16).replace('T', ' ') || 'à l’instant'} • ${filtered.length} affichées`}</div>
       </section>
@@ -1445,8 +2128,7 @@ function MainApp({ session, onLogout }) {
         <img src={section.icon} alt="" className="section-logo" />
         <span className="section-emoji"><Icon n={section.ico} size={22} /></span>
         <b>{section.label}</b>
-        {tab === 'jobs' && <span className="section-count">{filtered.length} affichées</span>}
-        {tab === 'concours' && <span className="section-count">{concoursList.length} concours</span>}
+        {(tab === 'jobs' || tab === 'stages' || tab === 'concours') && <span className="section-count">{filtered.length} affichée{filtered.length > 1 ? 's' : ''}</span>}
         {tab === 'marches' && mArchAllowed && <span className="section-count">{fmtNum(mStats.open)} ouverts</span>}
         {tab === 'marches' && !mArchAllowed && <span className="section-count m-locked-count"><Icon n="lock" size={12} /> Réservé</span>}
       </div>
@@ -1514,12 +2196,12 @@ function MainApp({ session, onLogout }) {
         </section>
       )}
 
-      {(tab === 'jobs' || tab === 'concours' || (tab === 'marches' && mArchAllowed)) && (
+      {(tab === 'jobs' || tab === 'stages' || tab === 'concours' || (tab === 'marches' && mArchAllowed)) && (
       <div className="searchbar">
         <Icon n="search" size={18} /><input placeholder={tab === 'marches' ? 'Rechercher : référence, organisme, objet, ville…' : 'Rechercher : poste, entreprise, ville…'} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
       )}
-      {(tab === 'jobs' || tab === 'concours') && (
+      {(tab === 'jobs' || tab === 'stages' || tab === 'concours') && (
       <div className="filters modern-filters">
         <label className="fselect"><span><Icon n="pin" size={16} /></span><select value={city} onChange={(e) => setCity(e.target.value)}>
           <option value="">Toutes villes</option>
@@ -1534,8 +2216,8 @@ function MainApp({ session, onLogout }) {
           {specialties.map(([s, n]) => <option key={s} value={s}>{s.length > 28 ? s.slice(0, 28) + '…' : s} ({n})</option>)}
         </select></label>
         <button className={'fchip' + (urgentOnly ? ' active' : '')} onClick={() => setUrgentOnly(!urgentOnly)} title="Deadlines ≤ 7 jours"><Icon n="clock" size={15} /> ≤ 7j</button>
-        {(query || city || source || specialty || urgentOnly || kind !== 'all') && (
-          <button className="clear" onClick={() => { setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false); setKind('all'); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
+        {(query || city || source || specialty || urgentOnly) && (
+          <button className="clear" onClick={() => { setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
         )}
       </div>
       )}
@@ -1595,13 +2277,13 @@ function MainApp({ session, onLogout }) {
           </div>
           {marches.length === 0 && <div className="empty">Aucun marché public. Touchez ↻ pour actualiser.</div>}
           {mFiltered.length === 0 && marches.length > 0 && <div className="empty">Aucun marché ne correspond aux filtres.</div>}
-          {mFiltered.map((m) => {
+          {mFiltered.slice(0, mLimit).map((m) => {
             const dl = mDeadline(m);
             const cat = catSlug(m.categorie);
             const isNew = mShowNewBadges && mNewIds.has(m.id);
             const hue = MCAT_HUE[cat] ?? 200;
             return (
-              <article className={'card mcard cat-' + (cat || 'autre')} key={m.id} onClick={() => setMSel(m)}>
+              <article className={'card mcard cat-' + (cat || 'autre')} key={m.id} role="button" tabIndex={0} onClick={() => openDetail('marche', m.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail('marche', m.id); } }}>
                 <div className="card-head">
                   <div className="avatar" style={{ '--h': hue }}><Icon n="gavel" size={20} /></div>
                   <div className="chead">
@@ -1615,6 +2297,7 @@ function MainApp({ session, onLogout }) {
                       <span><Icon n="file" size={14} />{m.categorie || 'Marché'}</span>
                     </div>
                   </div>
+                  <span className="mcard-arrow" aria-hidden="true"><Icon n="arrow" size={14} /></span>
                 </div>
                 <p className="desc m-objet">{m.objet || '—'}</p>
                 <div className="chips">
@@ -1624,106 +2307,59 @@ function MainApp({ session, onLogout }) {
                   {m.estimation && <span className="chip muted m-money">{m.estimation}</span>}
                 </div>
                 <div className="m-foot">
-                  <span className="m-open">Ouvrir la fiche <Icon n="arrow" size={14} /></span>
+                  <span className="m-open">Voir la fiche complète <Icon n="arrow" size={14} /></span>
                   <span className="m-src">{mSourceTag(m)}</span>
                 </div>
               </article>
             );
           })}
+          {mFiltered.length > mLimit && (
+            <button className="more more-btn" onClick={() => setMLimit((n) => n + 120)}>
+              Afficher plus de marchés <span>· {mFiltered.length - mLimit} restants</span>
+            </button>
+          )}
         </main>
       )}
 
-      {tab === 'jobs' && (
+      {(tab === 'jobs' || tab === 'stages') && (
         <main className="feed">
-          {kind === 'stages' && (
-            <div className="panel stages-banner">
-              <h3>Stages & Pré-embauche ({filtered.length})</h3>
-              <p className="muted">Stages, stagiaires & PFE — séparés des emplois CDI/CDD.</p>
+          {tab === 'stages' && (
+            <div className="stage-lead">
+              <span className="stage-lead-ic"><Icon n="cap" size={20} /></span>
+              <div>
+                <b>Stages, PFE & pré-embauche</b>
+                <p>Une page dédiée aux stages, stagiaires et premiers emplois — séparée des offres CDI/CDD.</p>
+              </div>
             </div>
           )}
-          {kind === 'emploi' && (
-            <div className="panel">
-              <h3>Emplois CDI/CDD ({filtered.length})</h3>
-              <p className="muted">Hors stages — voir l’onglet Stages.</p>
-            </div>
-          )}
+          <div className="list-head">
+            <div><b>{filtered.length}</b><span>{tab === 'stages' ? 'stage' : 'offre'}{filtered.length > 1 ? 's' : ''} {query || city || source || specialty || urgentOnly ? 'filtrée' + (filtered.length > 1 ? 's' : '') : 'disponible' + (filtered.length > 1 ? 's' : '')}</span></div>
+            <span className="list-sort"><Icon n="clock" size={13} />Plus récentes</span>
+          </div>
           {loading && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div key={i} className="skeleton" />)}</div>}
           {!loading && filtered.length === 0 && <div className="empty">Aucune offre. Touchez ↻ pour actualiser.</div>}
-          {filtered.slice(0, 120).map((j) => {
-            const dl = deadlineInfo(j);
-            const initial = (j.company || j.sourceLabel || '?').trim().charAt(0).toUpperCase();
-            const isStage = isStageJob(j);
-            return (
-              <article className={'card' + (isStage ? ' stage-card' : '')} key={j.id}>
-                <div className="card-head">
-                  <div className="avatar" style={{ '--h': hueOf(initial) }}>{initial}</div>
-                  <div className="chead">
-                    <h3>{j.title}</h3>
-                    <div className="csub meta"><span><Icon n="building" size={14} />{j.company || '—'}</span><span><Icon n="pin" size={14} />{j.city || '—'}</span>{j.contract && <span><Icon n="file" size={14} />{j.contract}</span>}</div>
-                  </div>
-                </div>
-                <div className="chips">
-                  <span className="chip">{j.sourceLabel || j.source}</span>
-                  {isStage && <span className="chip b-stage"><Icon n="cap" size={12} />Stage</span>}
-                  {j.postsCount > 1 && <span className="chip blue">{j.postsCount} postes</span>}
-                  <span className={'chip ' + dl.cls}>{dl.label}</span>
-                  {j.publishedDate && <span className="chip muted">Publié {j.publishedDate}</span>}
-                  {j.concoursDate && <span className="chip b-orange"><Icon n="file" size={12} />Examen {j.concoursDate}</span>}
-                </div>
-                {(j.specialty || j.diploma || j.experience) && <div className="csub meta"><span><Icon n="target" size={14} />{j.specialty || '—'}</span>{j.diploma && <span><Icon n="cap" size={14} />{j.diploma}</span>}{j.experience && <span><Icon n="briefcase" size={14} />{j.experience}</span>}</div>}
-                {j.description && <p className="desc">{String(j.description).slice(0, 160)}…</p>}
-                {(j.requirements || []).length > 0 && (
-                  <ul className="reqs">{j.requirements.slice(0, 3).map((r, i) => <li key={i}>{r}</li>)}</ul>
-                )}
-                <div className="actions">
-                  <button className="apply" onClick={() => openLink(j.url)}><Icon n="arrow" size={16} /> Voir / Postuler</button>
-                  <span className="kind">{j.kind === 'concours' ? 'Concours' : isStage ? 'Stage' : 'Emploi'}</span>
-                </div>
-              </article>
-            );
-          })}
-          {filtered.length > 120 && <div className="more">+ {filtered.length - 120} autres — affinez la recherche.</div>}
+          {filtered.slice(0, jLimit).map((j) => (
+            <OfferCard key={j.id} job={j} type={tab === 'stages' ? 'stage' : 'job'} onOpen={openDetail} />
+          ))}
+          {filtered.length > jLimit && (
+            <button className="more more-btn" onClick={() => setJLimit((n) => n + 120)}>
+              Afficher plus d’offres <span>· {filtered.length - jLimit} restantes</span>
+            </button>
+          )}
         </main>
       )}
 
       {tab === 'concours' && (
         <main className="feed">
-          {loading && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div key={i} className="skeleton" />)}</div>}
-          {!loading && concoursList.length === 0 && <div className="empty">Aucun concours. Touchez ↻ pour actualiser.</div>}
-          <div className="panel" style={{ marginBottom: 10 }}>
-            <h3>Concours État ({concoursList.length})</h3>
-            <p className="muted">Organisme, postes, ouverture, clôture, examen, conditions — comme le web.</p>
+          <div className="list-head">
+            <div><b>{filtered.length}</b><span>concours {query || city || source || specialty || urgentOnly ? 'filtré' + (filtered.length > 1 ? 's' : '') : 'disponible' + (filtered.length > 1 ? 's' : '')}</span></div>
+            <span className="list-sort"><Icon n="calendar" size={13} />Par date limite</span>
           </div>
-          {concoursList.slice(0, 80).map((j) => {
-            const dl = deadlineInfo(j);
-            const initial = (j.company || '?').trim().charAt(0).toUpperCase();
-            return (
-              <article className="card" key={j.id}>
-                <div className="card-head">
-                  <div className="avatar" style={{ '--h': hueOf(initial) }}>{initial}</div>
-                  <div className="chead">
-                    <h3>{j.title}</h3>
-                    <div className="csub meta"><span><Icon n="building" size={14} />{j.company || '—'}</span></div>
-                    <div className="csub meta"><span><Icon n="pin" size={14} />{j.city || '—'}</span><span><Icon n="briefcase" size={14} />{j.postsCount || 1} poste(s)</span></div>
-                    <div className="csub meta"><span><Icon n="calendar" size={14} />Ouvert : {j.publishedDate || '—'}</span><span><Icon n="file" size={14} />Examen : {j.concoursDate || '—'}</span></div>
-                  </div>
-                </div>
-                <div className="chips">
-                  <span className="chip">{j.sourceLabel || j.source}</span>
-                  {j.specialty && <span className="chip blue"><Icon n="target" size={12} />{j.specialty}</span>}
-                  <span className={'chip ' + dl.cls}>{dl.label}</span>
-                </div>
-                {(j.diploma || j.experience) && <div className="csub meta"><span><Icon n="cap" size={14} />{j.diploma || '—'}</span><span><Icon n="briefcase" size={14} />{j.experience || '—'}</span></div>}
-                {(j.requirements || []).length > 0 && (
-                  <ul className="reqs">{j.requirements.slice(0, 4).map((r, i) => <li key={i}>{r}</li>)}</ul>
-                )}
-                <div className="actions">
-                  <button className="apply" onClick={() => openLink(j.url)}><Icon n="arrow" size={16} /> Avis officiel / dossier</button>
-                  <span className="kind">Concours</span>
-                </div>
-              </article>
-            );
-          })}
+          {loading && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div key={i} className="skeleton" />)}</div>}
+          {!loading && filtered.length === 0 && <div className="empty">Aucun concours. Touchez ↻ pour actualiser.</div>}
+          {filtered.slice(0, 80).map((j) => (
+            <OfferCard key={j.id} job={j} type="concours" onOpen={openDetail} />
+          ))}
         </main>
       )}
 
@@ -1786,7 +2422,7 @@ function MainApp({ session, onLogout }) {
               const sujets = o.files.filter((f) => f.kind !== 'corrige').length;
               const corriges = o.files.filter((f) => f.kind === 'corrige').length;
               return (
-                <article className="card exam-card" key={o.id} onClick={() => { setExamSelId(o.id); setExamOpen(true); }}>
+                <article className="card exam-card" key={o.id} role="button" tabIndex={0} onClick={() => openDetail('exam', o.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail('exam', o.id); } }}>
                   <div className="ex-card-top">
                     <div className="ex-badge"><Icon n="landmark" size={20} /></div>
                     <div className="ex-card-title">
@@ -1826,10 +2462,10 @@ function MainApp({ session, onLogout }) {
               </div>
             </div>
             <div className="dash-stats-modern">
-              <div className="dstat primary" onClick={() => goTab('jobs', 'all')}><b>{stats.total}</b><span>Offres</span></div>
-              <div className="dstat info" onClick={() => { goTab('jobs', 'all'); }}><b>{stats.thisWeek}</b><span>Publiées ≤ 7 jours</span></div>
-              <div className="dstat warning" onClick={() => { goTab('jobs', 'all'); setUrgentOnly(true); }}><b>{stats.urgent}</b><span>Urgentes</span></div>
-              <div className="dstat stages" onClick={() => goTab('jobs', 'stages')}><b>{stats.stages}</b><span>Stages</span></div>
+              <div className="dstat primary" onClick={() => goTab('jobs')}><b>{kinds.emploi}</b><span>Offres d’emploi</span></div>
+              <div className="dstat info" onClick={() => goTab('jobs')}><b>{stats.thisWeek}</b><span>Publiées ≤ 7 jours</span></div>
+              <div className="dstat warning" onClick={() => { goTab('jobs'); setUrgentOnly(true); }}><b>{stats.urgent}</b><span>Urgentes</span></div>
+              <div className="dstat stages" onClick={() => goTab('stages')}><b>{kinds.stages}</b><span>Stages</span></div>
               <div className="dstat violet" onClick={() => goTab('concours')}><b>{stats.concours}</b><span>Concours</span></div>
               <div className="dstat green" onClick={() => goTab('marches')}>
                 {mArchAllowed ? (<><b>{mStats.open}</b><span>Marchés ouverts</span></>) : (<><b className="dstat-lock"><Icon n="lock" size={18} /></b><span>Marchés réservés</span></>)}
@@ -1862,14 +2498,14 @@ function MainApp({ session, onLogout }) {
             {sources.map(([k, l]) => {
               const n = jobs.filter((j) => j.source === k).length;
               const pct = stats.total ? Math.max(4, (n / stats.total) * 100) : 0;
-              return <div className="bar" key={k} onClick={() => { goTab('jobs', 'all'); setSource(k); }}><span className="bl">{l}</span><div className="bt"><div className="bf" style={{ width: pct + '%' }} /></div><b>{n}</b></div>;
+              return <div className="bar" key={k} onClick={() => { goTab('jobs'); setSource(k); }}><span className="bl">{l}</span><div className="bt"><div className="bf" style={{ width: pct + '%' }} /></div><b>{n}</b></div>;
             })}
           </div>
           <div className="panel">
             <div className="section-header"><h3>Top villes</h3><span className="section-count">{cities.length} villes</span></div>
             <div className="cities-grid">
               {cities.slice(0, 10).map(([c, n]) => (
-                <div className="city-chip" key={c} onClick={() => { goTab('jobs', 'all'); setCity(c); }}>
+                <div className="city-chip" key={c} onClick={() => { goTab('jobs'); setCity(c); }}>
                   <span className="city-name">{c}</span><span className="city-count">{n}</span>
                 </div>
               ))}
@@ -1878,8 +2514,8 @@ function MainApp({ session, onLogout }) {
           <div className="panel">
             <div className="section-header"><h3>Types</h3><span className="section-count">Répartition</span></div>
             <div className="type-grid">
-              <div className="type-box emploi" onClick={() => goTab('jobs', 'emploi')}><Icon n="briefcase" size={24} /><b>{kinds.emploi - stats.stages}</b><small>Emplois</small></div>
-              <div className="type-box stages" onClick={() => goTab('jobs', 'stages')}><Icon n="cap" size={24} /><b>{stats.stages}</b><small>Stages</small></div>
+              <div className="type-box emploi" onClick={() => goTab('jobs')}><Icon n="briefcase" size={24} /><b>{kinds.emploi}</b><small>Emplois</small></div>
+              <div className="type-box stages" onClick={() => goTab('stages')}><Icon n="cap" size={24} /><b>{kinds.stages}</b><small>Stages</small></div>
               <div className="type-box concours" onClick={() => goTab('concours')}><Icon n="landmark" size={24} /><b>{kinds.concours}</b><small>Concours</small></div>
             </div>
             <h3 style={{ marginTop: 16 }}>Contrats</h3>
@@ -1897,18 +2533,26 @@ function MainApp({ session, onLogout }) {
             <p className="muted">Mêmes alertes que WhatsApp • {alertsUpdated ? `maj ${(alertsUpdated || '').slice(0, 16).replace('T', ' ')}` : 'touchez ↻ pour charger'} • les nouveautés arrivent à chaque actualisation.</p>
           </div>
           {alerts.length === 0 && <div className="empty">Aucune alerte pour l'instant. Touchez ↻.</div>}
-          {alerts.slice(0, 30).map((a) => (
-            <article className="card" key={a.id}>
-              <div className="card-head">
-                <div className="avatar"><Icon n="bell" size={22} /></div>
-                <div className="chead">
-                  <h3>{a.title}</h3>
-                  <div className="csub">{(a.at || '').slice(0, 16).replace('T', ' ')}{a.counts ? ` • +${a.counts.new || 0} nouvelles • total ${a.counts.total || ''}` : ''}</div>
+          {alerts.slice(0, 30).map((a) => {
+            const isUnread = !seen || (a.at || '') > seen;
+            return (
+              <article className="card alert-card" key={a.id} role="button" tabIndex={0} onClick={() => openDetail('alert', a.id)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail('alert', a.id); } }}>
+                <div className="card-head">
+                  <div className={'alert-avatar' + (isUnread ? ' unread' : '')}><Icon n="bell" size={20} /></div>
+                  <div className="chead">
+                    <div className="alert-topline">
+                      <span className="alert-date"><Icon n="clock" size={12} />{fmtWhen(a.at)}</span>
+                      {isUnread && <span className="alert-dot">Non lue</span>}
+                    </div>
+                    <h3>{a.title}</h3>
+                    {a.counts && <div className="csub"><span className="chip b-green">+{a.counts.new || 0} nouvelles</span>{a.counts.total ? <span className="chip muted">total {a.counts.total}</span> : null}</div>}
+                  </div>
                 </div>
-              </div>
-              <p className="desc" style={{ whiteSpace: 'pre-wrap' }}>{a.body}</p>
-            </article>
-          ))}
+                <p className="desc alert-excerpt">{shortText(a.body, 190)}</p>
+                <div className="alert-foot"><span>Lire l’alerte complète <Icon n="arrow" size={13} /></span><span className="m-src">ASSOULI</span></div>
+              </article>
+            );
+          })}
         </main>
       )}
 
@@ -1938,187 +2582,36 @@ function MainApp({ session, onLogout }) {
       )}
 
       <nav className="bottomnav" aria-label="Navigation principale">
-        <button className={tab === 'jobs' ? 'active' : ''} aria-current={tab === 'jobs' ? 'page' : undefined} onClick={() => goTab('jobs')}><Icon n="briefcase" size={22} /><span>Offres</span></button>
-        <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><Icon n="scale" size={22} /><span>Marchés</span></button>
-        <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><Icon n="landmark" size={22} /><span>Concours</span></button>
-        <button className={'fab' + (refreshing ? ' spinning' : '')} onClick={() => refresh(true)} title="Actualiser" aria-label="Actualiser"><Icon n="refresh" size={26} /></button>
-        <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><Icon n="file" size={22} /><span>Exams</span></button>
-        <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><Icon n="bell" size={22} /><span>Alertes</span>{unread > 0 && <b className="nav-badge">{unread}</b>}</button>
+        <button className={tab === 'jobs' ? 'active' : ''} aria-current={tab === 'jobs' ? 'page' : undefined} onClick={() => goTab('jobs')}><Icon n="briefcase" size={21} /><span>Offres</span></button>
+        <button className={tab === 'stages' ? 'active' : ''} aria-current={tab === 'stages' ? 'page' : undefined} onClick={() => goTab('stages')}><Icon n="cap" size={21} /><span>Stages</span></button>
+        <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><Icon n="landmark" size={21} /><span>Concours</span></button>
+        <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><Icon n="scale" size={21} /><span>Marchés</span></button>
+        <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><Icon n="file" size={21} /><span>Exams</span></button>
+        <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><Icon n="bell" size={21} /><span>Alertes</span>{unread > 0 && <b className="nav-badge">{unread}</b>}</button>
       </nav>
 
-      {mSel && (() => {
-        const dl = mDeadline(mSel);
-        const cat = catSlug(mSel.categorie);
-        const hue = MCAT_HUE[cat] ?? 200;
-        const isNew = mShowNewBadges && mNewIds.has(mSel.id);
-        const official = mSel.portalHref || mSel.dceUrl || '';
-        const kws = (Array.isArray(mSel.keywords) ? mSel.keywords : []).map(kwLabel).filter(Boolean).slice(0, 8);
-        return (
-          <>
-            <div className="sheet-overlay" onClick={() => setMSel(null)} aria-hidden="true" />
-            <div className="sheet m-sheet" role="dialog" aria-modal="true" aria-label={`Marché ${mSel.ref || ''}`}>
-              <div className="sheet-handle" />
-              <div className="sheet-head">
-                <div className="avatar" style={{ '--h': hue }}><Icon n="gavel" size={20} /></div>
-                <div className="chead">
-                  <div className="m-topline">
-                    <span className="mcard-ref">{mSel.ref || 'Sans référence'}</span>
-                    {isNew && <span className="m-new">Nouveau</span>}
-                  </div>
-                  <h3 className="m-org">{mSel.organisme || 'Organisme public'}</h3>
-                  <div className="chips">
-                    <span className={'chip ' + dl.cls}>{dl.label}</span>
-                    {mSel.categorie && <span className="chip ref-chip">{mSel.categorie}</span>}
-                    {mSel.ville && <span className="chip blue"><Icon n="pin" size={12} />{mSel.ville}</span>}
-                  </div>
-                </div>
-                <button className="sheet-close" onClick={() => setMSel(null)} aria-label="Fermer"><Icon n="close" size={18} /></button>
-              </div>
-              <div className="sheet-body">
-                <div className="panel m-object-panel">
-                  <span className="m-eyebrow">Objet de la consultation</span>
-                  <p className="desc" style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{mSel.objet || '—'}</p>
-                  {kws.length > 0 && (
-                    <div className="chips">
-                      {kws.map((k) => <span className="chip m-kw" key={k}>{k}</span>)}
-                    </div>
-                  )}
-                </div>
-
-                <div className="m-figures">
-                  {mSel.estimation && <div className="m-fig"><span>Estimation</span><b>{mSel.estimation}</b></div>}
-                  {mSel.caution && <div className="m-fig"><span>Caution provisoire</span><b>{mSel.caution}</b></div>}
-                  {mSel.qc && <div className="m-fig"><span>Qualification & capacité</span><b>{mSel.qc}</b></div>}
-                  <div className="m-fig"><span>Source</span><b>{mSourceTag(mSel)}</b></div>
-                </div>
-
-                <div className="panel">
-                  <h3>Dossier officiel</h3>
-                  <p className="muted">Cette consultation est publiée sur le portail marocain des marchés publics. Ouvrez la fiche officielle pour le règlement de consultation, le CPS et le dépôt électronique.</p>
-                  <div className="row" style={{ marginTop: 10 }}>
-                    {official && <button className="apply" onClick={() => openLink(official)}><Icon n="arrow" size={16} /> Portail officiel</button>}
-                    {mSel.detailUrl && mSel.detailUrl !== official && <button className="ghost" onClick={() => openLink(mSel.detailUrl)}><Icon n="eye" size={16} /> Fiche détaillée</button>}
-                  </div>
-                  {(mSel.docs || []).map((d, i) => (
-                    <div className="doc-row" key={d.file + i}>
-                      <Icon n="file" size={20} />
-                      <span className="doc-name">{d.name || 'Avis PDF'}</span>
-                      <span className="doc-size">{d.size ? (d.size / 1024 / 1024).toFixed(1) + ' Mo' : ''}</span>
-                      <button className="ghost sm" onClick={() => downloadFile(marcheDocUrl(d), `${mSel.ref}-${d.name || 'avis'}.pdf`.replace(/[^\wÀ-ÿ.-]+/g, '-').slice(0, 60))}><Icon n="download" size={14} /></button>
-                    </div>
-                  ))}
-                  {mSel.dceSize && <p className="muted" style={{ marginTop: 8 }}>{mSel.dceSize}</p>}
-                </div>
-
-                <div className="panel">
-                  <h3>Informations clés</h3>
-                  {mSel.dateLimite && <div className="mrow"><span className="mlabel">Clôture</span><span className="mval">{mSel.dateLimite}</span></div>}
-                  {mSel.modePassation && <div className="mrow"><span className="mlabel">Mode</span><span className="mval">{mSel.modePassation}</span></div>}
-                  {mSel.typeProcedure && <div className="mrow"><span className="mlabel">Type d’offre</span><span className="mval">{mSel.typeProcedure}</span></div>}
-                  {mSel.prixAcquisition && mSel.prixAcquisition !== '0,00 MAD' && <div className="mrow"><span className="mlabel">Prix DCE</span><span className="mval">{mSel.prixAcquisition}</span></div>}
-                  {mSel.lieuOuverture && <div className="mrow"><span className="mlabel">Ouverture plis</span><span className="mval">{mSel.lieuOuverture}</span></div>}
-                  {mSel.adresseRetrait && <div className="mrow"><span className="mlabel">Retrait</span><span className="mval">{mSel.adresseRetrait}</span></div>}
-                  {mSel.adresseDepot && <div className="mrow"><span className="mlabel">Dépôt</span><span className="mval">{mSel.adresseDepot}</span></div>}
-                  {mSel.ref && <div className="mrow"><span className="mlabel">Référence</span><span className="mval">{mSel.ref}</span></div>}
-                </div>
-
-                {(mSel.contact && (mSel.contact.nom || mSel.contact.email || mSel.contact.tel)) && (
-                  <div className="panel">
-                    <h3>Contact</h3>
-                    {mSel.contact.nom && <div className="mrow"><span className="mlabel">Nom</span><span className="mval">{mSel.contact.nom}</span></div>}
-                    {mSel.contact.email && <div className="mrow"><span className="mlabel">Email</span><span className="mval"><a href={`mailto:${mSel.contact.email}`}>{mSel.contact.email}</a></span></div>}
-                    {mSel.contact.tel && <div className="mrow"><span className="mlabel">Téléphone</span><span className="mval"><a href={`tel:${mSel.contact.tel}`}>{mSel.contact.tel}</a></span></div>}
-                    {mSel.contact.fax && <div className="mrow"><span className="mlabel">Fax</span><span className="mval">{mSel.contact.fax}</span></div>}
-                    <div className="row" style={{ marginTop: 8 }}>
-                      {mSel.contact.email && <button className="ghost" onClick={() => openLink(`mailto:${mSel.contact.email}`)}><Icon n="mail" size={16} /> Envoyer un mail</button>}
-                      {mSel.contact.tel && <button className="ghost" onClick={() => openLink(`tel:${mSel.contact.tel}`)}><Icon n="phone" size={16} /> Appeler</button>}
-                    </div>
-                  </div>
-                )}
-
-                <p className="m-source">
-                  Source : <b>Portail marocain des marchés publics (PMMP)</b> — consultation relayée par appeldoffres.ma.
-                  {mSel.firstSeenAt ? ` Repérée le ${fmtDay(mSel.firstSeenAt)}.` : ''} Données publiques : vérifiez toujours le dossier officiel avant de soumissionner.
-                </p>
-              </div>
-            </div>
-          </>
-        );
-      })()}
-
-      {examOpen && examSel && (() => {
-        const ys = examYears;
-        const doneCount = ys.filter((y) => practiced[`${examSel.id}-${y}`]).length;
-        const pct = ys.length ? Math.round((doneCount / ys.length) * 100) : 0;
-        return (
-          <>
-            <div className="sheet-overlay" onClick={() => setExamOpen(false)} aria-hidden="true" />
-            <div className="sheet exam-sheet" role="dialog" aria-modal="true" aria-label={`Examens ${examSel.title}`}>
-              <div className="sheet-handle" />
-              <div className="sheet-head">
-                <div className="ex-badge"><Icon n="file" size={20} /></div>
-                <div className="chead">
-                  <h3>{examSel.title}</h3>
-                  <div className="csub meta"><span><Icon n="building" size={14} />{examSel.company}</span>{examSel.specialty && <span><Icon n="target" size={14} />{examSel.specialty}</span>}</div>
-                  <div className="chips">
-                    {examSel.familyLabel && <span className="chip blue">{examSel.familyLabel}</span>}
-                    <span className="chip b-green">{doneCount}/{ys.length} pratiqués</span>
-                  </div>
-                </div>
-                <button className="sheet-close" onClick={() => setExamOpen(false)} aria-label="Fermer"><Icon n="close" size={18} /></button>
-              </div>
-              <div className="sheet-body">
-                <div className="ex-sheet-prog">
-                  <div className="bt"><div className="bf g" style={{ width: pct + '%' }} /></div>
-                  <b>{pct}%</b>
-                </div>
-                {dlMsg && <p className="chip b-orange" style={{ margin: '0 0 10px' }}>{dlMsg}</p>}
-                {ys.map((y) => {
-                  const sujet = examSel.files.find((f) => f.year === y && f.kind !== 'corrige');
-                  const corrige = examSel.files.find((f) => f.year === y && f.kind === 'corrige');
-                  const done = !!practiced[`${examSel.id}-${y}`];
-                  const q = encodeURIComponent(`concours ${examSel.company} ${examSel.specialty || examSel.fonction || ''} épreuve PDF ${y} Maroc`.replace(/\s+/g, ' ').trim());
-                  return (
-                    <div className="panel ex-year" key={y}>
-                      <div className="ex-year-head">
-                        <b className="ex-year-num">{y}</b>
-                        {done ? <span className="chip b-green"><Icon n="check" size={12} />Pratiqué</span> : <span className="chip muted">À faire</span>}
-                        <button className="ghost sm ex-mark" onClick={() => togglePracticed(examSel.id, y)}>{done ? 'À refaire' : 'Pratiqué ✓'}</button>
-                      </div>
-                      {(sujet || corrige) ? (
-                        <>
-                          {sujet && (
-                            <div className="ex-file">
-                              <span className="ex-tag">Sujet</span>
-                              <span className="ex-file-meta">{sujet.detail || (sujet.size ? Math.round(sujet.size / 1024) + ' Ko' : 'PDF')}</span>
-                              <div className="ex-file-btns">
-                                <button className="ghost sm" onClick={() => openLink(examFileUrl(sujet))}><Icon n="eye" size={15} /> Voir</button>
-                                <button className="apply sm" onClick={() => downloadExamFile(sujet, `${examSel.company}-${y}-sujet`)}><Icon n="download" size={15} /> PDF</button>
-                              </div>
-                            </div>
-                          )}
-                          {corrige && (
-                            <div className="ex-file corrige">
-                              <span className="ex-tag blue">Corrigé</span>
-                              <span className="ex-file-meta">{corrige.detail || (corrige.size ? Math.round(corrige.size / 1024) + ' Ko' : 'PDF')}</span>
-                              <div className="ex-file-btns">
-                                <button className="ghost sm" onClick={() => openLink(examFileUrl(corrige))}><Icon n="eye" size={15} /> Voir</button>
-                                <button className="apply sm" onClick={() => downloadExamFile(corrige, `${examSel.company}-${y}-corrige`)}><Icon n="download" size={15} /> PDF</button>
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      ) : <p className="muted">Aucun fichier pour cette année.</p>}
-                      <button className="ex-official" onClick={() => openLink(`https://www.google.com/search?q=${q}+filetype:pdf`)}><Icon n="search" size={15} /> Chercher le sujet officiel</button>
-                    </div>
-                  );
-                })}
-                <p className="muted ex-sheet-foot">Téléchargement direct • les fichiers s’ouvrent aussi dans le lecteur PDF du téléphone.</p>
-              </div>
-            </div>
-          </>
-        );
-      })()}
+      {detail && (
+        <DetailPage
+          type={detail.type}
+          job={detailJob}
+          marche={detailMarche}
+          exam={detailExam}
+          alert={detailAlert}
+          marcheDeadline={detailMarche ? mDeadline(detailMarche) : null}
+          isNew={!!(detailMarche && mShowNewBadges && mNewIds.has(detailMarche.id))}
+          related={detailRelated}
+          practiced={practiced}
+          dlMsg={dlMsg}
+          onClose={closeDetail}
+          onShare={handleShare}
+          onOpenDetail={openDetail}
+          onGoTab={goTab}
+          onTogglePracticed={togglePracticed}
+          examUrl={examFileUrl}
+          onDownloadExam={downloadExamFile}
+          onDownloadFile={downloadFile}
+        />
+      )}
 
       {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
     </div>

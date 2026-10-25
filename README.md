@@ -69,7 +69,7 @@ conserve les anciens fichiers web.
 
 ```powershell
 cd C:\Users\hp\Documents\JOB\MarocJobs-APK
-.\publish-update.ps1 -Version 1.4.0 -Notes "Nouvelle version"
+.\publish-update.ps1 -Version 1.5.0 -Notes "Nouvelle version"
 ```
 
 Le script incrémente `versionCode`, met à jour `app-version.json`, construit les

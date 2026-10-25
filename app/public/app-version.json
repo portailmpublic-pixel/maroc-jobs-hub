@@ -1,7 +1,7 @@
 {
-    "versionCode":  7,
-    "versionName":  "1.4.0",
-    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.4.0/ASSOULI-AUTOX.apk",
-    "notes":  "Acces Marches sur autorisation, notifications en arriere-plan, interface Atlas Clair, nouvelle source Marches",
-    "publishedAt":  "2026-10-25T12:18:16Z"
+    "versionCode":  8,
+    "versionName":  "1.5.0",
+    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.5.0/ASSOULI-AUTOX.apk",
+    "notes":  "Stages séparés, cartes modernes, fiches détaillées locales, listes progressives, dates de clôture exactes",
+    "publishedAt":  "2026-10-25T12:48:29Z"
 }
