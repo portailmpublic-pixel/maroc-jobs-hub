@@ -15,6 +15,7 @@ import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
+import androidx.work.BackoffPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class UpdateWorker extends Worker {
 
     static final String ALERTS_URL = "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/alerts.json";
+    static final String MARCHES_META_URL = "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/marches-meta.json";
     static final String CHANNEL_ID = "updates";
     static final String WORK_NAME = "mjh-updates";
 
@@ -81,6 +83,25 @@ public class UpdateWorker extends Worker {
                     notifyNow(ctx, newCount + " nouvelle(s) offre(s) • " + total + " suivies", body);
                 }
             }
+
+            // Marchés publics : petit fichier meta (pas les 2 Mo du catalogue).
+            // « newestAt » ne change que lorsqu'une consultation inédite arrive.
+            try {
+                JSONObject meta = new JSONObject(http(MARCHES_META_URL));
+                String newestAt = meta.optString("newestAt", "");
+                int new24 = meta.optInt("new24h", 0);
+                int open = meta.optInt("open", 0);
+                String lastMarch = sp.getString("marchesNewestAt", "");
+                if (!newestAt.isEmpty() && !newestAt.equals(lastMarch)) {
+                    sp.edit().putString("marchesNewestAt", newestAt).apply();
+                    if (!lastMarch.isEmpty() && new24 > 0) {
+                        notifyNow(ctx,
+                            "Marchés publics • " + new24 + " nouveau(x)",
+                            new24 + " nouvelle(s) consultation(s) — " + open + " marchés ouverts à consulter.");
+                    }
+                }
+            } catch (Exception ignored) {}
+
             return Result.success();
         } catch (Exception e) {
             return Result.retry();
@@ -95,6 +116,7 @@ public class UpdateWorker extends Worker {
                 .build();
             PeriodicWorkRequest req = new PeriodicWorkRequest.Builder(UpdateWorker.class, 15, TimeUnit.MINUTES)
                 .setConstraints(c)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
                 .build();
             // UPDATE remplace l'ancien travail (icône / réglages corrigés).
             WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
@@ -103,6 +125,7 @@ public class UpdateWorker extends Worker {
             // Une vérification rapide à chaque ouverture de l'app.
             OneTimeWorkRequest once = new OneTimeWorkRequest.Builder(UpdateWorker.class)
                 .setConstraints(c)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
                 .build();
             WorkManager.getInstance(ctx).enqueueUniqueWork(
                 WORK_NAME + "-now", ExistingWorkPolicy.REPLACE, once);

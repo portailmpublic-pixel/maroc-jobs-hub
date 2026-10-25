@@ -5,6 +5,7 @@ const LS_REMOTE = 'mjh_remote_url';
 const LS_SEEN = 'mjh_alerts_seen';
 const LS_CACHE = 'mjh_cache_';
 const LS_ACCESS = 'mjh_access_v1';
+const LS_MARCHES_SESSION = 'mjh_marches_session_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
 const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
 
@@ -14,6 +15,17 @@ function readAccess() {
 
 function accessDisabledList(access) {
   return ((access && access.disabled) || []).map((x) => String(x || '').trim().toLowerCase());
+}
+
+// Accès « Marchés publics » : liste d'e-mails autorisés, publiée depuis l'APK
+// admin. Tant que l'e-mail n'y figure pas, l'onglet reste verrouillé.
+function accessMarchesList(access) {
+  return ((access && access.marches) || []).map((x) => String(x || '').trim().toLowerCase());
+}
+
+function isMarchesAllowed(email, access) {
+  const target = String(email || '').trim().toLowerCase();
+  return !!target && accessMarchesList(access).includes(target);
 }
 
 function isEmailDisabled(email) {
@@ -70,6 +82,13 @@ function writeCached(key, val) {
     // Quota dépassé : on libère les grosses données et on garde l'essentiel
     try { localStorage.removeItem(LS_CACHE + 'jobs'); } catch {}
   }
+}
+
+// Gros volumes (marchés publics) : un échec de quota ne doit jamais
+// effacer le cache des offres d'emploi.
+function writeCachedSafe(key, val) {
+  try { localStorage.setItem(LS_CACHE + key, JSON.stringify(val)); return true; }
+  catch { return false; }
 }
 
 let BOOT = null;
@@ -145,6 +164,8 @@ const ICONS = {
   scale: <><path d="M12 3v3M7 6l-3.2 6.4a3.2 3.2 0 0 0 6.4 0L7 6zM17 6l-3.2 6.4a3.2 3.2 0 0 0 6.4 0L17 6zM8.5 21h7M12 12v9" /></>,
   mail: <><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m3.5 8 8.5 6 8.5-6" /></>,
   wifi: <><path d="M4 9.5a12 12 0 0 1 16 0M7 13a7.5 7.5 0 0 1 10 0M10.5 16.4a3 3 0 0 1 3 0M12 20h.01" /></>,
+  lock: <><rect x="4.5" y="10" width="15" height="10.5" rx="2.5" /><path d="M8 10V7.5a4 4 0 0 1 8 0V10M12 14.5v2" /></>,
+  shield: <><path d="M12 3 5 6v5.5c0 4.5 3 7.6 7 9.5 4-1.9 7-5 7-9.5V6z" /><path d="m9 12 2 2 4-4" /></>,
   phone: <path d="M5 4h4l1.8 4.2-2.2 1.4a11.5 11.5 0 0 0 4.8 4.8l1.4-2.2L19 14v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />,
   gavel: <><path d="m5 9 4 4M9.5 4.5 14 9M12.5 7.5l4.5 4.5M4 20h9M15 14l5-5M18.5 17.5 21 15" /></>,
 };
@@ -294,6 +315,9 @@ function readSession() {
 }
 function writeSession(s) { try { localStorage.setItem(LS_SESSION, JSON.stringify(s)); } catch {} }
 function clearSession() { try { localStorage.removeItem(LS_SESSION); } catch {} }
+// L'accès Marchés est lié à la personne connectée sur cet appareil : on
+// l'oublie à la déconnexion pour qu'un autre compte ne récupère pas l'accès.
+function clearMarchesSession() { try { localStorage.removeItem(LS_MARCHES_SESSION); } catch {} }
 
 function makeCode() { return String(Math.floor(100000 + Math.random() * 900000)); }
 function validEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(e || '').trim()); }
@@ -491,22 +515,98 @@ function regionsOf(ville) {
   if (!v.trim()) return [];
   return MREGIONS.filter(([, keys]) => keys.some((k) => v.includes(k))).map(([r]) => r);
 }
+// Taxonomie identique à scraper/src/marches-live.js — chaque mot-clé doit
+// ramener de nouvelles consultations. L'ordre sert à l'affichage des puces.
 const MKEYWORDS = [
-  ['Topographie', ['topograph']],
-  ['Études', ['etude', 'étude']],
-  ['Travaux', ['travaux']],
-  ['Fournitures', ['fourniture']],
-  ['Services', ['service']],
-  ['Bâtiment', ['batiment', 'bâtiment']],
-  ['Routes', ['route', 'voirie']],
-  ['Eau', ['eau ', 'assainissement', 'abhm', 'abhs', 'abhb', 'abhd']],
-  ['Informatique', ['informatique', 'logiciel', 'système', 'systeme', 'digital']],
-  ['Formation', ['formation']],
-  ['Maintenance', ['maintenance', 'entretien']],
-  ['Audit', ['audit']],
-  ['Assistance', ['assistance', 'maîtrise', 'maitrise']],
-  ['Construction', ['construction', 'bâtiment', 'batiment']],
+  { id: 'topographie', label: 'Topographie', terms: ['topograph', 'geometre', 'cadastre', 'leve'] },
+  { id: 'etudes', label: 'Études', terms: ['etude', 'ingenierie', 'conception', 'diagnostic', 'schema directeur'] },
+  { id: 'travaux', label: 'Travaux', terms: ['travaux', 'travail', 'chantier', 'realisation', 'amenagement'] },
+  { id: 'fournitures', label: 'Fournitures', terms: ['fourniture', 'achat', 'acquisition', 'livraison', 'materiel', 'equipement'] },
+  { id: 'services', label: 'Services', terms: ['service', 'prestation', 'location', 'organisation'] },
+  { id: 'batiment', label: 'Bâtiment', terms: ['batiment', 'construction', 'genie civil', 'btp', 'amenagement', 'agencement'] },
+  { id: 'routes', label: 'Routes', terms: ['route', 'voirie', 'piste', 'autoroute', 'chaussee', 'ouvrage d art', 'signalisation'] },
+  { id: 'eau', label: 'Eau', terms: ['eau', 'assainissement', 'hydraulique', 'forage', 'adduction', 'irrigation', 'onee', 'abhm', 'abhs', 'abhb', 'abhd', 'epuration'] },
+  { id: 'informatique', label: 'Informatique', terms: ['informatique', 'logiciel', 'systeme', 'digital', 'numerique', 'reseau', 'serveur', 'ordinateur', 'licence', 'cyber', 'messagerie', 'workspace'] },
+  { id: 'formation', label: 'Formation', terms: ['formation', 'seminaire', 'atelier', 'coaching'] },
+  { id: 'maintenance', label: 'Maintenance', terms: ['maintenance', 'entretien', 'reparation', 'depannage'] },
+  { id: 'audit', label: 'Audit', terms: ['audit', 'expertise', 'controle', 'verification', 'certification'] },
+  { id: 'assistance', label: 'Assistance', terms: ['assistance', 'maitrise', 'conseil', 'accompagnement', 'appui'] },
+  { id: 'construction', label: 'Construction', terms: ['construction', 'batiment', 'genie civil', 'travaux'] },
+  { id: 'electricite', label: 'Électricité', terms: ['electricite', 'electrique', 'eclairage', 'solaire', 'photovoltaique', 'poteaux', 'cablage'] },
+  { id: 'plomberie', label: 'Plomberie', terms: ['plomberie', 'fluides', 'sanitaire', 'canalisation', 'pompe', 'motopompe'] },
+  { id: 'sante', label: 'Santé', terms: ['sante', 'medical', 'medicament', 'hopital', 'pharmaceutique', 'irm', 'scanner', 'ambulance'] },
+  { id: 'transport', label: 'Transport', terms: ['transport', 'logistique', 'vehicule', 'engins', 'carburant', 'fourgon', 'camion'] },
+  { id: 'securite', label: 'Sécurité', terms: ['securite', 'gardiennage', 'surveillance', 'alarme', 'incendie'] },
+  { id: 'nettoyage', label: 'Nettoyage', terms: ['nettoyage', 'proprete', 'dechets', 'espaces verts', 'jardinage'] },
+  { id: 'mobilier', label: 'Mobilier', terms: ['mobilier', 'ameublement', 'meuble'] },
+  { id: 'communication', label: 'Communication', terms: ['impression', 'communication', 'publicite', 'evenementiel', 'reception', 'signaletique'] },
+  { id: 'hotellerie', label: 'Hôtellerie', terms: ['hotel', 'restauration', 'traiteur', 'hebergement'] },
 ];
+
+function normText(s) {
+  return String(s || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[’']/g, ' ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function matchesKeyword(terms, text) {
+  const hay = normText(text);
+  const tokens = hay.split(' ').filter(Boolean);
+  return terms.some((raw) => {
+    const t = normText(raw);
+    if (!t) return false;
+    if (t.includes(' ')) return hay.includes(t);
+    if (t.length <= 3) return tokens.includes(t);
+    return tokens.some((tok) => tok.startsWith(t));
+  });
+}
+
+function catSlug(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+const MCAT_HUE = { travaux: 26, services: 172, fournitures: 262, informatique: 210, sante: 340 };
+
+function kwLabel(id) {
+  const k = MKEYWORDS.find((x) => x.id === id);
+  return k ? k.label : String(id || '');
+}
+
+function mSourceTag(m) {
+  const s = String((m && (m.typeAnnonce || m.source)) || '').toLowerCase();
+  if (s.includes('bon') || s.includes('bdc')) return 'BDC';
+  if (s.includes('masen')) return 'MASEN';
+  return 'PMPP';
+}
+
+function fmtNum(n) {
+  const v = Number(n) || 0;
+  return v.toLocaleString('fr-FR');
+}
+
+function compactNum(n) {
+  const v = Number(n) || 0;
+  return v >= 1000 ? (Math.round(v / 100) / 10).toLocaleString('fr-FR') + 'k' : String(v);
+}
+
+function fmtWhen(iso) {
+  if (!iso) return 'hors-ligne';
+  const d = new Date(iso);
+  if (isNaN(d)) return '—';
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) + ' · ' +
+    d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function fmtDay(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+}
 
 function MainApp({ session, onLogout }) {
   const boot = bootCache();
@@ -541,7 +641,7 @@ function MainApp({ session, onLogout }) {
   const [examYearF, setExamYearF] = useState('');
   const [examOpen, setExamOpen] = useState(false);
   const [practiced, setPracticed] = useState(() => { try { return JSON.parse(localStorage.getItem('mjh_apk_practiced') || '{}'); } catch { return {}; } });
-  // ---- Marchés Publics (Offer Analyzer data) ----
+  // ---- Marchés Publics (flux direct PMMP + BDC) ----
   const [marches, setMarches] = useState(boot.marches || []);
   const [marchesUpdated, setMarchesUpdated] = useState(boot.marchesUpdated || '');
   const [mStatus, setMStatus] = useState('open');
@@ -551,6 +651,17 @@ function MainApp({ session, onLogout }) {
   const [mType, setMType] = useState('');
   const [mRegion, setMRegion] = useState('');
   const [mKw, setMKw] = useState('');
+  const [mQuick, setMQuick] = useState('');
+  // ---- Accès spécial Marchés publics (autorisation publiée par l'APK admin) ----
+  const [access, setAccess] = useState(() => readAccess());
+  const [mArchEmail, setMArchEmail] = useState(() => { try { return localStorage.getItem(LS_MARCHES_SESSION) || ''; } catch { return ''; } });
+  const [mGateStep, setMGateStep] = useState('email'); // email | code
+  const [mGateEmail, setMGateEmail] = useState(session.email || '');
+  const [mGateCode, setMGateCode] = useState('');
+  const [mGateInfo, setMGateInfo] = useState(null);
+  const [mGateBusy, setMGateBusy] = useState(false);
+  const [mGateErr, setMGateErr] = useState('');
+  const [mGateMsg, setMGateMsg] = useState('');
   const closingRef = useRef(false);
 
   function togglePracticed(offerId, year) {
@@ -632,18 +743,34 @@ function MainApp({ session, onLogout }) {
     try { return new URL(rel, window.location.href).href; } catch { return rel; }
   }
 
+  // Applique un fichier marchés seulement s'il est au moins aussi récent que
+  // celui déjà enregistré : un cache local ne doit jamais être écrasé par une
+  // copie distante en retard (ancien import de 25 offres, par exemple).
+  function applyMarches(data) {
+    const list = data && (data.AUTOX || data.offers || (Array.isArray(data) ? data : []));
+    if (!list || !list.length) return;
+    const next = (data && data.updatedAt) || '';
+    const prev = readCached('marchesUpdated', '') || '';
+    if (prev && next && String(next) < String(prev)) return;
+    setMarches(list);
+    setMarchesUpdated(next);
+    writeCachedSafe('marches', list);
+    writeCachedSafe('marchesUpdated', next);
+  }
+
   async function loadMarches(remoteUrl) {
     const base = remoteBase(remoteUrl);
-    const urls = base ? [base + '/marches.json'] : [];
-    urls.push('./marches.json');
+    // 1) Copie embarquée : instantanée, même sans réseau.
+    try { applyMarches(await fetchJSON('./marches.json', 8000)); } catch {}
+    // 2) Copie distante : au maximum toutes les 6 h (~2 Mo), sans bloquer
+    //    l'affichage. Le garde-fou updatedAt empêche tout retour en arrière.
+    let lastRemote = 0;
+    try { lastRemote = Number(localStorage.getItem('mjh_marches_remote_at') || 0); } catch {}
+    if (!base || Date.now() - lastRemote < 6 * 3600 * 1000) return;
     try {
-      const data = await fetchFirst(urls, 9000);
-      const list = data.AUTOX || data.offers || (Array.isArray(data) ? data : []);
-      if (list.length) {
-        setMarches(list); setMarchesUpdated(data.updatedAt || '');
-        writeCached('marches', list); writeCached('marchesUpdated', data.updatedAt || '');
-      }
-    } catch {}
+      applyMarches(await fetchJSON(base + '/marches.json', 12000));
+      try { localStorage.setItem('mjh_marches_remote_at', String(Date.now())); } catch {}
+    } catch { /* réseau faible : on garde la copie embarquée / le cache */ }
   }
 
   // Direct-from-web file URL: Supabase absolute url first, else remote/bundled copy
@@ -685,6 +812,106 @@ function MainApp({ session, onLogout }) {
     : { icon: './app-icon.png', ico: 'sliders', label: 'Configuration' };
 
   function showToast(t) { setToast(t); setTimeout(() => setToast(''), 2600); }
+
+  // ---- Connexion dédiée « Marchés publics » ----
+  async function sendMarchesCode() {
+    setMGateErr(''); setMGateMsg('');
+    const target = mGateEmail.trim().toLowerCase();
+    if (!validEmail(target)) { setMGateErr('Adresse e-mail invalide.'); return; }
+    setMGateBusy(true);
+    const fresh = await refreshAccessList();
+    setAccess(fresh);
+    if (accessDisabledList(fresh).includes(target)) {
+      setMGateBusy(false);
+      setMGateErr(blockedMessage());
+      return;
+    }
+    if (!isMarchesAllowed(target, fresh)) {
+      setMGateBusy(false);
+      setMGateErr('Cette adresse n’est pas autorisée pour les Marchés publics. Demandez l’autorisation à l’administrateur.');
+      return;
+    }
+    const code = makeCode();
+    setMGateInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: target });
+    const r = await sendVerificationEmail({ to: target, code, name: session.name || '' });
+    setMGateBusy(false);
+    if (!r.ok) {
+      setMGateInfo(null);
+      setMGateErr(`Impossible d'envoyer l'e-mail : ${r.error === 'web' ? 'envoi disponible dans l’application Android' : r.error}`);
+      return;
+    }
+    setMGateStep('code');
+    setMGateCode('');
+    setMGateMsg(`Code envoyé à ${target}`);
+  }
+
+  async function verifyMarchesCode() {
+    setMGateErr(''); setMGateMsg('');
+    if (!mGateInfo) { setMGateErr('Code expiré — demandez un nouveau code.'); return; }
+    if (Date.now() > mGateInfo.exp) { setMGateErr('Code expiré. Demandez un nouveau code.'); return; }
+    if (mGateCode.trim() !== mGateInfo.code) { setMGateErr('Code incorrect. Vérifiez votre e-mail.'); return; }
+    setMGateBusy(true);
+    const fresh = await refreshAccessList();
+    setAccess(fresh);
+    if (!isMarchesAllowed(mGateInfo.email, fresh)) {
+      setMGateBusy(false);
+      setMGateErr('Accès Marchés retiré ou non autorisé. Contactez l’administrateur.');
+      return;
+    }
+    try { localStorage.setItem(LS_MARCHES_SESSION, mGateInfo.email); } catch {}
+    setMArchEmail(mGateInfo.email);
+    setMGateBusy(false);
+    setMGateStep('email');
+    setMGateInfo(null);
+    setMGateCode('');
+    showToast('Accès Marchés publics débloqué');
+  }
+
+  function requestMarchesAccess() {
+    const text = `Bonjour, je demande l’accès à l’espace Marchés publics d’ASSOULI AUTOX pour : ${session.email} (${session.name || 'compte'}). Merci.`;
+    openLink('https://wa.me/212663369080?text=' + encodeURIComponent(text));
+  }
+
+  // ---- Outils de configuration (aucune donnée personnelle affichée) ----
+  async function enableNotifications() {
+    await setupNotifications();
+    const ok = await notifyPhone('Notifications activées', 'Vous recevrez les nouveautés même lorsque l’application est fermée.');
+    showToast(ok ? 'Notifications activées' : 'Autorisez les notifications dans Android');
+  }
+
+  async function testNotification() {
+    await setupNotifications();
+    const ok = await notifyPhone('ASSOULI AUTOX', 'Notification de test — les alertes fonctionnent.');
+    showToast(ok ? 'Notification de test envoyée' : 'Autorisez les notifications dans Android');
+  }
+
+  async function openNotificationSettings() {
+    try {
+      const { Capacitor, registerPlugin } = await import('@capacitor/core');
+      if (!Capacitor.isNativePlatform()) { showToast('Réglages disponibles sur Android'); return; }
+      const P = registerPlugin('AppControl');
+      await P.notificationSettings();
+    } catch { showToast('Ouvrez les réglages de notifications Android'); }
+  }
+
+  async function allowBackground() {
+    try {
+      const { Capacitor, registerPlugin } = await import('@capacitor/core');
+      if (!Capacitor.isNativePlatform()) { showToast('Disponible sur Android'); return; }
+      const P = registerPlugin('AppControl');
+      await P.background();
+    } catch { showToast('Ouvrez les réglages Android > Batterie'); }
+  }
+
+  function clearCache() {
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith(LS_CACHE))
+        .forEach((k) => localStorage.removeItem(k));
+    } catch {}
+    showToast('Cache vidé — actualisation…');
+    refresh(true);
+  }
 
   async function getNativeVersion() {
     try {
@@ -731,6 +958,7 @@ function MainApp({ session, onLogout }) {
   async function enforceAccess(prefetched) {
     if (closingRef.current) return;
     const acc = prefetched || await refreshAccessList();
+    setAccess(acc || {});
     if (accessDisabledList(acc).includes(String(session.email || '').toLowerCase())) {
       closingRef.current = true;
       try { localStorage.setItem('mjh_blocked_msg', acc.message || 'Ce compte a été désactivé par l’administrateur.'); } catch {}
@@ -804,16 +1032,20 @@ function MainApp({ session, onLogout }) {
         } catch (e) { /* réseau faible → cache local */ }
       }
       // Réseau faible / hors ligne : on garde la dernière synchro enregistrée
+      const netDown = (() => { try { return navigator.onLine === false; } catch { return false; } })();
+      // Sans URL distante (mode local), l'absence de synchro n'est pas une
+      // panne réseau : on ne montre « hors ligne » que si le téléphone l'est.
+      const fallbackOffline = netDown || !!remoteUrl;
       const cached = readCached('jobs', []);
       const cachedUpd = readCached('jobsUpdated', '');
       if (cached.length) {
-        setJobs(cached); setUpdatedAt(cachedUpd); setOffline(true);
-        if (!silent) showToast(`Hors ligne • ${cached.length} offres enregistrées`);
+        setJobs(cached); setUpdatedAt(cachedUpd); setOffline(fallbackOffline);
+        if (!silent) showToast(fallbackOffline ? `Hors ligne • ${cached.length} offres enregistrées` : `Données locales • ${cached.length} offres`);
       } else {
         const b = await loadBundled();
-        setJobs(b.list); setUpdatedAt(b.updatedAt); setOffline(true);
+        setJobs(b.list); setUpdatedAt(b.updatedAt); setOffline(fallbackOffline);
         writeCached('jobs', b.list); writeCached('jobsUpdated', b.updatedAt);
-        if (!silent) showToast(`Mode hors ligne • ${b.list.length} offres`);
+        if (!silent) showToast(fallbackOffline ? `Mode hors ligne • ${b.list.length} offres` : `Données locales • ${b.list.length} offres`);
       }
       loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl);
     } catch (e) {
@@ -842,6 +1074,7 @@ function MainApp({ session, onLogout }) {
           data = JSON.parse(raw);
           if (data && Array.isArray(data.disabled)) {
             localStorage.setItem(LS_ACCESS, JSON.stringify(data));
+            setAccess(data);
           } else {
             data = null;
           }
@@ -1018,6 +1251,48 @@ function MainApp({ session, onLogout }) {
     return { total: marches.length, open: open + soon, soon, closed };
   }, [marches]);
 
+  // Accès spécial : soit l'e-mail de session, soit l'e-mail vérifié via la
+  // connexion dédiée Marchés, doit figurer dans la liste publiée par l'admin.
+  const mArchVia = isMarchesAllowed(mArchEmail, access)
+    ? mArchEmail
+    : (isMarchesAllowed(session.email, access) ? session.email : '');
+  const mArchAllowed = !!mArchVia;
+
+  // Nouveautés détectées par le collecteur (premier passage) sur 24 h.
+  const mNewIds = useMemo(() => {
+    const cutoff = Date.now() - 86400000;
+    const ids = new Set();
+    marches.forEach((m) => {
+      const t = m.firstSeenAt ? Date.parse(m.firstSeenAt) : 0;
+      if (t && t >= cutoff) ids.add(m.id);
+    });
+    return ids;
+  }, [marches]);
+
+  // Sur le tout premier import, tout est « nouveau » : on évite alors de
+  // couvrir chaque carte d'un badge pour rester lisible.
+  const mShowNewBadges = mNewIds.size > 0 && mNewIds.size <= Math.max(40, marches.length * 0.25);
+
+  const mKwCounts = useMemo(() => {
+    const counts = {};
+    MKEYWORDS.forEach((k) => { counts[k.id] = 0; });
+    marches.forEach((m) => {
+      const tags = Array.isArray(m.keywords) ? m.keywords : [];
+      if (tags.length) {
+        tags.forEach((t) => { if (counts[t] !== undefined) counts[t] += 1; });
+        return;
+      }
+      const hay = [m.objet, m.categorie, m.typeProcedure, m.modePassation, m.organisme].join(' ');
+      MKEYWORDS.forEach((k) => { if (matchesKeyword(k.terms, hay)) counts[k.id] += 1; });
+    });
+    return counts;
+  }, [marches]);
+
+  const mTopKws = useMemo(
+    () => [...MKEYWORDS].sort((a, b) => (mKwCounts[b.id] || 0) - (mKwCounts[a.id] || 0)).slice(0, 6),
+    [mKwCounts]
+  );
+
   const mCats = useMemo(() => {
     const m = {};
     marches.forEach((o) => { if (o.categorie) m[o.categorie] = (m[o.categorie] || 0) + 1; });
@@ -1040,19 +1315,31 @@ function MainApp({ session, onLogout }) {
     if (mVille) l = l.filter((m) => String(m.ville || '').toLowerCase().includes(mVille.toLowerCase()));
     if (mType) l = l.filter((m) => ((m.modePassation || String(m.typeProcedure || '').split('|')[0]).trim()) === mType);
     if (mRegion) l = l.filter((m) => regionsOf(m.ville).includes(mRegion));
+    if (mQuick === 'soon') l = l.filter((m) => {
+      const end = m.dateLimiteIso ? Date.parse(m.dateLimiteIso) + (m.dateOnly ? 86399999 : 0) : 0;
+      if (!end) return false;
+      const d = end - Date.now();
+      return d >= 0 && d <= 7 * 86400000;
+    });
+    if (mQuick === 'new') l = l.filter((m) => mNewIds.has(m.id));
     if (mKw) {
-      const terms = (MKEYWORDS.find(([k]) => k === mKw) || [mKw, [mKw.toLowerCase()]])[1];
+      const kw = MKEYWORDS.find((k) => k.id === mKw);
       l = l.filter((m) => {
-        const hay = [m.objet, m.categorie, m.typeProcedure, m.modePassation, m.organisme].join(' ').toLowerCase();
-        return terms.some((t) => hay.includes(t));
+        const tags = Array.isArray(m.keywords) ? m.keywords : [];
+        if (tags.length) return tags.includes(mKw);
+        const hay = [m.objet, m.categorie, m.typeProcedure, m.modePassation, m.organisme].join(' ');
+        return kw ? matchesKeyword(kw.terms, hay) : normText(hay).includes(normText(mKw));
       });
     }
     if (query.trim()) {
       const s = query.trim().toLowerCase();
       l = l.filter((m) => [m.ref, m.organisme, m.objet, m.ville, m.typeProcedure, m.modePassation].join(' ').toLowerCase().includes(s));
     }
+    if (mQuick === 'new') {
+      l.sort((a, b) => String(b.firstSeenAt || '').localeCompare(String(a.firstSeenAt || '')));
+    }
     return l;
-  }, [marches, mStatus, mCat, mVille, mType, mRegion, mKw, query]);
+  }, [marches, mStatus, mCat, mVille, mType, mRegion, mKw, mQuick, mNewIds, query]);
   const mTypes = useMemo(() => {
     const m = {};
     marches.forEach((o) => {
@@ -1091,7 +1378,7 @@ function MainApp({ session, onLogout }) {
     setMenuOpen(false);
     setExamOpen(false);
     setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false);
-    setMSel(null); setMCat(''); setMVille(''); setMStatus('open'); setMType(''); setMRegion(''); setMKw('');
+    setMSel(null); setMCat(''); setMVille(''); setMStatus('open'); setMType(''); setMRegion(''); setMKw(''); setMQuick('');
     try { window.scrollTo({ top: 0 }); } catch {}
   }
 
@@ -1101,13 +1388,13 @@ function MainApp({ session, onLogout }) {
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
         <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><span><b>ASSOULI</b> <em>AUTOX</em></span></div>
         <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
-        <p className="muted">ASSOULI AUTOX • {stats.total} offres • {mStats.total} marchés publics • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
+        <p className="muted">ASSOULI AUTOX • {stats.total} offres • {mArchAllowed ? `${mStats.total} marchés publics` : 'Marchés sur autorisation'} • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
           <button className={tab === 'jobs' && kind === 'all' ? 'active' : ''} onClick={() => goTab('jobs', 'all')}><span className="dn-l"><Icon n="search" size={19} />Toutes les offres</span></button>
           <button className={tab === 'jobs' && kind === 'emploi' ? 'active' : ''} onClick={() => goTab('jobs', 'emploi')}><span className="dn-l"><Icon n="briefcase" size={19} />Emplois CDI/CDD</span></button>
           <button className={tab === 'jobs' && kind === 'stages' ? 'active' : ''} onClick={() => goTab('jobs', 'stages')}><span className="dn-l"><Icon n="cap" size={19} />Stages</span>{stats.stages > 0 && <b className="count">{stats.stages}</b>}</button>
           <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span></button>
-          <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mStats.open > 0 && <b className="count">{mStats.open}</b>}</button>
+          <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mArchAllowed && mStats.open > 0 && <b className="count">{compactNum(mStats.open)}</b>}{!mArchAllowed && <b className="count"><Icon n="lock" size={11} /></b>}</button>
           <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><span className="dn-l"><Icon n="file" size={19} />Exams & Corrigés</span></button>
           <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><span className="dn-l"><Icon n="chart" size={19} />Dashboard</span></button>
           <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><span className="dn-l"><Icon n="bell" size={19} />Alertes</span>{unread > 0 && <b className="count red">{unread}</b>}</button>
@@ -1129,11 +1416,6 @@ function MainApp({ session, onLogout }) {
           </div>
         </div>
       </header>
-      {offline && (
-        <div className="offline-chip" role="status">
-          <Icon n="wifi" size={14} /> Hors ligne — dernières données enregistrées
-        </div>
-      )}
       {updateInfo && (
         <div className="update-banner">
           <span className="upd-ic"><Icon n="download" size={16} /></span>
@@ -1146,6 +1428,7 @@ function MainApp({ session, onLogout }) {
           {!updating && <button className="upd-x" onClick={() => setUpdateInfo(null)} aria-label="Plus tard"><Icon n="close" size={14} /></button>}
         </div>
       )}
+      {(tab === 'jobs' || tab === 'concours') && (
       <section className="hero">
         <div className="hero-stats">
           <div className="hstat"><b>{stats.total}</b><span>offres</span></div>
@@ -1156,6 +1439,7 @@ function MainApp({ session, onLogout }) {
         </div>
         <div className="updated">{refreshing ? 'Actualisation…' : loading ? 'Chargement…' : `Dernière actualisation : ${(updatedAt || '').slice(0, 16).replace('T', ' ') || 'à l’instant'} • ${filtered.length} affichées`}</div>
       </section>
+      )}
 
       <div className="section-bar">
         <img src={section.icon} alt="" className="section-logo" />
@@ -1163,9 +1447,74 @@ function MainApp({ session, onLogout }) {
         <b>{section.label}</b>
         {tab === 'jobs' && <span className="section-count">{filtered.length} affichées</span>}
         {tab === 'concours' && <span className="section-count">{concoursList.length} concours</span>}
+        {tab === 'marches' && mArchAllowed && <span className="section-count">{fmtNum(mStats.open)} ouverts</span>}
+        {tab === 'marches' && !mArchAllowed && <span className="section-count m-locked-count"><Icon n="lock" size={12} /> Réservé</span>}
       </div>
 
-      {(tab === 'jobs' || tab === 'concours' || tab === 'marches') && (
+      {tab === 'marches' && !mArchAllowed && (
+        <main className="feed m-gate-feed">
+          <section className="m-gate" aria-label="Accès Marchés publics">
+            <div className="m-gate-emblem"><Icon n="lock" size={30} /></div>
+            <span className="m-eyebrow">Accès réservé</span>
+            <h2>Marchés publics</h2>
+            <p className="m-gate-sub">Cet espace est réservé aux comptes autorisés par l’administrateur ASSOULI AUTOX.</p>
+
+            {mGateStep === 'email' ? (
+              <>
+                <label className="auth-field"><span>E-mail autorisé</span>
+                  <input className="auth-input" type="email" value={mGateEmail} onChange={(e) => setMGateEmail(e.target.value)} placeholder="vous@exemple.com" autoComplete="email" inputMode="email" />
+                </label>
+                <button className="auth-btn" disabled={mGateBusy} onClick={sendMarchesCode}>{mGateBusy ? 'Vérification…' : 'Recevoir le code'}</button>
+              </>
+            ) : (
+              <>
+                <div className="m-gate-sent"><Icon n="mail" size={16} /><span>Code envoyé à <b>{mGateInfo ? mGateInfo.email : mGateEmail}</b></span></div>
+                <label className="auth-field"><span>Code à 6 chiffres</span>
+                  <input className="auth-input auth-code" value={mGateCode} onChange={(e) => setMGateCode(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" maxLength={6} />
+                </label>
+                <button className="auth-btn" disabled={mGateBusy} onClick={verifyMarchesCode}>{mGateBusy ? 'Vérification…' : 'Débloquer les Marchés'}</button>
+                <button className="auth-link" onClick={() => { setMGateStep('email'); setMGateInfo(null); setMGateCode(''); setMGateErr(''); setMGateMsg(''); }}>Utiliser une autre adresse</button>
+              </>
+            )}
+
+            {mGateErr && <div className="auth-error">{mGateErr}</div>}
+            {mGateMsg && <div className="auth-ok">{mGateMsg}</div>}
+
+            <button className="ghost m-gate-request" onClick={requestMarchesAccess}><Icon n="shield" size={16} /> Demander l’autorisation</button>
+            <p className="m-gate-note">L’administration active ou retire l’accès à distance. Toute révocation reverrouille cet espace.</p>
+          </section>
+        </main>
+      )}
+
+      {tab === 'marches' && mArchAllowed && (
+        <section className="m-band" aria-label="Marchés publics — indicateurs">
+          <div className="m-band-top">
+            <div className="m-band-title">
+              <span className="m-live"><i /> Flux direct · PMMP + BDC</span>
+              <h2>Marchés publics</h2>
+              <p>{fmtNum(mStats.open)} consultations ouvertes · PMMP + BDC · données publiques · maj {fmtWhen(marchesUpdated)}</p>
+            </div>
+            <span className="m-band-seal" aria-hidden="true"><Icon n="scale" size={24} /></span>
+          </div>
+          <div className="m-kpis">
+            <button type="button" aria-pressed={mStatus === 'open' && !mQuick} className={'m-kpi' + (mStatus === 'open' && !mQuick ? ' active' : '')} onClick={() => { setMStatus('open'); setMQuick(''); }}>
+              <b>{fmtNum(mStats.open)}</b><span>Ouverts</span>
+            </button>
+            <button type="button" aria-pressed={mQuick === 'soon'} className={'m-kpi' + (mQuick === 'soon' ? ' active' : '')} onClick={() => { setMStatus('open'); setMQuick(mQuick === 'soon' ? '' : 'soon'); }}>
+              <b>{fmtNum(mStats.soon)}</b><span>≤ 7 jours</span>
+            </button>
+            <button type="button" aria-pressed={mQuick === 'new'} className={'m-kpi' + (mQuick === 'new' ? ' active' : '')} onClick={() => { setMStatus('open'); setMQuick(mQuick === 'new' ? '' : 'new'); }}>
+              <b>{fmtNum(mNewIds.size)}</b><span>Nouveaux 24 h</span>
+            </button>
+            <button type="button" aria-pressed={mStatus === 'all' && !mQuick} className={'m-kpi' + (mStatus === 'all' && !mQuick ? ' active' : '')} onClick={() => { setMStatus('all'); setMQuick(''); }}>
+              <b>{fmtNum(mStats.total)}</b><span>Total suivi</span>
+            </button>
+          </div>
+          <p className="m-band-hint">Touchez un indicateur pour filtrer la liste.</p>
+        </section>
+      )}
+
+      {(tab === 'jobs' || tab === 'concours' || (tab === 'marches' && mArchAllowed)) && (
       <div className="searchbar">
         <Icon n="search" size={18} /><input placeholder={tab === 'marches' ? 'Rechercher : référence, organisme, objet, ville…' : 'Rechercher : poste, entreprise, ville…'} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
@@ -1191,11 +1540,11 @@ function MainApp({ session, onLogout }) {
       </div>
       )}
 
-      {tab === 'marches' && (
+      {tab === 'marches' && mArchAllowed && (
       <>
       <div className="filters modern-filters">
-        <button className={'fchip' + (mStatus === 'open' ? ' active' : '')} onClick={() => setMStatus(mStatus === 'open' ? 'all' : 'open')}><Icon n="clock" size={15} /> Ouverts ({mStats.open})</button>
-        <button className={'fchip' + (mStatus === 'closed' ? ' active' : '')} onClick={() => setMStatus(mStatus === 'closed' ? 'all' : 'closed')}>Clôturés ({mStats.closed})</button>
+        <button className={'fchip' + (mStatus === 'open' ? ' active' : '')} onClick={() => { setMStatus(mStatus === 'open' && !mQuick ? 'all' : 'open'); setMQuick(''); }}><Icon n="clock" size={15} /> Ouverts ({fmtNum(mStats.open)})</button>
+        <button className={'fchip' + (mStatus === 'closed' ? ' active' : '')} onClick={() => { setMStatus(mStatus === 'closed' ? 'all' : 'closed'); setMQuick(''); }}>Clôturés ({fmtNum(mStats.closed)})</button>
         <label className="fselect"><span><Icon n="briefcase" size={16} /></span><select value={mType} onChange={(e) => setMType(e.target.value)}>
           <option value="">Type d’offre</option>
           {mTypes.map(([t, n]) => <option key={t} value={t}>{t.length > 30 ? t.slice(0, 30) + '…' : t} ({n})</option>)}
@@ -1212,51 +1561,71 @@ function MainApp({ session, onLogout }) {
           <option value="">Toutes villes</option>
           {mVilles.map(([c, n]) => <option key={c} value={c}>{c.length > 26 ? c.slice(0, 26) + '…' : c} ({n})</option>)}
         </select></label>
-        {(query || mCat || mVille || mType || mRegion || mKw || mStatus !== 'open') && (
-          <button className="clear" onClick={() => { setQuery(''); setMCat(''); setMVille(''); setMType(''); setMRegion(''); setMKw(''); setMStatus('open'); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
+        {(query || mCat || mVille || mType || mRegion || mKw || mQuick || mStatus !== 'open') && (
+          <button className="clear" onClick={() => { setQuery(''); setMCat(''); setMVille(''); setMType(''); setMRegion(''); setMKw(''); setMQuick(''); setMStatus('open'); }} aria-label="Réinitialiser les filtres"><Icon n="close" size={16} /></button>
         )}
       </div>
-      <div className="kw-row">
+      <div className="kw-row m-kw-row">
         <span className="kw-label"><Icon n="search" size={13} /> Mots-clés</span>
-        {MKEYWORDS.map(([k]) => (
-          <button key={k} className={'kw-chip' + (mKw === k ? ' active' : '')} onClick={() => setMKw(mKw === k ? '' : k)}>{k}</button>
-        ))}
+        <button className={'kw-chip' + (!mKw ? ' active' : '')} onClick={() => setMKw('')}>Tous</button>
+        {MKEYWORDS.map((k) => {
+          const n = mKwCounts[k.id] || 0;
+          return (
+            <button
+              key={k.id}
+              type="button"
+              disabled={!n}
+              title={`${k.label} — ${n} consultation${n > 1 ? 's' : ''}`}
+              className={'kw-chip' + (mKw === k.id ? ' active' : '') + (!n ? ' is-empty' : '')}
+              onClick={() => setMKw(mKw === k.id ? '' : k.id)}
+            >
+              {k.label}<i>{n}</i>
+            </button>
+          );
+        })}
       </div>
       </>
       )}
 
-      {tab === 'marches' && (
+      {tab === 'marches' && mArchAllowed && (
         <main className="feed">
-          <div className="panel" style={{ marginBottom: 10 }}>
-            <h3>Marchés Publics — appels d’offres ({mFiltered.length})</h3>
-            <p className="muted">Source : Offer Analyzer • portail marchespublics.gov.ma {marchesUpdated ? `• maj ${(marchesUpdated || '').slice(0, 16).replace('T', ' ')}` : ''} — touchez une offre pour le dossier complet (AVIS, DCE, contacts).</p>
+          <div className="m-result">
+            <span><b>{fmtNum(mFiltered.length)}</b> consultation{mFiltered.length > 1 ? 's' : ''}{mKw ? ` · ${kwLabel(mKw)}` : ''}</span>
+            <span>{mQuick === 'new' ? 'Tri : nouveauté' : mQuick === 'soon' ? 'Tri : échéance ≤ 7 j' : 'Tri : échéance'}</span>
           </div>
           {marches.length === 0 && <div className="empty">Aucun marché public. Touchez ↻ pour actualiser.</div>}
           {mFiltered.length === 0 && marches.length > 0 && <div className="empty">Aucun marché ne correspond aux filtres.</div>}
           {mFiltered.map((m) => {
             const dl = mDeadline(m);
+            const cat = catSlug(m.categorie);
+            const isNew = mShowNewBadges && mNewIds.has(m.id);
+            const hue = MCAT_HUE[cat] ?? 200;
             return (
-              <article className="card mcard" key={m.id} onClick={() => setMSel(m)}>
+              <article className={'card mcard cat-' + (cat || 'autre')} key={m.id} onClick={() => setMSel(m)}>
                 <div className="card-head">
-                  <div className="avatar" style={{ '--h': 162 }}><Icon n="gavel" size={20} /></div>
+                  <div className="avatar" style={{ '--h': hue }}><Icon n="gavel" size={20} /></div>
                   <div className="chead">
-                    <h3><span className="mcard-ref">{m.ref}</span>{m.organisme ? ` — ${String(m.organisme).split(' - ')[0]}` : ''}</h3>
+                    <div className="m-topline">
+                      <span className="mcard-ref">{m.ref || 'Sans référence'}</span>
+                      {isNew && <span className="m-new">Nouveau</span>}
+                    </div>
+                    <h3 className="m-org">{m.organisme || 'Organisme public'}</h3>
                     <div className="csub meta">
-                      {m.ville && <span><Icon n="pin" size={14} />{m.ville.length > 42 ? m.ville.slice(0, 42) + '…' : m.ville}</span>}
+                      {m.ville && <span><Icon n="pin" size={14} />{String(m.ville).length > 40 ? String(m.ville).slice(0, 40) + '…' : m.ville}</span>}
+                      <span><Icon n="file" size={14} />{m.categorie || 'Marché'}</span>
                     </div>
                   </div>
                 </div>
                 <p className="desc m-objet">{m.objet || '—'}</p>
                 <div className="chips">
-                  <span className="chip ref-chip"><Icon n="scale" size={12} />{m.categorie || 'Marché'}</span>
-                  {m.modePassation && <span className="chip blue">{m.modePassation}</span>}
-                  {m.counts && (m.counts.cps || m.counts.rc) ? <span className="chip muted">CPS ×{m.counts.cps || 0} • RC ×{m.counts.rc || 0}</span> : null}
-                  {(m.docs || []).length > 0 && <span className="chip muted"><Icon n="file" size={12} />{m.docs.length} avis PDF</span>}
                   <span className={'chip ' + dl.cls}>{dl.label}</span>
+                  {m.modePassation && <span className="chip blue">{m.modePassation}</span>}
+                  {m.qc && <span className="chip m-qc"><Icon n="check" size={12} />Q&C · {m.qc}</span>}
+                  {m.estimation && <span className="chip muted m-money">{m.estimation}</span>}
                 </div>
                 <div className="m-foot">
-                  <span className="m-open">Voir le dossier <Icon n="arrow" size={14} /></span>
-                  {m.dceUrl && <button className="ghost sm" onClick={(e) => { e.stopPropagation(); openLink(m.dceUrl); }}><Icon n="download" size={14} /> DCE</button>}
+                  <span className="m-open">Ouvrir la fiche <Icon n="arrow" size={14} /></span>
+                  <span className="m-src">{mSourceTag(m)}</span>
                 </div>
               </article>
             );
@@ -1462,14 +1831,28 @@ function MainApp({ session, onLogout }) {
               <div className="dstat warning" onClick={() => { goTab('jobs', 'all'); setUrgentOnly(true); }}><b>{stats.urgent}</b><span>Urgentes</span></div>
               <div className="dstat stages" onClick={() => goTab('jobs', 'stages')}><b>{stats.stages}</b><span>Stages</span></div>
               <div className="dstat violet" onClick={() => goTab('concours')}><b>{stats.concours}</b><span>Concours</span></div>
-              <div className="dstat green" onClick={() => goTab('marches')}><b>{mStats.open}</b><span>Marchés ouverts</span></div>
+              <div className="dstat green" onClick={() => goTab('marches')}>
+                {mArchAllowed ? (<><b>{mStats.open}</b><span>Marchés ouverts</span></>) : (<><b className="dstat-lock"><Icon n="lock" size={18} /></b><span>Marchés réservés</span></>)}
+              </div>
             </div>
           </div>
-          {mStats.total > 0 && (
-            <div className="panel">
-              <div className="section-header"><h3>Marchés Publics</h3><span className="section-count">{mStats.open} ouverts</span></div>
-              <p className="muted">Appels d’offres suivis par Offer Analyzer — {mStats.total} au total, {mStats.closed} clôturés.</p>
-              <div className="row" style={{ marginTop: 10 }}>
+          {mStats.total > 0 && mArchAllowed && (
+            <div className="panel m-dash-panel">
+              <div className="section-header"><h3>Marchés publics</h3><span className="section-count">{fmtNum(mStats.open)} ouverts</span></div>
+              <p className="muted">Flux direct PMMP + BDC — {fmtNum(mStats.total)} consultations suivies, dont {fmtNum(mStats.soon)} à moins de 7 jours.</p>
+              <div className="m-mini-kpis">
+                <div><b>{fmtNum(mStats.open)}</b><span>Ouverts</span></div>
+                <div><b>{fmtNum(mStats.soon)}</b><span>≤ 7 jours</span></div>
+                <div><b>{fmtNum(mNewIds.size)}</b><span>Nouveaux 24 h</span></div>
+              </div>
+              <div className="m-kw-mini">
+                {mTopKws.map((k) => (
+                  <button type="button" key={k.id} className="kw-chip" onClick={() => { goTab('marches'); setMKw(k.id); }}>
+                    {k.label}<i>{mKwCounts[k.id] || 0}</i>
+                  </button>
+                ))}
+              </div>
+              <div className="row" style={{ marginTop: 12 }}>
                 <button className="apply" onClick={() => goTab('marches')}><Icon n="scale" size={16} /> Voir les marchés</button>
               </div>
             </div>
@@ -1530,32 +1913,27 @@ function MainApp({ session, onLogout }) {
       )}
 
       {tab === 'setup' && (
-        <main className="dash">
+        <main className="dash setup-tools">
           <div className="panel">
-            <h3>Mises à jour</h3>
-            <p className="muted">Version installée : <b>{appVer || '…'}</b>. L’application vérifie automatiquement les nouvelles versions à chaque ouverture.</p>
-            <div className="row">
-              <button className="apply" onClick={() => checkUpdate(true)}><Icon n="download" size={16} /> Vérifier les mises à jour</button>
-              {updateInfo && <button className="ghost" onClick={startUpdate} disabled={updating}>{updating ? `Téléchargement ${updatePct}%` : `Installer ${updateInfo.versionName}`}</button>}
+            <div className="section-header"><h3>Outils</h3></div>
+            <div className="tool-grid">
+              <button className="tool-btn" onClick={() => refresh(true)}><span className="tool-ic"><Icon n="refresh" size={22} /></span><span>Actualiser</span><small>Données en direct</small></button>
+              <button className="tool-btn" onClick={() => checkUpdate(true)}><span className="tool-ic"><Icon n="download" size={22} /></span><span>Mises à jour</span><small>Vérifier la version</small></button>
+              <button className="tool-btn" onClick={enableNotifications}><span className="tool-ic"><Icon n="bell" size={22} /></span><span>Activer les alertes</span><small>Nouveautés en fond</small></button>
+              <button className="tool-btn" onClick={testNotification}><span className="tool-ic"><Icon n="check" size={22} /></span><span>Tester</span><small>Notification immédiate</small></button>
+              <button className="tool-btn" onClick={openNotificationSettings}><span className="tool-ic"><Icon n="sliders" size={22} /></span><span>Réglages</span><small>Notifications Android</small></button>
+              <button className="tool-btn" onClick={allowBackground}><span className="tool-ic"><Icon n="shield" size={22} /></span><span>Arrière-plan</span><small>Autoriser la batterie</small></button>
+              <button className="tool-btn danger" onClick={clearCache}><span className="tool-ic"><Icon n="close" size={22} /></span><span>Vider le cache</span><small>Données téléchargées</small></button>
+              <button className="tool-btn danger" onClick={onLogout}><span className="tool-ic"><Icon n="lock" size={22} /></span><span>Se déconnecter</span><small>Quitter le compte</small></button>
             </div>
-            {updateInfo && <p className="muted">{updateInfo.notes || ''}</p>}
           </div>
-          <div className="panel">
-            <h3>Actualisation automatique</h3>
-            <p className="muted">Par défaut l'app lit <code>jobs.json</code> intégré (hors-ligne). Collez ci-dessous l'URL RAW GitHub de votre <code>jobs.json</code> pour recevoir les nouveautés à chaque ↻ sans republier l'APK. Les alertes suivent automatiquement (<code>alerts.json</code> à côté).</p>
-            <input className="remote" placeholder="https://raw.githubusercontent.com/.../jobs.json" value={remote} onChange={(e) => setRemote(e.target.value)} />
-            <p className="muted">Exemple : <code>{DEFAULT_REMOTE}</code></p>
-            <div className="row">
-              <button className="apply" onClick={() => refresh(true)}><Icon n="refresh" size={16} /> Actualiser maintenant</button>
-              <button className="ghost" onClick={() => { setRemote(''); showToast('URL distante effacée'); }}>Effacer</button>
+          {updateInfo && (
+            <div className="panel">
+              <div className="row">
+                <button className="apply" onClick={startUpdate} disabled={updating}><Icon n="download" size={16} /> {updating ? `Téléchargement ${updatePct}%` : `Installer la mise à jour ${updateInfo.versionName}`}</button>
+              </div>
             </div>
-            <p className="muted">Astuce : le workflow GitHub <code>update-jobs.yml</code> met à jour ce fichier chaque jour à 06:00 Casablanca.</p>
-          </div>
-          <div className="panel">
-            <h3>Sources suivies</h3>
-            <p className="muted">ReKrute • Dreamjob • Emploi Public • ANAPEC • Stellantis • Jawb • Indeed • Glassdoor • Emploi.ma • MarocAnnonces</p>
-            <p className="muted">Tirez vers le bas en haut de page ou touchez ↻ pour actualiser comme un site moderne.</p>
-          </div>
+          )}
         </main>
       )}
 
@@ -1570,37 +1948,57 @@ function MainApp({ session, onLogout }) {
 
       {mSel && (() => {
         const dl = mDeadline(mSel);
+        const cat = catSlug(mSel.categorie);
+        const hue = MCAT_HUE[cat] ?? 200;
+        const isNew = mShowNewBadges && mNewIds.has(mSel.id);
+        const official = mSel.portalHref || mSel.dceUrl || '';
+        const kws = (Array.isArray(mSel.keywords) ? mSel.keywords : []).map(kwLabel).filter(Boolean).slice(0, 8);
         return (
           <>
             <div className="sheet-overlay" onClick={() => setMSel(null)} aria-hidden="true" />
-            <div className="sheet" role="dialog" aria-modal="true" aria-label={`Marché ${mSel.ref}`}>
+            <div className="sheet m-sheet" role="dialog" aria-modal="true" aria-label={`Marché ${mSel.ref || ''}`}>
               <div className="sheet-handle" />
               <div className="sheet-head">
-                <div className="avatar" style={{ '--h': 162 }}><Icon n="gavel" size={20} /></div>
+                <div className="avatar" style={{ '--h': hue }}><Icon n="gavel" size={20} /></div>
                 <div className="chead">
-                  <h3><span className="mcard-ref">{mSel.ref}</span></h3>
-                  <div className="csub meta"><span><Icon n="building" size={14} />{mSel.organisme || '—'}</span></div>
+                  <div className="m-topline">
+                    <span className="mcard-ref">{mSel.ref || 'Sans référence'}</span>
+                    {isNew && <span className="m-new">Nouveau</span>}
+                  </div>
+                  <h3 className="m-org">{mSel.organisme || 'Organisme public'}</h3>
                   <div className="chips">
                     <span className={'chip ' + dl.cls}>{dl.label}</span>
                     {mSel.categorie && <span className="chip ref-chip">{mSel.categorie}</span>}
+                    {mSel.ville && <span className="chip blue"><Icon n="pin" size={12} />{mSel.ville}</span>}
                   </div>
                 </div>
                 <button className="sheet-close" onClick={() => setMSel(null)} aria-label="Fermer"><Icon n="close" size={18} /></button>
               </div>
               <div className="sheet-body">
-                <div className="panel">
-                  <h3>Objet</h3>
+                <div className="panel m-object-panel">
+                  <span className="m-eyebrow">Objet de la consultation</span>
                   <p className="desc" style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{mSel.objet || '—'}</p>
-                  <div className="chips">
-                    {mSel.ville && <span className="chip blue"><Icon n="pin" size={12} />{mSel.ville}</span>}
-                    {mSel.typeProcedure && <span className="chip">{mSel.typeProcedure}</span>}
-                    {mSel.modePassation && <span className="chip blue">{mSel.modePassation}</span>}
-                    {mSel.typeAnnonce && <span className="chip muted">{mSel.typeAnnonce}</span>}
-                  </div>
+                  {kws.length > 0 && (
+                    <div className="chips">
+                      {kws.map((k) => <span className="chip m-kw" key={k}>{k}</span>)}
+                    </div>
+                  )}
+                </div>
+
+                <div className="m-figures">
+                  {mSel.estimation && <div className="m-fig"><span>Estimation</span><b>{mSel.estimation}</b></div>}
+                  {mSel.caution && <div className="m-fig"><span>Caution provisoire</span><b>{mSel.caution}</b></div>}
+                  {mSel.qc && <div className="m-fig"><span>Qualification & capacité</span><b>{mSel.qc}</b></div>}
+                  <div className="m-fig"><span>Source</span><b>{mSourceTag(mSel)}</b></div>
                 </div>
 
                 <div className="panel">
-                  <h3>Dossier de consultation</h3>
+                  <h3>Dossier officiel</h3>
+                  <p className="muted">Cette consultation est publiée sur le portail marocain des marchés publics. Ouvrez la fiche officielle pour le règlement de consultation, le CPS et le dépôt électronique.</p>
+                  <div className="row" style={{ marginTop: 10 }}>
+                    {official && <button className="apply" onClick={() => openLink(official)}><Icon n="arrow" size={16} /> Portail officiel</button>}
+                    {mSel.detailUrl && mSel.detailUrl !== official && <button className="ghost" onClick={() => openLink(mSel.detailUrl)}><Icon n="eye" size={16} /> Fiche détaillée</button>}
+                  </div>
                   {(mSel.docs || []).map((d, i) => (
                     <div className="doc-row" key={d.file + i}>
                       <Icon n="file" size={20} />
@@ -1609,23 +2007,19 @@ function MainApp({ session, onLogout }) {
                       <button className="ghost sm" onClick={() => downloadFile(marcheDocUrl(d), `${mSel.ref}-${d.name || 'avis'}.pdf`.replace(/[^\wÀ-ÿ.-]+/g, '-').slice(0, 60))}><Icon n="download" size={14} /></button>
                     </div>
                   ))}
-                  {!((mSel.docs || []).length) && <p className="muted">Aucun avis PDF publié pour ce marché.</p>}
-                  <div className="row" style={{ marginTop: 10 }}>
-                    {mSel.dceUrl && <button className="apply" onClick={() => openLink(mSel.dceUrl)}><Icon n="download" size={16} /> Télécharger le DCE</button>}
-                    {mSel.portalHref && <button className="ghost" onClick={() => openLink(mSel.portalHref)}><Icon n="arrow" size={16} /> Page officielle</button>}
-                  </div>
-                  {mSel.dceSize && <p className="muted" style={{ marginTop: 8 }}>{mSel.dceSize} — s’ouvre sur marchespublics.gov.ma</p>}
+                  {mSel.dceSize && <p className="muted" style={{ marginTop: 8 }}>{mSel.dceSize}</p>}
                 </div>
 
                 <div className="panel">
-                  <h3>Informations</h3>
+                  <h3>Informations clés</h3>
                   {mSel.dateLimite && <div className="mrow"><span className="mlabel">Clôture</span><span className="mval">{mSel.dateLimite}</span></div>}
-                  {mSel.estimation && <div className="mrow"><span className="mlabel">Estimation</span><span className="mval">{mSel.estimation}</span></div>}
-                  {mSel.caution && <div className="mrow"><span className="mlabel">Caution</span><span className="mval">{mSel.caution}</span></div>}
+                  {mSel.modePassation && <div className="mrow"><span className="mlabel">Mode</span><span className="mval">{mSel.modePassation}</span></div>}
+                  {mSel.typeProcedure && <div className="mrow"><span className="mlabel">Type d’offre</span><span className="mval">{mSel.typeProcedure}</span></div>}
                   {mSel.prixAcquisition && mSel.prixAcquisition !== '0,00 MAD' && <div className="mrow"><span className="mlabel">Prix DCE</span><span className="mval">{mSel.prixAcquisition}</span></div>}
                   {mSel.lieuOuverture && <div className="mrow"><span className="mlabel">Ouverture plis</span><span className="mval">{mSel.lieuOuverture}</span></div>}
                   {mSel.adresseRetrait && <div className="mrow"><span className="mlabel">Retrait</span><span className="mval">{mSel.adresseRetrait}</span></div>}
                   {mSel.adresseDepot && <div className="mrow"><span className="mlabel">Dépôt</span><span className="mval">{mSel.adresseDepot}</span></div>}
+                  {mSel.ref && <div className="mrow"><span className="mlabel">Référence</span><span className="mval">{mSel.ref}</span></div>}
                 </div>
 
                 {(mSel.contact && (mSel.contact.nom || mSel.contact.email || mSel.contact.tel)) && (
@@ -1641,7 +2035,11 @@ function MainApp({ session, onLogout }) {
                     </div>
                   </div>
                 )}
-                <p className="muted">Source : Offer Analyzer (marchespublics.gov.ma) • {mSel.seenAt ? `détecté le ${mSel.seenAt.slice(0, 10)}` : ''}</p>
+
+                <p className="m-source">
+                  Source : <b>Portail marocain des marchés publics (PMMP)</b> — consultation relayée par appeldoffres.ma.
+                  {mSel.firstSeenAt ? ` Repérée le ${fmtDay(mSel.firstSeenAt)}.` : ''} Données publiques : vérifiez toujours le dossier officiel avant de soumissionner.
+                </p>
               </div>
             </div>
           </>
@@ -1738,7 +2136,7 @@ export default function App() {
   return (
     <>
       {intro && <SplashIntro />}
-      {!session ? <AuthScreen onAuthed={setSession} /> : <MainApp session={session} onLogout={() => { clearSession(); setSession(null); }} />}
+      {!session ? <AuthScreen onAuthed={setSession} /> : <MainApp session={session} onLogout={() => { clearSession(); clearMarchesSession(); setSession(null); }} />}
     </>
   );
 }

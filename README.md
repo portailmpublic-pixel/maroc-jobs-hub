@@ -1,56 +1,84 @@
-# 🇲🇦 Maroc Jobs Hub — APK Android moderne (100% gratuit via GitHub)
+# ASSOULI AUTOX — APK Android (emploi · concours · marchés publics)
 
-App mobile moderne (style sites modernes) qui présente les résultats d'offres d'emploi.
-**À chaque ↻ / actualisation, l'app recharge les résultats** (hors-ligne + distant).
+Application Android Capacitor + React pour consulter les offres d'emploi, les
+concours de la fonction publique, les examens (sujets + corrigés) et les marchés
+publics. Les données sont actualisées automatiquement deux fois par jour par
+GitHub Actions, sans PC allumé.
 
-## 📁 Contenu de `C:\Users\hp\Documents\JOB\MarocJobs-APK`
+## Fonctionnalités
+
+- **Comptes sans mot de passe** : nom + e-mail à l'inscription, e-mail seul à la
+  connexion, code à 6 chiffres envoyé par e-mail. Le compte est mémorisé sur
+  l'appareil.
+- **Marchés publics sur autorisation** : l'onglet est verrouillé par défaut.
+  L'administrateur autorise un e-mail depuis l'APK admin ; l'utilisateur débloque
+  ensuite l'espace avec une connexion dédiée e-mail + code.
+- **Notifications en arrière-plan** : WorkManager vérifie `alerts.json` et
+  `marches-meta.json` toutes les ~15 minutes, même application fermée, et affiche
+  une notification avec l'icône ASSOULI AUTOX. Un récepteur relance le travail
+  après un redémarrage ou une mise à jour.
+- **Mises à jour automatiques** : l'app lit `app-version.json`, télécharge le
+  nouvel APK depuis la release GitHub et ouvre l'installateur Android.
+- **Mode faible connexion** : les dernières données sont mises en cache et
+  affichées si le réseau est lent ou indisponible.
+- **Interface Atlas Clair** : en-tête marine, cartes blanches, accents turquoise,
+  navigation basse, filtres et recherche.
+
+## Contenu du projet
 
 ```
 MarocJobs-APK/
-  app/                  → code source mobile (Vite + React + Capacitor)
-    src/App.jsx         → UI moderne : hero, stats, recherche, filtres, cards, bottom-nav, pull-to-refresh
-    src/styles.css      → design glassmorphism / gradient
-    public/jobs.json    → 349 offres intégrées (marche sans internet)
-    capacitor.config.ts → config Android : ma.marocjobs.hub
-  .github/workflows/
-    build-apk.yml       → ⭐ build APK GRATUIT sur GitHub (cliquez Run)
-    update-jobs.yml     → refresh quotidien 06:00 des offres
-  GET-APK-GRATUIT.md    → guide 3 clics
-  Telecharger-APK.ps1   → script qui télécharge l'APK ici après le build
+  app/                         code React + projet Android
+    src/App.jsx                interface et logique de l'application
+    src/styles.css             thème Atlas Clair
+    public/jobs.json           snapshot des offres
+    public/marches.json        snapshot des marchés publics
+    public/marches-meta.json   manifeste pour les notifications de marchés
+    public/alerts.json         alertes lues par le travail de fond
+    public/access.json         comptes désactivés + e-mails autorisés Marchés
+    public/app-version.json    manifeste de mise à jour
+    android/                   projet Capacitor (app principale + adminapp)
+  scraper/                     collecteurs emploi / marchés + export des snapshots
+  .github/workflows/           rafraîchissement automatique des données
+  publish-update.ps1           build + release + publication d'une mise à jour
+  ADMIN-GUIDE.md               guide de l'APK admin et des notifications
 ```
 
-## 🚀 Obtenir l'APK GRATUIT en 3 clics (sans Android Studio)
-
-1. Créez un repo GitHub vide (ex: `maroc-jobs-hub`), puis uploadez TOUT le contenu de `MarocJobs-APK/` :
-   - via web : Add file → Upload files → glissez le dossier
-   - ou : `git init / add / commit / push` (voir GET-APK-GRATUIT.md)
-2. Sur GitHub : onglet **Actions** → **Build APK (free)** → **Run workflow** (ou poussez sur `main`).
-   - Le build est GRATUIT (ubuntu-latest + Gradle, ~3-5 min).
-3. Téléchargez l'APK :
-   - **Actions → run → Artifacts → Maroc-Jobs-Hub-APK** → `Maroc-Jobs-Hub.apk`
-   - ou **Releases → Maroc Jobs Hub APK #N** → `Maroc-Jobs-Hub.apk`
-   - Copiez-le ici : `C:\Users\hp\Documents\JOB\MarocJobs-APK\Maroc-Jobs-Hub.apk`
-   - Script auto : `powershell -ExecutionPolicy Bypass -File Telecharger-APK.ps1 -Owner VOTRE-USER -Repo maroc-jobs-hub -RunId LE-NUMERO`
-
-## 🔄 Actualisation moderne (comme les sites modernes)
-
-- Bouton central **↻** + bouton haut + **tirez vers le bas** en haut de page.
-- Chaque refresh : recharge `jobs.json`, ré-anime les cards, met à jour `Dernière actualisation`.
-- **Sans republier l'APK** : onglet ⚙️ Refresh → collez votre URL RAW :
-  `https://raw.githubusercontent.com/VOTRE-USER/maroc-jobs-hub/main/app/public/jobs.json`
-  Le workflow `update-jobs.yml` met ce fichier à jour chaque jour → l'app affiche les nouveautés à chaque ↻.
-
-## 💻 Test local immédiat (sans APK)
+## Build local
 
 ```powershell
-cd "C:\Users\hp\Documents\JOB\MarocJobs-APK\app"
-& "C:\Program Files\nodejs\npm.cmd" install --no-audit --no-fund
-& "C:\Program Files\nodejs\npm.cmd" run build
-& "C:\Program Files\nodejs\npm.cmd" run preview
-# ouvrir http://localhost:4173  (même UI que l'APK)
+cd app
+npm install --no-audit --no-fund
+npm run build
+npx cap copy android
+
+cd android
+$env:JAVA_HOME="C:\Users\hp\Documents\JOB\MarocJobs-APK\.sdk\jdk-17.0.11+9"
+.\gradlew.bat :app:assembleDebug :adminapp:assembleDebug --no-daemon
 ```
 
-## 📦 Données
+Résultats :
 
-- `app/public/jobs.json` : snapshot du 29/09/2026 (349 offres, ReKrute/Dreamjob/Emploi-Public/ANAPEC/Stellantis/Jawb/Indeed…).
-- Rapport semaine 18-24 sept : voir `../Morocco_Job_Offers_Week_Sept18-24_2026.md`.
+- `app/android/app/build/outputs/apk/debug/app-debug.apk` (ASSOULI AUTOX)
+- `app/android/adminapp/build/outputs/apk/debug/adminapp-debug.apk` (admin, privé)
+
+Toujours exécuter `npx cap copy android` après `npm run build`, sinon l'APK
+conserve les anciens fichiers web.
+
+## Publier une mise à jour
+
+```powershell
+cd C:\Users\hp\Documents\JOB\MarocJobs-APK
+.\publish-update.ps1 -Version 1.4.0 -Notes "Nouvelle version"
+```
+
+Le script incrémente `versionCode`, met à jour `app-version.json`, construit les
+deux APK, crée la release GitHub et pousse le manifeste.
+
+## Données
+
+- Emploi / concours : collecteurs du dossier `scraper`, export vers `app/public`.
+- Marchés publics : source publique `appeldoffres.ma` (miroir PMMP + BDC),
+  filtrée par les mots-clés métier de l'application.
+- GitHub Actions exécute le tout à 05:00 et 17:00 UTC et peut être lancé
+  manuellement depuis l'onglet **Actions**.

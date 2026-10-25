@@ -76,11 +76,12 @@ public class AdminActivity extends Activity {
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private final Set<String> disabled = new LinkedHashSet<>();
+    private final Set<String> marches = new LinkedHashSet<>();
     private final List<Account> accounts = new ArrayList<>();
 
     private SharedPreferences prefs;
     private EditText tokenInput, ownerInput, repoInput, branchInput, emailInput, messageInput;
-    private TextView status, accountsStatus, activeCount, disabledCount, settingsChevron;
+    private TextView status, accountsStatus, activeCount, disabledCount, marchesCount, settingsChevron;
     private LinearLayout listBox, settingsBody;
     private String sha = "";
     private String accountsError;
@@ -222,35 +223,38 @@ public class AdminActivity extends Activity {
         stats.setOrientation(LinearLayout.HORIZONTAL);
         root.addView(stats, topMarginParams(20));
 
-        stats.addView(statCard("COMPTES ACTIFS", "sur cet appareil", BRAND, true),
-            weighted(1f, 0, 10));
-        stats.addView(statCard("DÉSACTIVÉS", "liste publiée", DANGER, false),
-            weighted(1f, 10, 0));
+        stats.addView(statCard("COMPTES ACTIFS", "sur cet appareil", BRAND, 0),
+            weighted(1f, 0, 7));
+        stats.addView(statCard("DÉSACTIVÉS", "liste publiée", DANGER, 1),
+            weighted(1f, 7, 7));
+        stats.addView(statCard("ACCÈS MARCHÉS", "autorisés", CYAN, 2),
+            weighted(1f, 7, 0));
     }
 
-    private LinearLayout statCard(String label, String footText, int accent, boolean activeStat) {
+    private LinearLayout statCard(String label, String footText, int accent, int kind) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(dp(16), dp(14), dp(14), dp(13));
+        card.setPadding(dp(13), dp(13), dp(11), dp(12));
         card.setBackground(rounded(CARD, 20, STROKE, 1));
         card.setElevation(dp(3));
 
-        TextView l = text(label, 8.5f, MUTED, true);
-        l.setLetterSpacing(0.12f);
+        TextView l = text(label, 7.8f, MUTED, true);
+        l.setLetterSpacing(0.10f);
         l.setSingleLine(true);
         l.setEllipsize(TextUtils.TruncateAt.END);
         card.addView(l);
 
-        TextView num = text("0", 29f, accent, true);
+        TextView num = text("0", 27f, accent, true);
         num.setPadding(0, dp(3), 0, dp(1));
         card.addView(num);
 
-        TextView foot = text(footText, 9.5f, MUTED, false);
+        TextView foot = text(footText, 9f, MUTED, false);
         foot.setSingleLine(true);
         card.addView(foot);
 
-        if (activeStat) activeCount = num;
-        else disabledCount = num;
+        if (kind == 0) activeCount = num;
+        else if (kind == 1) disabledCount = num;
+        else marchesCount = num;
         return card;
     }
 
@@ -343,6 +347,48 @@ public class AdminActivity extends Activity {
             setStatus("E-mail retiré · touchez Publier pour appliquer.", CYAN);
         });
         row.addView(enableBtn, weighted(1f, 8, 0));
+
+        TextView marchesLabel = text("Accès spécial Marchés publics", 9.5f, MUTED, false);
+        marchesLabel.setPadding(0, dp(13), 0, dp(2));
+        card.addView(marchesLabel);
+
+        LinearLayout row2 = new LinearLayout(this);
+        row2.setOrientation(LinearLayout.HORIZONTAL);
+        card.addView(row2, topMarginParams(6));
+
+        TextView grantBtn = smallButton("Autoriser Marchés", CYAN);
+        grantBtn.setOnClickListener(v -> {
+            String e = emailInput.getText().toString().trim().toLowerCase(Locale.ROOT);
+            if (e.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(e).matches()) {
+                setStatus("Entrez un e-mail valide.", DANGER);
+                return;
+            }
+            if (!marches.add(e)) {
+                setStatus("Cet e-mail a déjà l'accès Marchés.", MUTED);
+                return;
+            }
+            emailInput.setText("");
+            renderList();
+            setStatus("Accès Marchés accordé · touchez Publier pour appliquer.", CYAN);
+        });
+        row2.addView(grantBtn, weighted(1f, 0, 8));
+
+        TextView revokeBtn = smallButton("Retirer Marchés", DANGER);
+        revokeBtn.setOnClickListener(v -> {
+            String e = emailInput.getText().toString().trim().toLowerCase(Locale.ROOT);
+            if (e.isEmpty()) {
+                setStatus("Entrez l'e-mail à retirer.", DANGER);
+                return;
+            }
+            if (!marches.remove(e)) {
+                setStatus("Cet e-mail n'a pas l'accès Marchés.", MUTED);
+                return;
+            }
+            emailInput.setText("");
+            renderList();
+            setStatus("Accès Marchés retiré · touchez Publier pour appliquer.", CYAN);
+        });
+        row2.addView(revokeBtn, weighted(1f, 8, 0));
     }
 
     private void addSettingsCard(LinearLayout root) {
@@ -536,16 +582,20 @@ public class AdminActivity extends Activity {
         for (String e : new ArrayList<>(disabled)) {
             if (shown.add(e)) addAccountRow(new Account(e, "", ""), true, true);
         }
+        for (String e : new ArrayList<>(marches)) {
+            if (shown.add(e)) addAccountRow(new Account(e, "", ""), false, true);
+        }
 
         activeCount.setText(String.valueOf(active));
         disabledCount.setText(String.valueOf(disabled.size()));
+        if (marchesCount != null) marchesCount.setText(String.valueOf(marches.size()));
 
         if (accountsStatus != null) {
             if (accountsError != null && !accountsError.isEmpty()) {
                 accountsStatus.setText(accountsError);
             } else {
                 accountsStatus.setText(deviceCount + (deviceCount == 1 ? " compte" : " comptes")
-                    + " · " + active + " actif(s)");
+                    + " · " + active + " actif(s) · " + marches.size() + " Marchés");
             }
         }
 
@@ -619,16 +669,24 @@ public class AdminActivity extends Activity {
 
         String state = off ? "Désactivé" : "Actif";
         String date = dateFr(a.createdAt);
+        boolean hasMarches = marches.contains(a.email);
         String meta;
-        if (manual) meta = "Désactivé manuellement · hors appareil";
-        else if (date.isEmpty()) meta = state;
-        else meta = "Créé le " + date + " · " + state;
+        if (manual) {
+            if (off) meta = "Désactivé manuellement · hors appareil";
+            else if (hasMarches) meta = "Accès Marchés · hors appareil";
+            else meta = "Compte manuel · hors appareil";
+        } else if (date.isEmpty()) meta = state + (hasMarches ? " · Marchés ✓" : "");
+        else meta = "Créé le " + date + " · " + state + (hasMarches ? " · Marchés ✓" : "");
 
-        TextView metaTv = text(meta, 9.3f, off ? DANGER : BRAND, false);
+        TextView metaTv = text(meta, 9.3f, off ? DANGER : (hasMarches ? CYAN : BRAND), false);
         metaTv.setSingleLine(true);
         metaTv.setEllipsize(TextUtils.TruncateAt.END);
         metaTv.setPadding(0, dp(2), 0, 0);
         mid.addView(metaTv);
+
+        LinearLayout acts = new LinearLayout(this);
+        acts.setOrientation(LinearLayout.VERTICAL);
+        acts.setGravity(Gravity.END);
 
         TextView toggle = smallButton(off ? "Activer" : "Désactiver", off ? BRAND : DANGER);
         toggle.setOnClickListener(v -> {
@@ -638,7 +696,22 @@ public class AdminActivity extends Activity {
             setStatus((off ? "Compte activé" : "Compte désactivé")
                 + " localement · touchez Publier.", CYAN);
         });
-        r.addView(toggle);
+        acts.addView(toggle);
+
+        TextView marchBtn = smallButton(hasMarches ? "Marchés ✓" : "Marchés", hasMarches ? CYAN : MUTED);
+        marchBtn.setOnClickListener(v -> {
+            if (hasMarches) marches.remove(a.email);
+            else marches.add(a.email);
+            renderList();
+            setStatus((hasMarches ? "Accès Marchés retiré" : "Accès Marchés accordé")
+                + " · touchez Publier.", CYAN);
+        });
+        LinearLayout.LayoutParams mbp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mbp.topMargin = dp(5);
+        acts.addView(marchBtn, mbp);
+
+        r.addView(acts);
     }
 
     // ============================================================
@@ -889,11 +962,20 @@ public class AdminActivity extends Activity {
                         disabled.add(arr.optString(i).toLowerCase(Locale.ROOT));
                     }
                 }
+                JSONArray marr = root.optJSONArray("marches");
+                marches.clear();
+                if (marr != null) {
+                    for (int i = 0; i < marr.length(); i++) {
+                        String e = marr.optString(i, "").trim().toLowerCase(Locale.ROOT);
+                        if (!e.isEmpty()) marches.add(e);
+                    }
+                }
                 String msg = root.optString("message", "");
                 runOnUiThread(() -> {
                     if (!msg.isEmpty()) messageInput.setText(msg);
                     renderList();
-                    setStatus("Synchronisé · " + disabled.size() + " compte(s) désactivé(s).", BRAND);
+                    setStatus("Synchronisé · " + disabled.size() + " désactivé(s) · "
+                        + marches.size() + " accès Marchés.", BRAND);
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> setStatus("Erreur chargement : " + shortMsg(e), DANGER));
@@ -927,17 +1009,20 @@ public class AdminActivity extends Activity {
                 JSONObject payload = new JSONObject();
                 JSONArray arr = new JSONArray();
                 for (String e : disabled) arr.put(e);
+                JSONArray marr = new JSONArray();
+                for (String e : marches) marr.put(e);
                 SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
                 fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
                 payload.put("updatedAt", fmt.format(new Date()));
                 payload.put("disabled", arr);
+                payload.put("marches", marr);
                 payload.put("message", message.isEmpty()
                     ? "Ce compte a été désactivé par l’administrateur." : message);
 
                 final String accessJson = payload.toString();
                 byte[] bytes = payload.toString(2).getBytes(StandardCharsets.UTF_8);
                 JSONObject body = new JSONObject();
-                body.put("message", "Admin: update disabled accounts");
+                body.put("message", "Admin: update access (disabled + Marchés)");
                 body.put("content", Base64.encodeToString(bytes, Base64.NO_WRAP));
                 body.put("branch", branch);
                 if (!sha.isEmpty()) body.put("sha", sha);

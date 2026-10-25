@@ -35,6 +35,11 @@ jobs:
         env:
           APK_PUBLIC_DIR: ../app/public
 
+      - name: Scrape live Marchés Publics (PMMP + BDC)
+        working-directory: scraper
+        run: npm run scrape:marches
+        continue-on-error: true
+
       - name: Export Marchés Publics snapshot
         working-directory: scraper
         run: npm run export:marches
@@ -45,7 +50,7 @@ jobs:
         run: |
           git config user.name "jobs-bot"
           git config user.email "jobs-bot@users.noreply.github.com"
-          git add app/public/jobs.json app/public/alerts.json app/public/exams-index.json app/public/exams app/public/marches.json scraper/data/jobs.json scraper/data/runs.json scraper/data/notifications.json
+          git add app/public/jobs.json app/public/alerts.json app/public/exams-index.json app/public/exams app/public/marches.json app/public/marches-meta.json scraper/data/jobs.json scraper/data/runs.json scraper/data/notifications.json scraper/data/marches-live.json
           git diff --cached --quiet && echo "No data changes" && exit 0
           git commit -m "jobs: auto refresh $(date -u +%F_%H%M)"
           git push

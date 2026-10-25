@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.webkit.WebView;
@@ -23,8 +24,20 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(LocalAccountsPlugin.class);
         registerPlugin(AppControlPlugin.class);
         super.onCreate(savedInstanceState);
+        UpdateWorker.ensureChannel(this);
         UpdateWorker.schedule(this);
+        askNotificationPermission();
         registerAccessReceiver();
+    }
+
+    /** Android 13+ : sans cette permission, aucune notification ne peut s'afficher. */
+    private void askNotificationPermission() {
+        try {
+            if (Build.VERSION.SDK_INT >= 33
+                && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 9001);
+            }
+        } catch (Exception ignored) {}
     }
 
     /**

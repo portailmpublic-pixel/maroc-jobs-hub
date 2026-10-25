@@ -246,6 +246,32 @@ function exportExams() {
 function exportApk() {
   if (!fs.existsSync(APK_PUBLIC)) return { ok: false, error: `dossier APK introuvable (${APK_PUBLIC})` };
   const payload = apkPayload();
+
+  // Détecte les offres réellement nouvelles par rapport au dernier snapshot
+  // public, puis ajoute une alerte que l'APK lit en arrière-plan.
+  try {
+    const oldPath = path.join(APK_PUBLIC, 'jobs.json');
+    if (fs.existsSync(oldPath)) {
+      const old = JSON.parse(fs.readFileSync(oldPath, 'utf8'));
+      const oldJobs = Array.isArray(old) ? old : (old.jobs || []);
+      const oldIds = new Set(oldJobs.map((j) => j && j.id).filter(Boolean));
+      const freshJobs = oldIds.size ? payload.jobs.filter((j) => !oldIds.has(j.id)) : [];
+      if (freshJobs.length) {
+        pushInbox({
+          kind: 'nouvelles-offres',
+          title: `+${freshJobs.length} nouvelle(s) offre(s)`,
+          body: buildDigest({ newJobs: freshJobs, trigger: 'cloud' }),
+          counts: {
+            new: freshJobs.length,
+            concours: freshJobs.filter((j) => j.kind === 'concours').length,
+            total: payload.total,
+          },
+          trigger: 'cloud',
+        });
+      }
+    }
+  } catch {}
+
   const inbox = readInbox(30);
   const alerts = {
     updatedAt: new Date().toISOString(),
