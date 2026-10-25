@@ -1,7 +1,7 @@
 {
-    "versionCode":  5,
-    "versionName":  "1.3.1",
-    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.3.1/ASSOULI-AUTOX.apk",
-    "notes":  "Message de blocage conserve apres fermeture + corrections notifications",
-    "publishedAt":  "2026-10-24T21:23:55Z"
+    "versionCode":  7,
+    "versionName":  "1.4.0",
+    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.4.0/ASSOULI-AUTOX.apk",
+    "notes":  "Acces Marches sur autorisation, notifications en arriere-plan, interface Atlas Clair, nouvelle source Marches",
+    "publishedAt":  "2026-10-25T12:18:16Z"
 }
