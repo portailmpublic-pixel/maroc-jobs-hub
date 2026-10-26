@@ -52,7 +52,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Console ASSOULI ADMIN — design « Midnight Emerald ».
+ * Console ASSOULI ADMIN — design « Midnight Azure », aligné sur le logo glossy.
  * Détecte les comptes de l'appareil via le provider signature de l'app principale,
  * affiche les statistiques et publie access.json sur GitHub.
  */
@@ -62,17 +62,17 @@ public class AdminActivity extends Activity {
     private static final String PATH = "app/public/access.json";
 
     private static final int BG = 0xFF05070D;
-    private static final int BG_SOFT = 0xFF06121A;
-    private static final int CARD = 0xFF0E1526;
-    private static final int CARD_DARK = 0xFF0A1020;
-    private static final int STROKE = 0xFF1E2C42;
-    private static final int TEXT = 0xFFEAF2FF;
-    private static final int MUTED = 0xFF8AA0B8;
-    private static final int BRAND = 0xFF14E0B4;
-    private static final int CYAN = 0xFF7DD3FC;
+    private static final int BG_SOFT = 0xFF071421;
+    private static final int CARD = 0xFF0D1728;
+    private static final int CARD_DARK = 0xFF091120;
+    private static final int STROKE = 0xFF1D3552;
+    private static final int TEXT = 0xFFEAF4FF;
+    private static final int MUTED = 0xFF8FA9C4;
+    private static final int BRAND = 0xFF38BDF8;
+    private static final int CYAN = 0xFF22D3EE;
     private static final int DANGER = 0xFFFDA4AF;
     private static final int DANGER_STROKE = 0xFF40232B;
-    private static final int ON_BRAND = 0xFF04231E;
+    private static final int ON_BRAND = 0xFF04121F;
 
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private final Set<String> disabled = new LinkedHashSet<>();
@@ -126,13 +126,13 @@ public class AdminActivity extends Activity {
             new int[]{BG, BG_SOFT}
         ));
 
-        View glowTop = glow(320, 0x2E14E0B4, 0x0014E0B4);
+        View glowTop = glow(320, 0x2E38BDF8, 0x0038BDF8);
         FrameLayout.LayoutParams g1 = new FrameLayout.LayoutParams(dp(320), dp(320), Gravity.TOP | Gravity.RIGHT);
         g1.rightMargin = dp(-80);
         g1.topMargin = dp(-120);
         shell.addView(glowTop, g1);
 
-        View glowLeft = glow(250, 0x207DD3FC, 0x007DD3FC);
+        View glowLeft = glow(250, 0x2022D3EE, 0x0022D3EE);
         FrameLayout.LayoutParams g2 = new FrameLayout.LayoutParams(dp(250), dp(250), Gravity.TOP | Gravity.LEFT);
         g2.leftMargin = dp(-90);
         g2.topMargin = dp(110);
@@ -174,22 +174,32 @@ public class AdminActivity extends Activity {
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setPadding(dp(14), dp(13), dp(14), dp(13));
+
+        GradientDrawable headerBg = new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            new int[]{0x1F38BDF8, 0x0A22D3EE}
+        );
+        headerBg.setCornerRadius(dp(22));
+        headerBg.setStroke(dp(1), 0x3338BDF8);
+        header.setBackground(headerBg);
+        header.setElevation(dp(4));
         root.addView(header, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         ImageView logo = new ImageView(this);
-        logo.setImageResource(R.mipmap.ic_launcher);
+        logo.setImageResource(R.drawable.admin_logo);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         logo.setContentDescription("Logo ASSOULI AUTOX");
         GradientDrawable logoBg = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
-            new int[]{0x3314E0B4, 0x147DD3FC}
+            new int[]{0x3338BDF8, 0x1422D3EE}
         );
         logoBg.setCornerRadius(dp(17));
-        logoBg.setStroke(dp(1), 0x4D14E0B4);
+        logoBg.setStroke(dp(1), 0x4D38BDF8);
         logo.setBackground(logoBg);
-        logo.setPadding(dp(5), dp(5), dp(5), dp(5));
-        header.addView(logo, new LinearLayout.LayoutParams(dp(54), dp(54)));
+        logo.setPadding(dp(4), dp(4), dp(4), dp(4));
+        header.addView(logo, new LinearLayout.LayoutParams(dp(56), dp(56)));
 
         LinearLayout block = new LinearLayout(this);
         block.setOrientation(LinearLayout.VERTICAL);
@@ -197,18 +207,27 @@ public class AdminActivity extends Activity {
         header.addView(block, new LinearLayout.LayoutParams(0,
             ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView eyebrow = text("CONSOLE SÉCURISÉE", 8.5f, BRAND, true);
-        eyebrow.setLetterSpacing(0.17f);
+        TextView eyebrow = text("CONSOLE PRIVÉE", 8.5f, BRAND, true);
+        eyebrow.setLetterSpacing(0.18f);
         block.addView(eyebrow);
 
         LinearLayout nameRow = new LinearLayout(this);
         nameRow.setOrientation(LinearLayout.HORIZONTAL);
-        TextView a = text("ASSOULI", 21f, TEXT, true);
-        TextView b = text(" ADMIN", 21f, BRAND, true);
-        a.setLetterSpacing(0.04f);
-        b.setLetterSpacing(0.04f);
+        nameRow.setGravity(Gravity.CENTER_VERTICAL);
+        TextView a = text("ASSOULI", 22f, TEXT, true);
+        a.setLetterSpacing(0.02f);
+        a.setTypeface(Typeface.create("sans-serif-black", Typeface.BOLD));
         nameRow.addView(a);
-        nameRow.addView(b);
+
+        TextView admin = text("ADMIN", 9f, ON_BRAND, true);
+        admin.setLetterSpacing(0.12f);
+        admin.setPadding(dp(7), dp(3), dp(7), dp(3));
+        admin.setBackground(rounded(BRAND, 7, 0, 0));
+        LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        alp.leftMargin = dp(8);
+        alp.gravity = Gravity.CENTER_VERTICAL;
+        nameRow.addView(admin, alp);
         block.addView(nameRow);
 
         TextView sub = text("Gestion des comptes · ASSOULI AUTOX", 10f, MUTED, false);
@@ -279,7 +298,7 @@ public class AdminActivity extends Activity {
         TextView refresh = text("Actualiser", 10.5f, BRAND, true);
         refresh.setGravity(Gravity.CENTER);
         refresh.setPadding(dp(12), dp(9), dp(12), dp(9));
-        refresh.setBackground(ripple(rounded(0x1414E0B4, 99, 0x3314E0B4, 1), 0x22FFFFFF));
+        refresh.setBackground(ripple(rounded(0x1438BDF8, 99, 0x3338BDF8, 1), 0x22FFFFFF));
         refresh.setClickable(true);
         refresh.setFocusable(true);
         refresh.setOnClickListener(v -> loadDeviceAccounts());
@@ -722,14 +741,14 @@ public class AdminActivity extends Activity {
         FrameLayout overlay = new FrameLayout(this);
         overlay.setBackground(new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
-            new int[]{0xFF07161D, 0xFF02040A}
+            new int[]{0xFF071421, 0xFF02040A}
         ));
         overlay.setClickable(true);
         overlay.setFocusable(true);
         shell.addView(overlay, new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        View glow = glow(330, 0x6614E0B4, 0x007DD3FC);
+        View glow = glow(330, 0x6638BDF8, 0x0022D3EE);
         FrameLayout.LayoutParams glp = new FrameLayout.LayoutParams(
             dp(330), dp(330), Gravity.CENTER);
         glp.topMargin = dp(-54);
@@ -755,29 +774,29 @@ public class AdminActivity extends Activity {
         stage.setClipChildren(false);
         col.addView(stage, new LinearLayout.LayoutParams(dp(196), dp(196)));
 
-        View ring1 = ring(0x6614E0B4);
+        View ring1 = ring(0x6638BDF8);
         stage.addView(ring1, centerLp(146));
         animateRing(ring1, 0);
 
-        View ring2 = ring(0x447DD3FC);
+        View ring2 = ring(0x4422D3EE);
         stage.addView(ring2, centerLp(186));
         animateRing(ring2, 150);
 
         FrameLayout logoCard = new FrameLayout(this);
         GradientDrawable cardBg = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
-            new int[]{0xFF17323A, 0xFF08111C}
+            new int[]{0xFF17324A, 0xFF081320}
         );
         cardBg.setCornerRadius(dp(36));
-        cardBg.setStroke(dp(1), 0x5514E0B4);
+        cardBg.setStroke(dp(1), 0x5538BDF8);
         logoCard.setBackground(cardBg);
         logoCard.setElevation(dp(18));
         stage.addView(logoCard, centerLp(136));
 
         ImageView logo = new ImageView(this);
-        logo.setImageResource(R.mipmap.ic_launcher);
+        logo.setImageResource(R.drawable.admin_logo);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        logo.setPadding(dp(7), dp(7), dp(7), dp(7));
+        logo.setPadding(dp(9), dp(9), dp(9), dp(9));
         logo.setContentDescription("ASSOULI AUTOX");
         logoCard.addView(logo, new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -792,15 +811,23 @@ public class AdminActivity extends Activity {
         LinearLayout word = new LinearLayout(this);
         word.setOrientation(LinearLayout.HORIZONTAL);
         word.setGravity(Gravity.CENTER);
-        TextView w1 = text("ASSOULI", 23f, TEXT, true);
-        TextView w2 = text(" ADMIN", 23f, BRAND, true);
-        w1.setLetterSpacing(0.07f);
-        w2.setLetterSpacing(0.07f);
+        TextView w1 = text("ASSOULI", 24f, TEXT, true);
+        w1.setLetterSpacing(0.04f);
+        w1.setTypeface(Typeface.create("sans-serif-black", Typeface.BOLD));
         word.addView(w1);
-        word.addView(w2);
+
+        TextView w2 = text("ADMIN", 9.5f, ON_BRAND, true);
+        w2.setLetterSpacing(0.14f);
+        w2.setPadding(dp(8), dp(3), dp(8), dp(3));
+        w2.setBackground(rounded(BRAND, 7, 0, 0));
+        LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        wlp.leftMargin = dp(9);
+        wlp.gravity = Gravity.CENTER_VERTICAL;
+        word.addView(w2, wlp);
         col.addView(word);
 
-        TextView tag = text("GESTION DES COMPTES  •  SÉCURISÉE", 8.5f, MUTED, true);
+        TextView tag = text("CONSOLE PRIVÉE  •  GESTION DES COMPTES", 8.5f, MUTED, true);
         tag.setLetterSpacing(0.15f);
         tag.setGravity(Gravity.CENTER);
         tag.setPadding(0, dp(8), 0, 0);
@@ -847,7 +874,7 @@ public class AdminActivity extends Activity {
         });
         va.start();
 
-        TextView foot = text("ASSOULI AUTOX  ·  ADMIN", 8f, withAlpha(MUTED, 0.8f), true);
+        TextView foot = text("MAROC JOBS HUB  ·  CONSOLE PRIVÉE", 8f, withAlpha(MUTED, 0.8f), true);
         foot.setLetterSpacing(0.2f);
         foot.setGravity(Gravity.CENTER);
         FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(

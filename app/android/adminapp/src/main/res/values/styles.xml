@@ -2,7 +2,7 @@
 <resources>
     <style name="AdminTheme" parent="@android:style/Theme.Material.NoActionBar">
         <item name="android:windowBackground">@drawable/bg_window</item>
-        <item name="android:colorAccent">#14E0B4</item>
+        <item name="android:colorAccent">#38BDF8</item>
         <item name="android:statusBarColor">#05070D</item>
         <item name="android:navigationBarColor">#05070D</item>
         <item name="android:windowLightStatusBar">false</item>

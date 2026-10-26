@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "design" / "Glossy Assouli AutoX Circle Logo.png"
 RES = ROOT / "app" / "android" / "app" / "src" / "main" / "res"
+ADMIN_RES = ROOT / "app" / "android" / "adminapp" / "src" / "main" / "res"
 PUBLIC = ROOT / "app" / "public"
 QA = ROOT / "design" / "icon-qa"
 
@@ -38,6 +39,7 @@ STAT_DENSITIES = {
     "xxxhdpi": 96,
 }
 ADAPTIVE_RATIO = 0.648             # 70dp badge on a 108dp adaptive canvas
+ADMIN_ADAPTIVE_RATIO = 0.62        # slightly smaller so circular masks never clip
 STAT_SS = 8                        # supersampling for the status-bar mark
 
 
@@ -97,6 +99,73 @@ def resize(im, size):
     return im.resize((size, size), Image.LANCZOS)
 
 
+def admin_background(size, round_mask=False):
+    """Deep navy gradient with a soft sky glow, matching the glossy logo."""
+    bg = Image.new("RGBA", (size, size), (5, 7, 13, 255))
+    d = ImageDraw.Draw(bg)
+    for y in range(size):
+        t = y / max(1, size - 1)
+        # top #0B1B2E -> bottom #02040A
+        r = round(11 * (1 - t) + 2 * t)
+        g = round(27 * (1 - t) + 4 * t)
+        b = round(46 * (1 - t) + 10 * t)
+        d.line([(0, y), (size, y)], fill=(r, g, b, 255))
+
+    # Soft sky-blue glow in the upper-right corner.
+    glow = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    cx, cy = int(size * 0.78), int(size * 0.16)
+    radius = max(1, int(size * 0.64))
+    for i in range(radius, 0, -1):
+        alpha = int(82 * (1 - i / radius) ** 2.1)
+        gd.ellipse(
+            [cx - i, cy - i, cx + i, cy + i],
+            fill=(56, 189, 248, alpha),
+        )
+    bg.alpha_composite(glow)
+
+    # Fine cyan rim.
+    rim = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    rd = ImageDraw.Draw(rim)
+    inset = max(1, round(size * 0.012))
+    if round_mask:
+        rd.ellipse(
+            [inset, inset, size - 1 - inset, size - 1 - inset],
+            outline=(56, 189, 248, 120),
+            width=max(1, round(size * 0.012)),
+        )
+    else:
+        rd.rounded_rectangle(
+            [inset, inset, size - 1 - inset, size - 1 - inset],
+            radius=round(size * 0.22),
+            outline=(56, 189, 248, 120),
+            width=max(1, round(size * 0.012)),
+        )
+    bg.alpha_composite(rim)
+
+    mask = Image.new("L", (size, size), 0)
+    md = ImageDraw.Draw(mask)
+    if round_mask:
+        md.ellipse([0, 0, size - 1, size - 1], fill=255)
+    else:
+        md.rounded_rectangle(
+            [0, 0, size - 1, size - 1],
+            radius=round(size * 0.22),
+            fill=255,
+        )
+    bg.putalpha(mask)
+    return bg
+
+
+def admin_legacy_icon(badge, size, round_mask=False):
+    bg = admin_background(size, round_mask=round_mask)
+    badge_px = round(size * (0.82 if round_mask else 0.84))
+    icon = resize(badge, badge_px)
+    off = (size - badge_px) // 2
+    bg.alpha_composite(icon, (off, off))
+    return bg
+
+
 def main():
     src = Image.open(SRC).convert("RGB").crop(CROP)
     square = src.convert("RGBA")
@@ -123,6 +192,49 @@ def main():
         badge = resize(round_badge, badge_px)
         fg.paste(badge, ((canvas - badge_px) // 2, (canvas - badge_px) // 2), badge)
         fg.save(folder / "ic_launcher_foreground.png", optimize=True)
+
+    # ---- Admin app: glossy logo on a midnight-navy tile --------------------
+    admin_nodpi = ADMIN_RES / "drawable-nodpi"
+    admin_nodpi.mkdir(parents=True, exist_ok=True)
+    admin_logo = Image.new("RGBA", (512, 512), (0, 0, 0, 0))
+    admin_badge_px = round(512 * 0.84)
+    admin_badge = resize(round_badge, admin_badge_px)
+    admin_off = (512 - admin_badge_px) // 2
+    admin_logo.alpha_composite(admin_badge, (admin_off, admin_off))
+    admin_logo.save(admin_nodpi / "admin_logo.png", optimize=True)
+
+    for density, px in DENSITIES.items():
+        folder = ADMIN_RES / f"mipmap-{density}"
+        folder.mkdir(parents=True, exist_ok=True)
+        admin_legacy_icon(round_badge, px, round_mask=False).save(
+            folder / "ic_launcher.png", optimize=True
+        )
+        admin_legacy_icon(round_badge, px, round_mask=True).save(
+            folder / "ic_launcher_round.png", optimize=True
+        )
+
+        canvas = FOREGROUND[density]
+        badge_px = round(canvas * ADMIN_ADAPTIVE_RATIO)
+        fg = Image.new("RGBA", (canvas, canvas), (0, 0, 0, 0))
+        badge = resize(round_badge, badge_px)
+        fg.alpha_composite(badge, ((canvas - badge_px) // 2, (canvas - badge_px) // 2))
+        fg.save(folder / "ic_launcher_foreground.png", optimize=True)
+
+    # Adaptive background: deep navy gradient matching the launcher tile.
+    admin_drawable = ADMIN_RES / "drawable"
+    admin_drawable.mkdir(parents=True, exist_ok=True)
+    (admin_drawable / "admin_icon_bg.xml").write_text(
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<shape xmlns:android="http://schemas.android.com/apk/res/android"\n'
+        '    android:shape="rectangle">\n'
+        '    <gradient\n'
+        '        android:angle="270"\n'
+        '        android:startColor="#0B1B2E"\n'
+        '        android:centerColor="#071421"\n'
+        '        android:endColor="#02040A" />\n'
+        '</shape>\n',
+        encoding="utf-8",
+    )
 
     # ---- Splash + notification --------------------------------------------
     splash = Image.new("RGBA", (480, 480), (5, 7, 13, 255))
@@ -159,6 +271,15 @@ def main():
             sheet.paste(icon, (x, (height - px) // 2), icon)
             x += px + pad
         sheet.convert("RGB").save(QA / f"launcher-{name}.png", optimize=True)
+
+    for name, bg in (("light", (244, 247, 252, 255)), ("dark", (7, 12, 22, 255))):
+        sheet = Image.new("RGBA", (width, height), bg)
+        x = pad
+        for px in sizes:
+            icon = admin_legacy_icon(round_badge, px, round_mask=False)
+            sheet.paste(icon, (x, (height - px) // 2), icon)
+            x += px + pad
+        sheet.convert("RGB").save(QA / f"admin-launcher-{name}.png", optimize=True)
 
     # Adaptive icon preview: circle + squircle masks over the 72dp viewport.
     canvas = 432

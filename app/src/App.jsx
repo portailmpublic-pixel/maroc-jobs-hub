@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { enrichJobs } from './jobEnrichment.js';
 
 const DEFAULT_REMOTE = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/jobs.json';
 const LS_REMOTE = 'mjh_remote_url';
@@ -264,7 +265,7 @@ function daysUntil(deadline) {
 
 function deadlineInfo(j) {
   const d = daysUntil(j.deadline);
-  if (!j.deadline) return { label: 'Sans limite', cls: 'b-muted' };
+  if (!j.deadline) return { label: 'Date non communiquée', cls: 'b-muted' };
   if (d === null) return { label: j.deadline, cls: 'b-muted' };
   if (d < 0) return { label: `Clôturé • ${j.deadline}`, cls: 'b-red' };
   if (d === 0) return { label: `Dernier jour • ${j.deadline}`, cls: 'b-red pulse' };
@@ -405,7 +406,7 @@ function DTimeline({ from, to, labelFrom = 'Publication', labelTo = 'Clôture' }
   const pct = timelinePct(from, to);
   const late = left !== null && left < 0;
   const note = left === null
-    ? 'Aucune date limite annoncée : vérifiez l’avis officiel.'
+    ? 'Date limite non communiquée par la source : vérifiez l’avis officiel.'
     : left < 0
       ? `Date limite dépassée depuis ${Math.abs(left)} jour${Math.abs(left) > 1 ? 's' : ''}.`
       : left === 0
@@ -416,7 +417,7 @@ function DTimeline({ from, to, labelFrom = 'Publication', labelTo = 'Clôture' }
       <div className="d-timeline-track"><i style={{ width: (late ? 100 : pct) + '%' }} /></div>
       <div className="d-timeline-ends">
         <span><b>{from ? fmtDay(from) : '—'}</b><small>{labelFrom}</small></span>
-        <span className="right"><b>{to ? fmtDay(to) : 'Sans limite'}</b><small>{labelTo}</small></span>
+        <span className="right"><b>{to ? fmtDay(to) : 'Non communiquée'}</b><small>{labelTo}</small></span>
       </div>
       <p className="d-timeline-note"><Icon n={late ? 'info' : 'clock'} size={14} />{note}</p>
     </div>
@@ -502,6 +503,8 @@ function DetailPage({
     const posts = Math.max(1, Number(job.postsCount) || 1);
     const isStage = type === 'stage';
     const isConcours = type === 'concours';
+    const inferred = job._inferred || {};
+    const inferredTag = (key) => (inferred[key] ? <em className="d-fact-tag">déduit</em> : null);
     const tips = isConcours
       ? [
         'Téléchargez l’avis officiel et vérifiez les pièces demandées.',
@@ -538,7 +541,7 @@ function DetailPage({
         </div>
         <div className="d-kpis">
           <div><b>{job.publishedDate ? fmtDay(job.publishedDate) : '—'}</b><span>Publié</span></div>
-          <div><b>{job.deadline ? fmtDay(job.deadline) : 'Libre'}</b><span>Date limite</span></div>
+          <div><b className={job.deadline ? undefined : 'd-kpi-soft'}>{job.deadline ? fmtDay(job.deadline) : 'Non publiée'}</b><span>Date limite</span></div>
           <div><b>{posts}</b><span>Poste{posts > 1 ? 's' : ''}</span></div>
         </div>
       </div>
@@ -560,7 +563,11 @@ function DetailPage({
         )}
 
         {(job.requirements || []).length > 0 && (
-          <DSection icon="check" title={isConcours ? 'Conditions d’accès' : 'Profil recherché'} hint={`${job.requirements.length} points`}>
+          <DSection
+            icon="check"
+            title={isConcours ? 'Conditions d’accès' : 'Profil recherché'}
+            hint={job._reqGenerated ? 'déduit de l’offre' : `${job.requirements.length} points`}
+          >
             <ul className="d-bullets">
               {job.requirements.map((r, i) => <li key={i}><span className="d-bullet-check"><Icon n="check" size={12} /></span>{r}</li>)}
             </ul>
@@ -569,16 +576,25 @@ function DetailPage({
 
         <DSection icon="chart" title="Informations clés">
           <div className="d-facts">
-            <div className="d-fact"><span>Contrat</span><b>{job.contract || 'Non précisé'}</b></div>
-            <div className="d-fact"><span>Diplôme</span><b>{job.diploma || 'Non précisé'}</b></div>
-            <div className="d-fact"><span>Expérience</span><b>{job.experience || 'Non précisée'}</b></div>
-            <div className="d-fact"><span>Spécialité</span><b>{job.specialty || 'Non précisée'}</b></div>
-            {job.fonction && <div className="d-fact"><span>Fonction</span><b>{job.fonction}</b></div>}
-            {job.sector && <div className="d-fact"><span>Secteur</span><b>{job.sector}</b></div>}
+            <div className="d-fact"><span>Contrat</span><b>{job.contract || 'Non communiqué'}{inferredTag('contract')}</b></div>
+            <div className="d-fact"><span>Diplôme</span><b>{job.diploma || 'Non communiqué'}{inferredTag('diploma')}</b></div>
+            <div className="d-fact"><span>Expérience</span><b>{job.experience || 'Non communiquée'}{inferredTag('experience')}</b></div>
+            <div className="d-fact"><span>Spécialité</span><b>{job.specialty || 'Non communiquée'}{inferredTag('specialty')}</b></div>
+            <div className="d-fact"><span>Fonction</span><b>{job.fonction || 'Non communiquée'}{inferredTag('fonction')}</b></div>
+            <div className="d-fact"><span>Secteur</span><b>{job.sector || 'Non communiqué'}{inferredTag('sector')}</b></div>
             <div className="d-fact"><span>Ville</span><b>{job.city || 'Maroc'}</b></div>
             <div className="d-fact"><span>Source</span><b>{job.sourceLabel || job.source || '—'}</b></div>
+            <div className="d-fact"><span>Publié le</span><b>{job.publishedDate ? fmtDay(job.publishedDate) : 'Non communiqué'}</b></div>
+            <div className="d-fact"><span>Date limite</span><b>{job.deadline ? fmtDay(job.deadline) : 'Non communiquée'}</b></div>
+            <div className="d-fact"><span>Poste{posts > 1 ? 's' : ''}</span><b>{posts}</b></div>
             {isConcours && job.concoursDate && <div className="d-fact"><span>Épreuve</span><b>{fmtDay(job.concoursDate)}</b></div>}
           </div>
+          {job._inferredCount > 0 && (
+            <p className="d-facts-note">
+              <Icon n="info" size={13} />
+              Les mentions « déduit » signalent une information complétée à partir de l’intitulé, de la description ou des exigences de l’offre, absente des données publiées par la source.
+            </p>
+          )}
         </DSection>
 
         <DSection icon="clock" title="Calendrier" hint={isConcours ? 'Ouverture → clôture' : 'Publication → clôture'}>
@@ -1282,7 +1298,9 @@ function fmtDay(iso) {
 
 function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const boot = bootCache();
-  const [jobs, setJobs] = useState(boot.jobs || []);
+  const [rawJobs, setRawJobs] = useState(boot.jobs || []);
+  // Complète les champs « Informations clés » absents des flux sources.
+  const jobs = useMemo(() => enrichJobs(rawJobs), [rawJobs]);
   const [updatedAt, setUpdatedAt] = useState(boot.jobsUpdated || '');
   const [loading, setLoading] = useState(!(boot.jobs || []).length);
   const [offline, setOffline] = useState(() => { try { return !navigator.onLine; } catch { return false; } });
@@ -1799,7 +1817,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             if (prevCount > 0 && list.length > prevCount) {
               notifyPhone(`Nouvelles offres • ${list.length - prevCount}`, `${list.length} offres suivies. Ouvrez ASSOULI AUTOX pour les consulter.`);
             }
-            setJobs(list); setUpdatedAt(upd); setOffline(false);
+            setRawJobs(list); setUpdatedAt(upd); setOffline(false);
             writeCached('jobs', list); writeCached('jobsUpdated', upd);
             if (!silent) showToast(`Actualisé (distant) • ${list.length} offres`);
             loadAlerts(remoteUrl); loadExams(remoteUrl); loadMarches(remoteUrl); return;
@@ -1814,11 +1832,11 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       const cached = readCached('jobs', []);
       const cachedUpd = readCached('jobsUpdated', '');
       if (cached.length) {
-        setJobs(cached); setUpdatedAt(cachedUpd); setOffline(fallbackOffline);
+        setRawJobs(cached); setUpdatedAt(cachedUpd); setOffline(fallbackOffline);
         if (!silent) showToast(fallbackOffline ? `Hors ligne • ${cached.length} offres enregistrées` : `Données locales • ${cached.length} offres`);
       } else {
         const b = await loadBundled();
-        setJobs(b.list); setUpdatedAt(b.updatedAt); setOffline(fallbackOffline);
+        setRawJobs(b.list); setUpdatedAt(b.updatedAt); setOffline(fallbackOffline);
         writeCached('jobs', b.list); writeCached('jobsUpdated', b.updatedAt);
         if (!silent) showToast(fallbackOffline ? `Mode hors ligne • ${b.list.length} offres` : `Données locales • ${b.list.length} offres`);
       }
