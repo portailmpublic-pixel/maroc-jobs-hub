@@ -21,6 +21,10 @@ GitHub Actions, sans PC allumé.
   nouvel APK depuis la release GitHub et ouvre l'installateur Android.
 - **Mode faible connexion** : les dernières données sont mises en cache et
   affichées si le réseau est lent ou indisponible.
+- **Informations clés complètes** : chaque fiche affiche contrat, diplôme,
+  expérience, spécialité, fonction, secteur, ville, source, dates et postes.
+  Les valeurs complétées à partir de l'intitulé ou de la description sont
+  signalées « déduit » ; une date limite absente est affichée « Non publiée ».
 - **Interface Atlas Clair** : en-tête marine, cartes blanches, accents turquoise,
   navigation basse, filtres et recherche.
 
@@ -69,11 +73,12 @@ conserve les anciens fichiers web.
 
 ```powershell
 cd C:\Users\hp\Documents\JOB\MarocJobs-APK
-.\publish-update.ps1 -Version 1.5.0 -Notes "Nouvelle version"
+.\publish-update.ps1 -Version 1.6.3 -Notes "Nouvelle version"
 ```
 
 Le script incrémente `versionCode`, met à jour `app-version.json`, construit les
-deux APK, crée la release GitHub et pousse le manifeste.
+deux APK, crée la release GitHub et pousse le manifeste. Pour des notes
+accentuées, passer un fichier UTF-8 avec `-NotesFile notes.txt`.
 
 ## Données
 

@@ -4,8 +4,11 @@
 
 ```powershell
 cd C:\Users\hp\Documents\JOB\MarocJobs-APK
-.\publish-update.ps1 -Version 1.5.0 -Notes "Corrections + nouvelles offres"
+.\publish-update.ps1 -Version 1.6.3 -Notes "Corrections + nouvelles offres"
 ```
+
+Pour des notes accentuées, utiliser un fichier UTF-8 :
+`.\publish-update.ps1 -Version 1.6.3 -NotesFile notes.txt`.
 
 What it does:
 1. Bumps `versionCode` + `versionName`.
@@ -26,18 +29,20 @@ File: `ASSOULI-ADMIN.apk` — package `ma.marocjobs.hub.admin`.
 
 **Keep this APK private**: it contains a GitHub write token.
 
-**Version 1.3.0+** opens with an animated splash and a modern dashboard:
+**Version 1.4.0+** opens with an animated splash and a “Midnight Azure” dashboard
+(glossy logo, deep-navy cards, sky-blue and cyan accents):
 three live counters (Comptes actifs / Désactivés / Accès Marchés), rounded
 account cards, a fixed Recharger / Publier bar, and a collapsible GitHub
-settings card.
+settings card. Launcher icons and the in-app logo match the ASSOULI AUTOX
+glossy badge.
 
 The admin APK automatically lists the accounts created on the phone where both apps
 are installed (name, e-mail, date, Actif / Désactivé). It also remembers the last list
 even if the main app is closed or its data is cleared.
 
 Usage:
-1. Install **ASSOULI AUTOX 1.5.0+** first, open it and create/log in to an account.
-2. Install and open **ASSOULI ADMIN 1.3.0+** (same signing key — both debug APKs are).
+1. Install **ASSOULI AUTOX 1.6.3+** first, open it and create/log in to an account.
+2. Install and open **ASSOULI ADMIN 1.4.0+** (same signing key — both debug APKs are).
 3. The accounts appear under **Comptes de cet appareil**.
    - **Désactiver / Activer** blocks or restores the whole account.
    - **Marchés** grants or removes the special Marchés Publics access.
