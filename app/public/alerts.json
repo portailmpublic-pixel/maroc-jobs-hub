@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-10-26T10:47:13.153Z",
+  "updatedAt": "2026-10-26T21:23:25.833Z",
   "phone": "212663369080",
-  "total": 1014,
+  "total": 1059,
   "alerts": [
+    {
+      "id": "n1793049805833",
+      "at": "2026-10-26T21:23:25.833Z",
+      "title": "+45 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 45 nouveauté(s) (cloud)\n💼 Ingénieur en Maintenance — Best Biscuits Maroc (Had Soualem) ⏰2026-12-26\n💼 Assistante Médicale — Locamed (Rabat) ⏰2026-12-26\n💼 délégué pharmaceutique — Locamed (Rabat) ⏰2026-12-26\n💼 Project Manager Officer — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-26\n💼 Gestionnaire de Comptes B2B Bilingue — Cnexia (Fidélisation & Rétention) ⏰2026-12-26\n💼 Gérant Station de Services —  (Ksar El-Kébir) ⏰2026-11-10\n💼 Responsable UAP — Best Biscuits Maroc (Had Soualem) ⏰2026-12-16\n💼 Responsable Logistique Expérimenté - Secteur Industriel — Ventec (Casablanca) ⏰2026-12-26\n⏰ Deadlines ≤ 3j :\n- Responsable SAV Automobile (2026-10-26)\n- Concours — Infirmier de premier grade - echelle 10 (2026-10-26)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-10-26)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-10-26)\n- Concours — Technicien de 4ème grade - echelle 8 (2026-10-26)\n📊 Total suivi : 1059 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 45,
+        "concours": 0,
+        "total": 1059
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793011633152",
       "at": "2026-10-26T10:47:13.152Z",
