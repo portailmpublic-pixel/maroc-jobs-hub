@@ -1,7 +1,7 @@
 {
-    "versionCode": 11,
-    "versionName": "1.6.2",
-    "url": "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.6.2/ASSOULI-AUTOX.apk",
-    "notes": "Notifications avec le logo ASSOULI AUTOX : badge circulaire dans la barre d\u2019\u00e9tat et logo glossy 512 px dans la notification \u2022 wordmark, th\u00e8mes et acc\u00e8s March\u00e9s conserv\u00e9s",
-    "publishedAt": "2026-10-25T14:37:12Z"
+    "versionCode":  12,
+    "versionName":  "1.6.3",
+    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.6.3/ASSOULI-AUTOX.apk",
+    "notes":  "Fiches d’offres complètes : « Informations clés » affiche désormais contrat, diplôme, expérience, spécialité, fonction, secteur, ville, source, publication, date limite et postes • les champs complétés automatiquement sont signalés « déduit » • date limite absente affichée « Non publiée » au lieu de « Sans limite » • profil recherché généré lorsque la source ne le fournit pas • thèmes, accès Marchés, notifications et mises à jour conservés\n",
+    "publishedAt":  "2026-10-26T07:51:10Z"
 }

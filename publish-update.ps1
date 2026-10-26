@@ -1,7 +1,12 @@
 param(
   [Parameter(Mandatory = $true)][string]$Version,
-  [string]$Notes = "Nouvelle version ASSOULI AUTOX"
+  [string]$Notes = "Nouvelle version ASSOULI AUTOX",
+  [string]$NotesFile = ""
 )
+
+if ($NotesFile) {
+  $Notes = [System.IO.File]::ReadAllText($NotesFile, [System.Text.Encoding]::UTF8)
+}
 
 $ErrorActionPreference = "Stop"
 $root = "C:\Users\hp\Documents\JOB\MarocJobs-APK"
@@ -54,7 +59,11 @@ git add -A
 git commit -m "Release ASSOULI AUTOX $Version"
 
 # 5. Publish release; only push the manifest if the upload succeeded
-gh release create $tag (Join-Path $root "ASSOULI-AUTOX.apk") --title "ASSOULI AUTOX $Version" --notes $Notes
+# Notes are passed through a UTF-8 file: Windows PowerShell mangles accents
+# when they travel as native command-line arguments.
+$notesFile = Join-Path ([System.IO.Path]::GetTempPath()) "assouli-release-notes-$Version.md"
+[System.IO.File]::WriteAllText($notesFile, $Notes, (New-Object System.Text.UTF8Encoding($false)))
+gh release create $tag (Join-Path $root "ASSOULI-AUTOX.apk") --title "ASSOULI AUTOX $Version" --notes-file $notesFile
 git pull --rebase
 git push
 Pop-Location
