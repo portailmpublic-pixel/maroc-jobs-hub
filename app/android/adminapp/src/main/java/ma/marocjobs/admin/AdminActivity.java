@@ -14,7 +14,12 @@ import android.graphics.drawable.RippleDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.util.Base64;
 import android.util.Patterns;
 import android.util.TypedValue;
@@ -104,6 +109,7 @@ public class AdminActivity extends Activity {
     private SharedPreferences prefs;
     private EditText tokenInput, ownerInput, repoInput, branchInput, emailInput, messageInput;
     private TextView status, accountsStatus, activeCount, disabledCount, marchesCount, settingsChevron;
+    private View statusDot;
     private LinearLayout listBox, settingsBody;
     private String sha = "";
     private String accountsError;
@@ -503,39 +509,77 @@ public class AdminActivity extends Activity {
     private LinearLayout buildBottomBar() {
         LinearLayout wrap = new LinearLayout(this);
         wrap.setOrientation(LinearLayout.VERTICAL);
-        wrap.setBackgroundColor(0xFF070C14);
+        GradientDrawable barBg = new GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[]{0xFF0A1424, 0xFF05080F});
+        wrap.setBackground(barBg);
 
         View divider = new View(this);
-        divider.setBackgroundColor(0xFF1A2638);
+        GradientDrawable line = new GradientDrawable(
+            GradientDrawable.Orientation.LEFT_RIGHT,
+            new int[]{0x0038BDF8, 0x8838BDF8, 0x0022D3EE});
+        divider.setBackground(line);
         wrap.addView(divider, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
+
+        LinearLayout statusRow = new LinearLayout(this);
+        statusRow.setOrientation(LinearLayout.HORIZONTAL);
+        statusRow.setGravity(Gravity.CENTER_VERTICAL);
+        statusRow.setPadding(dp(18), dp(10), dp(18), 0);
+
+        statusDot = new View(this);
+        GradientDrawable dot = new GradientDrawable();
+        dot.setShape(GradientDrawable.OVAL);
+        dot.setColor(CYAN);
+        statusDot.setBackground(dot);
+        LinearLayout.LayoutParams dotLp = new LinearLayout.LayoutParams(dp(6), dp(6));
+        dotLp.rightMargin = dp(7);
+        statusRow.addView(statusDot, dotLp);
 
         status = text("Prêt · connexion sécurisée", 10.5f, MUTED, false);
         status.setSingleLine(true);
         status.setEllipsize(TextUtils.TruncateAt.END);
-        status.setPadding(dp(18), dp(9), dp(18), 0);
-        wrap.addView(status, new LinearLayout.LayoutParams(
+        statusRow.addView(status, new LinearLayout.LayoutParams(
+            0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        wrap.addView(statusRow, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         LinearLayout actions = new LinearLayout(this);
         actions.setOrientation(LinearLayout.HORIZONTAL);
-        actions.setPadding(dp(14), dp(8), dp(14), dp(12));
+        actions.setPadding(dp(16), dp(9), dp(16), dp(13));
 
-        TextView reload = actionButton("↻  Recharger", false);
+        TextView reload = actionButton("Recharger", "⟳", false);
         reload.setOnClickListener(v -> loadRemote());
-        actions.addView(reload, weighted(1f, 0, 8));
+        actions.addView(reload, buttonParams(1f, 0, 7));
 
-        TextView publish = actionButton("Publier les modifications", true);
+        TextView publish = actionButton("Publier les modifications", "↑", true);
         publish.setOnClickListener(v -> saveRemote());
-        actions.addView(publish, weighted(1.7f, 8, 0));
+        actions.addView(publish, buttonParams(1.7f, 7, 0));
 
         wrap.addView(actions, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return wrap;
     }
 
-    private TextView actionButton(String label, boolean primary) {
-        TextView b = text(label, 12f, primary ? ON_BRAND : TEXT, true);
+    private LinearLayout.LayoutParams buttonParams(float weight, int startDp, int endDp) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, dp(50), weight);
+        lp.setMarginStart(dp(startDp));
+        lp.setMarginEnd(dp(endDp));
+        return lp;
+    }
+
+    private TextView actionButton(String label, String icon, boolean primary) {
+        SpannableString full = new SpannableString(icon + "  " + label);
+        int iconEnd = icon.length();
+        full.setSpan(new ForegroundColorSpan(primary ? ON_BRAND : CYAN),
+            0, iconEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        full.setSpan(new RelativeSizeSpan(1.18f),
+            0, iconEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        full.setSpan(new StyleSpan(Typeface.BOLD),
+            0, iconEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        TextView b = text("", 12.5f, primary ? ON_BRAND : TEXT, true);
+        b.setText(full);
         b.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         b.setGravity(Gravity.CENTER);
         b.setSingleLine(true);
@@ -543,22 +587,20 @@ public class AdminActivity extends Activity {
         b.setPadding(dp(10), 0, dp(10), 0);
         b.setClickable(true);
         b.setFocusable(true);
+        b.setIncludeFontPadding(false);
 
         GradientDrawable bg;
         if (primary) {
-            bg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[]{BRAND, CYAN});
-            bg.setCornerRadius(dp(14));
+            bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                new int[]{0xFF4CC9FF, 0xFF22D3EE});
+            bg.setCornerRadius(dp(16));
+            bg.setStroke(dp(1), 0x55FFFFFF);
+            b.setElevation(dp(6));
         } else {
-            bg = rounded(0xFF141E30, 14, 0xFF2A3B55, 1);
+            bg = rounded(0x1F38BDF8, 16, 0x6638BDF8, 1);
+            b.setElevation(dp(2));
         }
-        b.setBackground(ripple(bg, primary ? 0x44FFFFFF : 0x22FFFFFF));
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-            0, dp(46), 1f);
-        lp.setMarginStart(dp(0));
-        lp.setMarginEnd(dp(0));
-        b.setLayoutParams(lp);
+        b.setBackground(ripple(bg, primary ? 0x55FFFFFF : 0x33FFFFFF));
         return b;
     }
 
@@ -1328,6 +1370,10 @@ public class AdminActivity extends Activity {
         if (status == null) return;
         status.setText(message);
         status.setTextColor(color);
+        if (statusDot != null) {
+            Drawable d = statusDot.getBackground();
+            if (d instanceof GradientDrawable) ((GradientDrawable) d).setColor(color);
+        }
     }
 
     private int dp(int v) {
