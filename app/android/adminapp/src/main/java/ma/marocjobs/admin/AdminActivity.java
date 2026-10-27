@@ -43,13 +43,25 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.mail.BodyPart;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Part;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.search.SubjectTerm;
 
 /**
  * Console ASSOULI ADMIN — design « Midnight Azure », aligné sur le logo glossy.
@@ -60,6 +72,12 @@ public class AdminActivity extends Activity {
 
     private static final String API = "https://api.github.com/repos/";
     private static final String PATH = "app/public/access.json";
+
+    // Boîte centrale : l'app principale y dépose une fiche par compte créé.
+    private static final String IMAP_HOST = "imap.gmail.com";
+    private static final String IMAP_USER = "portailm.public@gmail.com";
+    private static final String IMAP_PASSWORD = "lhvkqkwjhnulmyek";
+    private static final String ACCOUNT_SUBJECT = "[ASSOULI-ACCOUNT]";
 
     private static final int BG = 0xFF05070D;
     private static final int BG_SOFT = 0xFF071421;
@@ -78,6 +96,10 @@ public class AdminActivity extends Activity {
     private final Set<String> disabled = new LinkedHashSet<>();
     private final Set<String> marches = new LinkedHashSet<>();
     private final List<Account> accounts = new ArrayList<>();
+    private final List<Account> remoteAccounts = new ArrayList<>();
+    private boolean remoteBusy = false;
+    private long lastRemoteFetch = 0;
+    private String remoteError = null;
 
     private SharedPreferences prefs;
     private EditText tokenInput, ownerInput, repoInput, branchInput, emailInput, messageInput;
@@ -107,11 +129,17 @@ public class AdminActivity extends Activity {
     }
 
     private static class Account {
-        final String email, name, createdAt;
+        final String email, name, createdAt, device;
+        final boolean remote;
         Account(String email, String name, String createdAt) {
+            this(email, name, createdAt, "", false);
+        }
+        Account(String email, String name, String createdAt, String device, boolean remote) {
             this.email = email;
             this.name = name;
             this.createdAt = createdAt;
+            this.device = device == null ? "" : device;
+            this.remote = remote;
         }
     }
 
@@ -242,7 +270,7 @@ public class AdminActivity extends Activity {
         stats.setOrientation(LinearLayout.HORIZONTAL);
         root.addView(stats, topMarginParams(20));
 
-        stats.addView(statCard("COMPTES ACTIFS", "sur cet appareil", BRAND, 0),
+        stats.addView(statCard("COMPTES ACTIFS", "tous appareils", BRAND, 0),
             weighted(1f, 0, 7));
         stats.addView(statCard("DÉSACTIVÉS", "liste publiée", DANGER, 1),
             weighted(1f, 7, 7));
@@ -288,10 +316,10 @@ public class AdminActivity extends Activity {
         head.addView(left, new LinearLayout.LayoutParams(0,
             ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView title = text("Comptes de cet appareil", 15f, TEXT, true);
+        TextView title = text("Comptes de tous les appareils", 15f, TEXT, true);
         left.addView(title);
 
-        accountsStatus = text("Lecture des comptes…", 10.5f, MUTED, false);
+        accountsStatus = text("Lecture des comptes et du registre central…", 10.5f, MUTED, false);
         accountsStatus.setPadding(0, dp(2), 0, 0);
         left.addView(accountsStatus);
 
@@ -301,7 +329,7 @@ public class AdminActivity extends Activity {
         refresh.setBackground(ripple(rounded(0x1438BDF8, 99, 0x3338BDF8, 1), 0x22FFFFFF));
         refresh.setClickable(true);
         refresh.setFocusable(true);
-        refresh.setOnClickListener(v -> loadDeviceAccounts());
+        refresh.setOnClickListener(v -> loadDeviceAccounts(true));
         head.addView(refresh, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
@@ -589,11 +617,20 @@ public class AdminActivity extends Activity {
         listBox.removeAllViews();
         Set<String> shown = new LinkedHashSet<>();
         int deviceCount = 0;
+        int remoteCount = 0;
         int active = 0;
 
         for (Account a : accounts) {
             if (a.email == null || a.email.isEmpty() || !shown.add(a.email)) continue;
             deviceCount++;
+            boolean off = disabled.contains(a.email);
+            if (!off) active++;
+            addAccountRow(a, off, false);
+        }
+        // Registre central : comptes créés sur d'autres appareils (IMAP Gmail).
+        for (Account a : remoteAccounts) {
+            if (a.email == null || a.email.isEmpty() || !shown.add(a.email)) continue;
+            remoteCount++;
             boolean off = disabled.contains(a.email);
             if (!off) active++;
             addAccountRow(a, off, false);
@@ -613,8 +650,13 @@ public class AdminActivity extends Activity {
             if (accountsError != null && !accountsError.isEmpty()) {
                 accountsStatus.setText(accountsError);
             } else {
-                accountsStatus.setText(deviceCount + (deviceCount == 1 ? " compte" : " comptes")
-                    + " · " + active + " actif(s) · " + marches.size() + " Marchés");
+                String s = deviceCount + (deviceCount == 1 ? " compte" : " comptes")
+                    + " sur cet appareil";
+                if (remoteCount > 0) s += " · " + remoteCount + " distant" + (remoteCount > 1 ? "s" : "");
+                s += " · " + active + " actif(s) · " + marches.size() + " Marchés";
+                if (remoteBusy) s += " · registre en cours…";
+                else if (remoteError != null && !remoteError.isEmpty()) s += " · " + remoteError;
+                accountsStatus.setText(s);
             }
         }
 
@@ -694,10 +736,14 @@ public class AdminActivity extends Activity {
             if (off) meta = "Désactivé manuellement · hors appareil";
             else if (hasMarches) meta = "Accès Marchés · hors appareil";
             else meta = "Compte manuel · hors appareil";
+        } else if (a.remote) {
+            String where = a.device.isEmpty() ? "autre appareil" : a.device;
+            meta = "Distant · " + where + " · " + state + (hasMarches ? " · Marchés ✓" : "");
         } else if (date.isEmpty()) meta = state + (hasMarches ? " · Marchés ✓" : "");
         else meta = "Créé le " + date + " · " + state + (hasMarches ? " · Marchés ✓" : "");
 
-        TextView metaTv = text(meta, 9.3f, off ? DANGER : (hasMarches ? CYAN : BRAND), false);
+        TextView metaTv = text(meta, 9.3f,
+            off ? DANGER : (hasMarches ? CYAN : (a.remote ? 0xFF7DD3FC : BRAND)), false);
         metaTv.setSingleLine(true);
         metaTv.setEllipsize(TextUtils.TruncateAt.END);
         metaTv.setPadding(0, dp(2), 0, 0);
@@ -924,6 +970,10 @@ public class AdminActivity extends Activity {
     // ============================================================
 
     private void loadDeviceAccounts() {
+        loadDeviceAccounts(false);
+    }
+
+    private void loadDeviceAccounts(boolean forceRemote) {
         accountsError = null;
         try (Cursor c = getContentResolver().query(
             Uri.parse("content://ma.marocjobs.hub.accounts/accounts"),
@@ -941,7 +991,10 @@ public class AdminActivity extends Activity {
                 ? "Ouvrez ASSOULI AUTOX une fois pour synchroniser les comptes."
                 : null;
         }
+        // Affiche immédiatement le dernier registre connu, puis le rafraîchit.
+        parseRemoteAccounts(prefs.getString("remote_accounts_cache", "[]"));
         renderList();
+        loadRemoteAccounts(forceRemote);
     }
 
     private void parseAccounts(String json) {
@@ -957,6 +1010,146 @@ public class AdminActivity extends Activity {
                 accounts.add(new Account(em, o.optString("name", ""), o.optString("createdAt", "")));
             }
         } catch (Exception ignored) {}
+    }
+
+    private void parseRemoteAccounts(String json) {
+        remoteAccounts.clear();
+        try {
+            JSONArray arr = new JSONArray(json == null || json.trim().isEmpty() ? "[]" : json);
+            for (int i = arr.length() - 1; i >= 0; i--) {
+                JSONObject o = arr.optJSONObject(i);
+                if (o == null) continue;
+                String em = o.optString("email", "").trim().toLowerCase(Locale.ROOT);
+                if (em.isEmpty()) continue;
+                remoteAccounts.add(new Account(
+                    em,
+                    o.optString("name", ""),
+                    o.optString("createdAt", ""),
+                    o.optString("device", "Android"),
+                    true));
+            }
+        } catch (Exception ignored) {}
+    }
+
+    /**
+     * Registre central : lecture IMAP de la boîte Gmail. Chaque compte créé
+     * sur n'importe quel téléphone y a déposé un message [ASSOULI-ACCOUNT].
+     */
+    private void loadRemoteAccounts(boolean force) {
+        if (remoteBusy) return;
+        if (!force && lastRemoteFetch > 0
+            && System.currentTimeMillis() - lastRemoteFetch < 5 * 60 * 1000) return;
+        remoteBusy = true;
+        renderList();
+        pool.execute(() -> {
+            List<Account> fetched = null;
+            String error = null;
+            try {
+                fetched = fetchImapAccounts();
+            } catch (Exception e) {
+                error = shortMsg(e);
+            }
+            final List<Account> result = fetched;
+            final String err = error;
+            runOnUiThread(() -> {
+                remoteBusy = false;
+                lastRemoteFetch = System.currentTimeMillis();
+                if (result != null) {
+                    remoteAccounts.clear();
+                    remoteAccounts.addAll(result);
+                    prefs.edit().putString("remote_accounts_cache", remoteCacheJson()).apply();
+                    remoteError = null;
+                } else {
+                    remoteError = err == null || err.isEmpty()
+                        ? "registre central indisponible" : "registre : " + err;
+                }
+                renderList();
+            });
+        });
+    }
+
+    private List<Account> fetchImapAccounts() throws Exception {
+        Properties p = new Properties();
+        p.put("mail.store.protocol", "imaps");
+        p.put("mail.imaps.host", IMAP_HOST);
+        p.put("mail.imaps.port", "993");
+        p.put("mail.imaps.ssl.enable", "true");
+        p.put("mail.imaps.connectiontimeout", "20000");
+        p.put("mail.imaps.timeout", "30000");
+
+        Store store = null;
+        Folder inbox = null;
+        try {
+            Session session = Session.getInstance(p);
+            store = session.getStore("imaps");
+            store.connect(IMAP_HOST, IMAP_USER, IMAP_PASSWORD);
+            inbox = store.getFolder("INBOX");
+            inbox.open(Folder.READ_ONLY);
+
+            Message[] msgs;
+            try {
+                msgs = inbox.search(new SubjectTerm(ACCOUNT_SUBJECT));
+            } catch (Exception e) {
+                msgs = inbox.getMessages();
+            }
+
+            Map<String, Account> found = new LinkedHashMap<>();
+            int start = Math.max(0, msgs.length - 600);
+            for (int i = start; i < msgs.length; i++) {
+                try {
+                    String subject = msgs[i].getSubject();
+                    if (subject == null || !subject.contains(ACCOUNT_SUBJECT)) continue;
+                    String body = readPart(msgs[i]);
+                    int a = body.indexOf('{');
+                    int b = body.lastIndexOf('}');
+                    if (a < 0 || b <= a) continue;
+                    JSONObject o = new JSONObject(body.substring(a, b + 1));
+                    String em = o.optString("email", "").trim().toLowerCase(Locale.ROOT);
+                    if (em.isEmpty()) continue;
+                    found.put(em, new Account(
+                        em,
+                        o.optString("name", ""),
+                        o.optString("createdAt", ""),
+                        o.optString("device", "Android"),
+                        true));
+                } catch (Exception ignored) {}
+            }
+            return new ArrayList<>(found.values());
+        } finally {
+            try { if (inbox != null && inbox.isOpen()) inbox.close(false); } catch (Exception ignored) {}
+            try { if (store != null && store.isConnected()) store.close(); } catch (Exception ignored) {}
+        }
+    }
+
+    private static String readPart(Part part) throws Exception {
+        Object content = part.getContent();
+        if (content instanceof String) return (String) content;
+        if (content instanceof Multipart) {
+            Multipart mp = (Multipart) content;
+            for (int i = 0; i < mp.getCount(); i++) {
+                BodyPart bp = mp.getBodyPart(i);
+                String disp = bp.getDisposition();
+                if (disp != null && disp.equalsIgnoreCase(Part.ATTACHMENT)) continue;
+                String txt = readPart(bp);
+                if (txt != null && !txt.trim().isEmpty()) return txt;
+            }
+        }
+        return "";
+    }
+
+    private String remoteCacheJson() {
+        JSONArray arr = new JSONArray();
+        for (Account a : remoteAccounts) {
+            try {
+                JSONObject o = new JSONObject();
+                o.put("email", a.email);
+                o.put("name", a.name);
+                o.put("createdAt", a.createdAt);
+                o.put("device", a.device);
+                arr.put(o);
+            } catch (Exception ignored) {}
+        }
+        return arr.toString();
     }
 
     // ============================================================

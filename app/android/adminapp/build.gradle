@@ -15,8 +15,8 @@ android {
         applicationId "ma.marocjobs.hub.admin"
         minSdk 22
         targetSdk 34
-        versionCode 5
-        versionName "1.4.0"
+        versionCode 6
+        versionName "1.5.0"
         buildConfigField "String", "GITHUB_TOKEN", "\"${adminToken}\""
     }
 
@@ -34,6 +34,18 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/NOTICE.md', 'META-INF/LICENSE.md', 'META-INF/NOTICE', 'META-INF/LICENSE']
+        }
+    }
+}
+
+dependencies {
+    // Registre central : lecture IMAP de la boîte Gmail (comptes de tous les appareils).
+    implementation "com.sun.mail:android-mail:1.6.7"
+    implementation "com.sun.mail:android-activation:1.6.7"
 }
 
 tasks.withType(JavaCompile).configureEach {

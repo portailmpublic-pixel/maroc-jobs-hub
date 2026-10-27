@@ -1,7 +1,7 @@
 {
-    "versionCode":  12,
-    "versionName":  "1.6.3",
-    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.6.3/ASSOULI-AUTOX.apk",
-    "notes":  "Fiches d’offres complètes : « Informations clés » affiche désormais contrat, diplôme, expérience, spécialité, fonction, secteur, ville, source, publication, date limite et postes • les champs complétés automatiquement sont signalés « déduit » • date limite absente affichée « Non publiée » au lieu de « Sans limite » • profil recherché généré lorsque la source ne le fournit pas • thèmes, accès Marchés, notifications et mises à jour conservés\n",
-    "publishedAt":  "2026-10-26T07:51:10Z"
+    "versionCode":  13,
+    "versionName":  "1.6.4",
+    "url":  "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.6.4/ASSOULI-AUTOX.apk",
+    "notes":  "Nouvelle interface fidèle au visuel ASSOULI AUTOX :\n• en-tête marine, logo orange et recherche\n• six catégories : JOBS CDI/CDD, STAGES, CONCOURS, EXAMS, MARCHÉS PUBLICS, NEW OFFERS\n• navigation Accueil / Recherche / Favoris / Profil, favoris et profil\n• en-tête collant et défilement amélioré\n\nAdmin : les comptes de tous les appareils apparaissent maintenant dans la console privée (registre central Gmail), avec le libellé de l\u0027appareil. Les comptes distants peuvent être désactivés ou autorisés pour les Marchés comme les comptes locaux.\n\nCorrections : inscription au registre sans doublon, version de l\u0027application enregistrée, notes et manifeste à jour.\n",
+    "publishedAt":  "2026-10-27T20:34:50Z"
 }

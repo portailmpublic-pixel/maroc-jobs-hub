@@ -29,21 +29,25 @@ File: `ASSOULI-ADMIN.apk` — package `ma.marocjobs.hub.admin`.
 
 **Keep this APK private**: it contains a GitHub write token.
 
-**Version 1.4.0+** opens with an animated splash and a “Midnight Azure” dashboard
+**Version 1.5.0+** opens with an animated splash and a “Midnight Azure” dashboard
 (glossy logo, deep-navy cards, sky-blue and cyan accents):
 three live counters (Comptes actifs / Désactivés / Accès Marchés), rounded
 account cards, a fixed Recharger / Publier bar, and a collapsible GitHub
 settings card. Launcher icons and the in-app logo match the ASSOULI AUTOX
 glossy badge.
 
-The admin APK automatically lists the accounts created on the phone where both apps
-are installed (name, e-mail, date, Actif / Désactivé). It also remembers the last list
-even if the main app is closed or its data is cleared.
+The admin APK lists accounts from **every device**, not only the phone where the
+two APKs are installed. After login, the main app sends a small account record
+(e-mail, name, creation date, device label, app version) to the central Gmail
+mailbox, at most once every 6 hours per account. The admin APK reads that mailbox
+over IMAP, merges the records with the accounts on the current phone, and keeps a
+local cache so the list survives a restart or a temporary network loss. Remote
+accounts are marked **Distant** with their device label.
 
 Usage:
-1. Install **ASSOULI AUTOX 1.6.3+** first, open it and create/log in to an account.
-2. Install and open **ASSOULI ADMIN 1.4.0+** (same signing key — both debug APKs are).
-3. The accounts appear under **Comptes de cet appareil**.
+1. Install **ASSOULI AUTOX 1.6.4+** first, open it and create/log in to an account.
+2. Install and open **ASSOULI ADMIN 1.5.0+** (same signing key — both debug APKs are).
+3. The accounts appear under **Comptes de tous les appareils**.
    - **Désactiver / Activer** blocks or restores the whole account.
    - **Marchés** grants or removes the special Marchés Publics access.
    - The manual e-mail field can also authorize an address that is not on this phone.
@@ -77,10 +81,11 @@ Effect on phones:
 - The list is public (GitHub raw file), so this is an authorization gate, not
   encryption. Do not put secrets in the e-mails or the message.
 
-> The account list is per-phone (the two APKs share it through a
-> signature-protected provider). To see accounts from **every** user's phone,
-> a small central database is required; the app can be connected to
-> Firebase/Supabase or a Google Sheet on request.
+> Account discovery uses the existing Gmail mailbox as a lightweight central
+> registry (SMTP from the main app, IMAP in the private admin app). This avoids
+> embedding a GitHub write token in the public APK. The phone-local provider is
+> still used for the current device, and `access.json` remains the source of
+> truth for disabled accounts and the Marchés allow-list.
 
 Login is passwordless: the app sends a 6-digit code, the account is saved on the
 device after verification, and later logins only ask for the code again.

@@ -6,6 +6,10 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import android.os.Build;
+
+import org.json.JSONObject;
+
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -81,6 +85,75 @@ public class MailPlugin extends Plugin {
                 } catch (Exception e) {
                     String m = e.getMessage();
                     call.reject(m == null ? "Envoi de l'e-mail impossible" : m);
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Registre central des comptes : envoie une fiche JSON à la boîte Gmail
+     * de l'application. L'APK admin lit ensuite cette boîte en IMAP pour
+     * afficher les comptes créés sur n'importe quel appareil.
+     */
+    @PluginMethod
+    public void registerAccount(final PluginCall call) {
+        final String email = call.getString("email", "").trim().toLowerCase();
+        if (email.isEmpty()) {
+            call.reject("Adresse e-mail manquante");
+            return;
+        }
+        final String name = call.getString("name", "");
+        final String createdAt = call.getString("createdAt", "");
+        final String device = call.getString("device", "Android");
+        final String appVersion = call.getString("appVersion", "");
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String model = (Build.MANUFACTURER + " " + Build.MODEL).trim();
+                    String deviceLabel = (device == null || device.trim().isEmpty() || "Android".equalsIgnoreCase(device))
+                        ? (model.isEmpty() ? "Android" : model)
+                        : device;
+                    JSONObject o = new JSONObject();
+                    o.put("type", "account");
+                    o.put("email", email);
+                    o.put("name", name == null ? "" : name);
+                    o.put("createdAt", createdAt == null ? "" : createdAt);
+                    o.put("device", deviceLabel);
+                    o.put("appVersion", appVersion == null ? "" : appVersion);
+                    o.put("at", new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US)
+                        .format(new java.util.Date()));
+
+                    Properties p = new Properties();
+                    p.put("mail.smtp.auth", "true");
+                    p.put("mail.smtp.starttls.enable", "true");
+                    p.put("mail.smtp.host", "smtp.gmail.com");
+                    p.put("mail.smtp.port", "587");
+                    p.put("mail.smtp.connectiontimeout", "25000");
+                    p.put("mail.smtp.timeout", "25000");
+                    p.put("mail.smtp.writetimeout", "25000");
+
+                    Session session = Session.getInstance(p, new Authenticator() {
+                        @Override
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(SENDER, APP_PASSWORD);
+                        }
+                    });
+
+                    MimeMessage msg = new MimeMessage(session);
+                    msg.setFrom(new InternetAddress(SENDER, "ASSOULI AUTOX"));
+                    msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(SENDER, false));
+                    msg.setSubject("[ASSOULI-ACCOUNT] " + email, "UTF-8");
+                    msg.setText(o.toString(), "UTF-8");
+                    Transport.send(msg);
+
+                    JSObject ret = new JSObject();
+                    ret.put("ok", true);
+                    call.resolve(ret);
+                } catch (Exception e) {
+                    String m = e.getMessage();
+                    call.reject(m == null ? "Enregistrement du compte impossible" : m);
                 }
             }
         }).start();

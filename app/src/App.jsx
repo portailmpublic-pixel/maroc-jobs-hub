@@ -9,6 +9,7 @@ const LS_ACCESS = 'mjh_access_v1';
 const LS_ACCESS_AT = 'mjh_access_checked_v1';
 const LS_MARCHES_SESSION = 'mjh_marches_session_v1';
 const LS_THEME = 'mjh_theme_v1';
+const LS_FAVORITES = 'mjh_favorites_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
 const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
 
@@ -175,6 +176,12 @@ function fetchFirst(urls, timeoutMs = 9000) {
 
 const ICONS = {
   menu: <path d="M4 7h16M4 12h10M4 17h16" />,
+  home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5" /><path d="M9.5 21v-6h5v6" /></>,
+  heart: <path d="M12 20.5s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.2a4.5 4.5 0 0 1 7.5 3.3c0 5.4-7.5 10-7.5 10z" />,
+  user: <><circle cx="12" cy="8" r="4" /><path d="M4.5 21a7.5 7.5 0 0 1 15 0" /></>,
+  clipboard: <><rect x="5.5" y="4" width="13" height="17" rx="2.5" /><path d="M9 4V2.8h6V4M9 9h6M9 13h6M9 17h4" /></>,
+  star: <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z" />,
+  chevron: <path d="M9 5l7 7-7 7" />,
   refresh: <><path d="M20 11a8 8 0 1 0-2.3 5.7" /><path d="M20 4v7h-7" /></>,
   sliders: <><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></>,
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>,
@@ -225,6 +232,24 @@ function Wordmark({ tag: Tag = 'span', className = '', onDark = false }) {
       <span className="wm-a">ASSOULI</span>
       <span className="wm-x">AUTOX</span>
     </Tag>
+  );
+}
+
+/* Logo du poster : A marine traversé par le swoosh orange. */
+function PosterLogo({ size = 38, word = false }) {
+  return (
+    <span className={'poster-logo' + (word ? ' with-word' : '')}>
+      <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true">
+        <path d="M4 97 34 5h32l30 92H72L50 37 28 97z" fill="#0B2A5B" />
+        <path d="M1 68c29-19 66-17 98 5v19C64 71 34 72 1 92z" fill="#F26A1B" />
+      </svg>
+      {word && (
+        <span className="poster-wordmark" aria-label="ASSOULI AUTOX">
+          <b>ASSOULI</b>
+          <i>AUTOX</i>
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -331,7 +356,17 @@ const TYPE_LABEL = {
   alert: 'Alerte',
 };
 
-function OfferCard({ job, type = 'job', onOpen }) {
+// Menu d'accueil du poster : mêmes intitulés, mêmes couleurs, même ordre.
+const HOME_CATS = [
+  { tab: 'jobs', title: 'JOBS', sub: 'CDI / CDD', desc: 'Trouvez l’emploi qui vous correspond', icon: 'briefcase', tone: 'orange' },
+  { tab: 'stages', title: 'STAGES', desc: 'Mise en pratique, lancement de carrière', icon: 'cap', tone: 'blue' },
+  { tab: 'concours', title: 'CONCOURS', desc: 'Accédez aux concours et réussissez', icon: 'file', tone: 'green' },
+  { tab: 'exams', title: 'EXAMS', desc: 'Toutes les dates et informations', icon: 'clipboard', tone: 'purple' },
+  { tab: 'marches', title: 'MARCHÉS PUBLICS', desc: 'Appels d’offres et opportunités', icon: 'landmark', tone: 'red' },
+  { tab: 'new', title: 'NEW OFFERS', desc: 'Les nouvelles offres en avant-première', icon: 'star', tone: 'teal' },
+];
+
+function OfferCard({ job, type = 'job', onOpen, saved = false, onSave }) {
   if (!job) return null;
   const dl = deadlineInfo(job);
   const initial = (job.company || job.sourceLabel || '?').trim().charAt(0).toUpperCase();
@@ -363,7 +398,20 @@ function OfferCard({ job, type = 'job', onOpen }) {
           <h3>{job.title || 'Sans intitulé'}</h3>
           <p className="offer-company"><Icon n="building" size={13} />{job.company || 'Organisme non précisé'}</p>
         </div>
-        <span className="offer-arrow" aria-hidden="true"><Icon n="arrow" size={15} /></span>
+        <div className="offer-tools">
+          {onSave && (
+            <button
+              type="button"
+              className={'offer-save' + (saved ? ' saved' : '')}
+              aria-label={saved ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              aria-pressed={saved}
+              onClick={(e) => { e.stopPropagation(); onSave(type, job.id); }}
+            >
+              <Icon n="heart" size={16} />
+            </button>
+          )}
+          <span className="offer-arrow" aria-hidden="true"><Icon n="arrow" size={15} /></span>
+        </div>
       </div>
 
       <div className="offer-meta">
@@ -974,6 +1022,19 @@ const LS_SESSION = 'mjh_session_v1';
 function loadAccounts() {
   try { const a = JSON.parse(localStorage.getItem(LS_ACCOUNTS) || '[]'); return Array.isArray(a) ? a : []; } catch { return []; }
 }
+
+function loadFavorites() {
+  try {
+    const a = JSON.parse(localStorage.getItem(LS_FAVORITES) || '[]');
+    return Array.isArray(a) ? a.filter((f) => f && f.id && f.type) : [];
+  } catch { return []; }
+}
+
+function jobTypeOf(j) {
+  if (!j) return 'job';
+  if (j.kind === 'concours') return 'concours';
+  return isStageJob(j) ? 'stage' : 'job';
+}
 async function syncNativeAccounts(list) {
   try {
     const cap = await import('@capacitor/core');
@@ -995,6 +1056,55 @@ function readSession() {
 }
 function writeSession(s) { try { localStorage.setItem(LS_SESSION, JSON.stringify(s)); } catch {} }
 function clearSession() { try { localStorage.removeItem(LS_SESSION); } catch {} }
+
+// Enregistre le compte dans la boîte Gmail centrale (lue par l'APK admin).
+// Throttle 6 h par adresse pour ne pas saturer la boîte.
+const LS_REGISTRY = 'mjh_registry_v1';
+async function registerAccountRecord(sess, version) {
+  const email = String((sess && sess.email) || '').trim().toLowerCase();
+  if (!email) return false;
+  let sent = {};
+  try { sent = JSON.parse(localStorage.getItem(LS_REGISTRY) || '{}'); } catch {}
+  const last = Number(sent[email] || 0);
+  if (last && Date.now() - last < 6 * 3600 * 1000) return false;
+  // Marque tout de suite l'envoi : onAuthed et l'effet de MainApp peuvent
+  // appeler cette fonction au même instant, il ne faut pas doubler l'e-mail.
+  const stamp = Date.now();
+  sent[email] = stamp;
+  try { localStorage.setItem(LS_REGISTRY, JSON.stringify(sent)); } catch {}
+  try {
+    const cap = await import('@capacitor/core');
+    if (!cap.Capacitor.isNativePlatform()) return false;
+    let ver = version || '';
+    if (!ver) {
+      try {
+        const U = cap.registerPlugin('ApkUpdater');
+        const v = await U.getVersion();
+        if (v) ver = `${v.versionName} (${v.versionCode})`;
+      } catch {}
+    }
+    const P = cap.registerPlugin('SmtpMail');
+    const acc = loadAccounts().find((a) => String(a.email || '').toLowerCase() === email) || {};
+    await P.registerAccount({
+      email,
+      name: (sess && sess.name) || acc.name || '',
+      createdAt: acc.createdAt || (sess && sess.since) || '',
+      device: 'Android',
+      appVersion: ver,
+    });
+    return true;
+  } catch {
+    // En cas d'échec réseau, autorise une nouvelle tentative au prochain passage.
+    try {
+      const cur = JSON.parse(localStorage.getItem(LS_REGISTRY) || '{}');
+      if (cur[email] === stamp) {
+        delete cur[email];
+        localStorage.setItem(LS_REGISTRY, JSON.stringify(cur));
+      }
+    } catch {}
+    return false;
+  }
+}
 // L'accès Marchés est lié à la personne connectée sur cet appareil : on
 // l'oublie à la déconnexion pour qu'un autre compte ne récupère pas l'accès.
 function clearMarchesSession() { try { localStorage.removeItem(LS_MARCHES_SESSION); } catch {} }
@@ -1309,7 +1419,9 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [updatePct, setUpdatePct] = useState(0);
   const [appVer, setAppVer] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [tab, setTab] = useState('dash');
+  const [tab, setTab] = useState('home');
+  // Favoris enregistrés sur l'appareil (onglet Favoris du poster).
+  const [favorites, setFavorites] = useState(loadFavorites);
   // Fiche locale ouverte (emploi, stage, concours, marché, exam, alerte).
   const [detail, setDetail] = useState(null);
   const [query, setQuery] = useState('');
@@ -1414,7 +1526,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   }, [detail]);
 
   // Bouton Retour Android : ferme la fiche, sinon revient aux offres.
-  const navRef = useRef({ detail: null, tab: 'jobs', menuOpen: false });
+  const navRef = useRef({ detail: null, tab: 'home', menuOpen: false });
   navRef.current = { detail, tab, menuOpen };
   useEffect(() => {
     let handle = null;
@@ -1423,7 +1535,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         const s = navRef.current;
         if (s.menuOpen) { setMenuOpen(false); return; }
         if (s.detail) { setDetail(null); return; }
-        if (s.tab !== 'jobs') { goTab('jobs'); return; }
+        if (s.tab !== 'home') { goTab('home'); return; }
         App.exitApp();
       }).then((h) => { handle = h; });
     }).catch(() => {});
@@ -1570,11 +1682,64 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     : tab === 'concours' ? { icon: './app-icon.png', ico: 'landmark', label: 'Concours État' }
     : tab === 'marches' ? { icon: './app-icon.png', ico: 'scale', label: 'Marchés Publics' }
     : tab === 'exams' ? { icon: './app-icon.png', ico: 'file', label: 'Exams & Corrigés' }
+    : tab === 'new' ? { icon: './app-icon.png', ico: 'star', label: 'Nouvelles offres' }
+    : tab === 'search' ? { icon: './app-icon.png', ico: 'search', label: 'Recherche' }
+    : tab === 'favorites' ? { icon: './app-icon.png', ico: 'heart', label: 'Favoris' }
+    : tab === 'profile' ? { icon: './app-icon.png', ico: 'user', label: 'Profil' }
+    : tab === 'home' ? { icon: './app-icon.png', ico: 'home', label: 'Accueil' }
     : tab === 'dash' ? { icon: './app-icon.png', ico: 'chart', label: 'Dashboard' }
     : tab === 'alerts' ? { icon: './app-icon.png', ico: 'bell', label: 'Alertes nouveautés' }
     : { icon: './app-icon.png', ico: 'sliders', label: 'Configuration' };
 
   function showToast(t) { setToast(t); setTimeout(() => setToast(''), 2600); }
+
+  // ---- Favoris ----
+  useEffect(() => {
+    try { localStorage.setItem(LS_FAVORITES, JSON.stringify(favorites)); } catch {}
+  }, [favorites]);
+
+  const favoriteKeys = useMemo(
+    () => new Set(favorites.map((f) => f.type + ':' + String(f.id))),
+    [favorites]
+  );
+  function isFavorite(type, id) { return favoriteKeys.has(type + ':' + String(id)); }
+  function toggleFavorite(type, id) {
+    if (!id) return;
+    const key = type + ':' + String(id);
+    setFavorites((prev) => {
+      const exists = prev.some((f) => f.type + ':' + String(f.id) === key);
+      if (exists) {
+        showToast('Retiré des favoris');
+        return prev.filter((f) => f.type + ':' + String(f.id) !== key);
+      }
+      showToast('Ajouté aux favoris ✓');
+      return [{ type, id, at: new Date().toISOString() }, ...prev];
+    });
+  }
+
+  const favoriteItems = useMemo(() => {
+    return favorites.map((f) => {
+      if (f.type === 'marche') {
+        const m = marches.find((x) => String(x.id) === String(f.id));
+        return m ? { type: 'marche', item: m, at: f.at } : null;
+      }
+      const j = jobs.find((x) => String(x.id) === String(f.id));
+      return j ? { type: jobTypeOf(j), item: j, at: f.at } : null;
+    }).filter(Boolean);
+  }, [favorites, jobs, marches]);
+
+  const pageMeta = tab === 'search'
+    ? { title: 'Recherche', sub: 'Offres, stages, concours et marchés' }
+    : tab === 'favorites'
+      ? { title: 'Favoris', sub: favoriteItems.length ? `${favoriteItems.length} enregistré${favoriteItems.length > 1 ? 's' : ''}` : 'Vos offres enregistrées' }
+      : tab === 'profile'
+        ? { title: 'Profil', sub: session.email || 'Mon compte' }
+        : tab === 'home'
+          ? { title: 'Accueil', sub: 'ASSOULI AUTOX' }
+          : { title: section.label, sub: 'ASSOULI AUTOX' };
+
+  const isHomeActive = tab === 'home' || tab === 'jobs' || tab === 'stages' || tab === 'concours' || tab === 'marches' || tab === 'exams' || tab === 'new';
+  const isProfileActive = tab === 'profile' || tab === 'dash' || tab === 'alerts' || tab === 'setup';
 
   // Vérification immédiate de la liste publiée par l'admin. Utilisée à
   // l'ouverture de l'onglet Marchés, au retour dans l'app et par le bouton
@@ -1849,6 +2014,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   }
 
   useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); checkAccessNow(); }, []);
+  // Registre central : envoie la fiche du compte à la boîte Gmail (admin).
+  useEffect(() => { registerAccountRecord(session, appVer); }, [appVer]);
   useEffect(() => {
     const goOnline = () => { setOffline(false); refresh(false, true); checkAccessNow(); };
     const goOffline = () => setOffline(true);
@@ -2207,11 +2374,13 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     }
   }
 
+  function backToHome() { goTab('home'); }
+
   return (
     <div className="phone" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {menuOpen && <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />}
       <aside className={'drawer' + (menuOpen ? ' open' : '')}>
-        <div className="drawer-brand"><img src="./app-icon.png" alt="ASSOULI AUTOX" className="drawer-logo" /><Wordmark className="drawer-wordmark" /></div>
+        <div className="drawer-brand"><PosterLogo size={38} word /></div>
         <div className="drawer-account"><Icon n="check" size={14} /><span>{session.email}</span></div>
         <div className="drawer-theme">
           <span>Thème</span>
@@ -2223,6 +2392,10 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         </div>
         <p className="muted">ASSOULI AUTOX • {stats.total} offres • {mArchAllowed ? `${mStats.total} marchés publics` : 'Marchés sur autorisation'} • {(updatedAt || '').slice(0, 10) || 'hors-ligne'}</p>
         <nav className="drawer-nav">
+          <button className={tab === 'home' ? 'active' : ''} aria-current={tab === 'home' ? 'page' : undefined} onClick={() => goTab('home')}><span className="dn-l"><Icon n="home" size={19} />Accueil</span></button>
+          <button className={tab === 'search' ? 'active' : ''} aria-current={tab === 'search' ? 'page' : undefined} onClick={() => goTab('search')}><span className="dn-l"><Icon n="search" size={19} />Recherche</span></button>
+          <button className={tab === 'favorites' ? 'active' : ''} aria-current={tab === 'favorites' ? 'page' : undefined} onClick={() => goTab('favorites')}><span className="dn-l"><Icon n="heart" size={19} />Favoris</span>{favoriteItems.length > 0 && <b className="count">{favoriteItems.length}</b>}</button>
+          <button className={tab === 'profile' ? 'active' : ''} aria-current={tab === 'profile' ? 'page' : undefined} onClick={() => goTab('profile')}><span className="dn-l"><Icon n="user" size={19} />Profil</span></button>
           <button className={tab === 'jobs' ? 'active' : ''} aria-current={tab === 'jobs' ? 'page' : undefined} onClick={() => goTab('jobs')}><span className="dn-l"><Icon n="briefcase" size={19} />Offres d’emploi</span>{kinds.emploi > 0 && <b className="count">{kinds.emploi}</b>}</button>
           <button className={tab === 'stages' ? 'active' : ''} aria-current={tab === 'stages' ? 'page' : undefined} onClick={() => goTab('stages')}><span className="dn-l"><Icon n="cap" size={19} />Stages & pré-embauche</span>{kinds.stages > 0 && <b className="count">{kinds.stages}</b>}</button>
           <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span>{kinds.concours > 0 && <b className="count">{kinds.concours}</b>}</button>
@@ -2235,19 +2408,34 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         <button className="apply drawer-refresh" onClick={() => { setMenuOpen(false); refresh(true); }}><Icon n="refresh" size={18} /> Actualiser</button>
         <button className="ghost drawer-refresh" onClick={onLogout}><Icon n="close" size={18} /> Se déconnecter</button>
       </aside>
-      <header className="topbar">
-        <div className="hero-top">
-          <div className="brand-wrap">
-            <button className="menu-btn" onClick={() => setMenuOpen(true)} title="Menu" aria-label="Menu"><Icon n="menu" /></button>
-            <img src="./app-icon.png" alt="logo" className="brand-logo" />
-            <Wordmark className="brand" onDark />
+      {tab === 'home' ? (
+        <header className="poster-head">
+          <div className="poster-head-top">
+            <button className="poster-menu" onClick={() => setMenuOpen(true)} title="Menu" aria-label="Menu"><Icon n="menu" size={23} /></button>
+            <PosterLogo size={42} word />
+            <button className="poster-bell" onClick={() => goTab('alerts')} aria-label="Alertes" title="Alertes">
+              <Icon n="bell" size={22} />
+              {unread > 0 && <i className="poster-dot" />}
+            </button>
           </div>
-          <div className="top-actions">
-            <button className="refresh" onClick={() => setTab('setup')} title="Configuration" aria-label="Configuration"><Icon n="sliders" /></button>
-            <button className={'refresh' + (refreshing ? ' spinning' : '')} onClick={() => refresh(true)} title="Actualiser" aria-label="Actualiser"><Icon n="refresh" /></button>
+          <button className="poster-search" onClick={() => goTab('search')} aria-label="Rechercher">
+            <Icon n="search" size={18} />
+            <span>Rechercher une offre, un poste…</span>
+          </button>
+        </header>
+      ) : (
+        <header className="poster-pagehead">
+          <button className="poster-menu" onClick={backToHome} aria-label="Retour" title="Retour"><Icon n="back" size={21} /></button>
+          <div className="poster-pagehead-title">
+            <span>{pageMeta.title}</span>
+            <small>{pageMeta.sub}</small>
           </div>
-        </div>
-      </header>
+          <button className="poster-bell" onClick={() => goTab('alerts')} aria-label="Alertes" title="Alertes">
+            <Icon n="bell" size={20} />
+            {unread > 0 && <i className="poster-dot" />}
+          </button>
+        </header>
+      )}
       {updateInfo && (
         <div className="update-banner">
           <span className="upd-ic"><Icon n="download" size={16} /></span>
@@ -2260,10 +2448,185 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           {!updating && <button className="upd-x" onClick={() => setUpdateInfo(null)} aria-label="Plus tard"><Icon n="close" size={14} /></button>}
         </div>
       )}
-      {(tab === 'jobs' || tab === 'stages' || tab === 'concours') && (
+      {tab === 'home' && (
+        <main className="home-body">
+          <div className="home-cats">
+            {HOME_CATS.map((c) => (
+              <button key={c.tab} type="button" className={'home-cat tone-' + c.tone} onClick={() => goTab(c.tab)}>
+                <span className="hc-ic"><Icon n={c.icon} size={27} /></span>
+                <span className="hc-txt">
+                  <b>{c.title}</b>
+                  {c.sub && <strong>{c.sub}</strong>}
+                  <small>{c.desc}</small>
+                </span>
+                <span className="hc-chev"><Icon n="chevron" size={18} /></span>
+              </button>
+            ))}
+          </div>
+        </main>
+      )}
+
+      {tab === 'search' && (
+        <main className="screen search-screen">
+          <div className="search-top">
+            <label className="poster-search poster-search-live">
+              <Icon n="search" size={18} />
+              <input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Rechercher une offre, un poste…"
+                aria-label="Rechercher une offre"
+              />
+              {query && <button type="button" className="search-clear" onClick={() => setQuery('')} aria-label="Effacer"><Icon n="close" size={15} /></button>}
+            </label>
+          </div>
+          <div className="filters modern-filters">
+            <label className="fselect"><span><Icon n="pin" size={16} /></span><select value={city} onChange={(e) => setCity(e.target.value)}>
+              <option value="">Villes</option>
+              {cities.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
+            </select></label>
+            <label className="fselect"><span><Icon n="plug" size={16} /></span><select value={source} onChange={(e) => setSource(e.target.value)}>
+              <option value="">Sources</option>
+              {sources.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select></label>
+            <label className="fselect"><span><Icon n="target" size={16} /></span><select value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
+              <option value="">Spécialités</option>
+              {specialties.map(([s, n]) => <option key={s} value={s}>{s.length > 28 ? s.slice(0, 28) + '…' : s} ({n})</option>)}
+            </select></label>
+            <button className={'fchip' + (urgentOnly ? ' active' : '')} onClick={() => setUrgentOnly(!urgentOnly)}><Icon n="clock" size={15} /> ≤ 7j</button>
+            {(query || city || source || specialty || urgentOnly) && (
+              <button className="clear" onClick={() => { setQuery(''); setCity(''); setSource(''); setSpecialty(''); setUrgentOnly(false); }} aria-label="Réinitialiser"><Icon n="close" size={16} /></button>
+            )}
+          </div>
+          <div className="list-head search-count">
+            <div><b>{filtered.length}</b><span>résultat{filtered.length > 1 ? 's' : ''}{query ? ` pour « ${shortText(query, 26)} »` : ''}</span></div>
+            <span className="list-sort"><Icon n="clock" size={13} />Plus récentes</span>
+          </div>
+          {loading && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div key={i} className="skeleton" />)}</div>}
+          {!loading && filtered.length === 0 && <div className="empty">Aucune offre ne correspond à votre recherche.</div>}
+          {filtered.slice(0, jLimit).map((j) => {
+            const jt = jobTypeOf(j);
+            return <OfferCard key={j.id} job={j} type={jt} onOpen={openDetail} saved={isFavorite(jt, j.id)} onSave={toggleFavorite} />;
+          })}
+          {filtered.length > jLimit && (
+            <button className="more more-btn" onClick={() => setJLimit((n) => n + 120)}>
+              Afficher plus de résultats <span>· {filtered.length - jLimit} restants</span>
+            </button>
+          )}
+          {mArchAllowed && query.trim() && mFiltered.length > 0 && (
+            <section className="search-marches">
+              <div className="list-head"><div><b>{mFiltered.length}</b><span>marché{mFiltered.length > 1 ? 's' : ''} public{mFiltered.length > 1 ? 's' : ''}</span></div><span className="list-sort"><Icon n="scale" size={13} />Marchés</span></div>
+              {mFiltered.slice(0, 10).map((m) => (
+                <article className="card mcard" key={m.id} role="button" tabIndex={0} onClick={() => openDetail('marche', m.id)}>
+                  <div className="card-head">
+                    <div className="avatar" style={{ '--h': MCAT_HUE[catSlug(m.categorie)] ?? 200 }}><Icon n="gavel" size={20} /></div>
+                    <div className="chead">
+                      <span className="mcard-ref">{m.ref || 'Sans référence'}</span>
+                      <h3 className="m-org">{m.organisme || 'Organisme public'}</h3>
+                      <div className="csub meta">{m.ville && <span><Icon n="pin" size={14} />{shortText(m.ville, 34)}</span>}</div>
+                    </div>
+                    <button type="button" className={'offer-save' + (isFavorite('marche', m.id) ? ' saved' : '')} aria-label="Favori" onClick={(e) => { e.stopPropagation(); toggleFavorite('marche', m.id); }}><Icon n="heart" size={16} /></button>
+                  </div>
+                  <p className="desc m-objet">{shortText(m.objet, 150)}</p>
+                  <div className="chips"><span className={'chip ' + mDeadline(m).cls}>{mDeadline(m).label}</span></div>
+                </article>
+              ))}
+            </section>
+          )}
+        </main>
+      )}
+
+      {tab === 'favorites' && (
+        <main className="screen fav-screen">
+          {favoriteItems.length === 0 ? (
+            <div className="fav-empty">
+              <span className="fav-empty-ic"><Icon n="heart" size={36} /></span>
+              <h2>Aucun favori pour l’instant</h2>
+              <p>Touchez le cœur d’une offre pour la retrouver ici, même sans connexion.</p>
+              <button className="poster-cta" onClick={() => goTab('search')}>Découvrir les offres</button>
+            </div>
+          ) : (
+            <>
+              <div className="list-head">
+                <div><b>{favoriteItems.length}</b><span>favori{favoriteItems.length > 1 ? 's' : ''} enregistré{favoriteItems.length > 1 ? 's' : ''}</span></div>
+                <span className="list-sort"><Icon n="heart" size={13} />Sur cet appareil</span>
+              </div>
+              {favoriteItems.map((f) => {
+                if (f.type === 'marche') {
+                  const m = f.item;
+                  return (
+                    <article className="card mcard" key={'m-' + m.id} role="button" tabIndex={0} onClick={() => openDetail('marche', m.id)}>
+                      <div className="card-head">
+                        <div className="avatar" style={{ '--h': MCAT_HUE[catSlug(m.categorie)] ?? 200 }}><Icon n="gavel" size={20} /></div>
+                        <div className="chead">
+                          <span className="mcard-ref">{m.ref || 'Sans référence'}</span>
+                          <h3 className="m-org">{m.organisme || 'Organisme public'}</h3>
+                          <div className="csub meta">{m.ville && <span><Icon n="pin" size={14} />{shortText(m.ville, 34)}</span>}</div>
+                        </div>
+                        <button type="button" className="offer-save saved" aria-label="Retirer des favoris" onClick={(e) => { e.stopPropagation(); toggleFavorite('marche', m.id); }}><Icon n="heart" size={16} /></button>
+                      </div>
+                      <p className="desc m-objet">{shortText(m.objet, 150)}</p>
+                      <div className="chips"><span className={'chip ' + mDeadline(m).cls}>{mDeadline(m).label}</span></div>
+                    </article>
+                  );
+                }
+                return <OfferCard key={f.type + '-' + f.item.id} job={f.item} type={f.type} onOpen={openDetail} saved onSave={toggleFavorite} />;
+              })}
+            </>
+          )}
+        </main>
+      )}
+
+      {tab === 'profile' && (
+        <main className="screen profile-screen">
+          <section className="profile-hero">
+            <div className="profile-avatar">{(session.name || session.email || '?').trim().charAt(0).toUpperCase()}</div>
+            <div className="profile-id">
+              <h2>{session.name || 'Mon compte'}</h2>
+              <p>{session.email}</p>
+              <span className="profile-badge"><Icon n="check" size={12} /> Compte vérifié</span>
+            </div>
+          </section>
+          <div className="profile-stats">
+            <div><b>{fmtNum(stats.total)}</b><span>offres</span></div>
+            <div><b>{favoriteItems.length}</b><span>favoris</span></div>
+            <div><b>{mArchAllowed ? fmtNum(mStats.open) : '—'}</b><span>marchés ouverts</span></div>
+          </div>
+          <section className="profile-card">
+            <div className="profile-card-head"><h3>Apparence</h3><span>{themePref === 'auto' ? 'Suit le téléphone' : themePref === 'dark' ? 'Sombre' : 'Clair'}</span></div>
+            <div className="theme-seg">
+              <button className={themePref === 'light' ? 'active' : ''} onClick={() => onThemeChange('light')}><Icon n="sun" size={18} /><b>Clair</b></button>
+              <button className={themePref === 'dark' ? 'active' : ''} onClick={() => onThemeChange('dark')}><Icon n="moon" size={18} /><b>Sombre</b></button>
+              <button className={themePref === 'auto' ? 'active' : ''} onClick={() => onThemeChange('auto')}><Icon n="auto" size={18} /><b>Auto</b></button>
+            </div>
+          </section>
+          <section className="profile-card">
+            <div className="profile-card-head"><h3>Mon espace</h3></div>
+            <div className="profile-menu">
+              <button onClick={() => goTab('alerts')}><span className="pm-ic amber"><Icon n="bell" size={19} /></span><span className="pm-txt"><b>Alertes</b><small>{unread > 0 ? `${unread} non lue${unread > 1 ? 's' : ''}` : 'Nouveautés des offres'}</small></span><Icon n="chevron" size={16} /></button>
+              <button onClick={() => goTab('dash')}><span className="pm-ic blue"><Icon n="chart" size={19} /></span><span className="pm-txt"><b>Dashboard</b><small>Statistiques et sources</small></span><Icon n="chevron" size={16} /></button>
+              <button onClick={() => goTab('setup')}><span className="pm-ic slate"><Icon n="sliders" size={19} /></span><span className="pm-txt"><b>Configuration</b><small>Notifications, cache, mises à jour</small></span><Icon n="chevron" size={16} /></button>
+              <button onClick={() => goTab('marches')}><span className="pm-ic red"><Icon n="scale" size={19} /></span><span className="pm-txt"><b>Marchés publics</b><small>{mArchAllowed ? `${fmtNum(mStats.open)} consultations ouvertes` : 'Accès sur autorisation'}</small></span>{mArchAllowed ? <Icon n="chevron" size={16} /> : <span className="pm-lock"><Icon n="lock" size={14} /></span>}</button>
+              <button onClick={() => goTab('exams')}><span className="pm-ic purple"><Icon n="clipboard" size={19} /></span><span className="pm-txt"><b>Exams & corrigés</b><small>Préparer vos concours</small></span><Icon n="chevron" size={16} /></button>
+            </div>
+          </section>
+          <section className="profile-card">
+            <div className="profile-card-head"><h3>Application</h3></div>
+            <div className="profile-menu">
+              <button onClick={() => refresh(true)}><span className="pm-ic green"><Icon n="refresh" size={19} /></span><span className="pm-txt"><b>Actualiser les données</b><small>{updatedAt ? `Dernière maj ${(updatedAt || '').slice(0, 16).replace('T', ' ')}` : 'Données hors-ligne'}</small></span><Icon n="chevron" size={16} /></button>
+              <button onClick={() => checkUpdate(true)}><span className="pm-ic blue"><Icon n="download" size={19} /></span><span className="pm-txt"><b>Mises à jour</b><small>{appVer ? `Version ${appVer}` : 'Vérifier la version'}</small></span><Icon n="chevron" size={16} /></button>
+              <button className="danger" onClick={onLogout}><span className="pm-ic red"><Icon n="close" size={19} /></span><span className="pm-txt"><b>Se déconnecter</b><small>Quitter le compte</small></span><Icon n="chevron" size={16} /></button>
+            </div>
+          </section>
+          <p className="profile-foot">ASSOULI AUTOX • {appVer ? `v${appVer}` : 'Android'} • {fmtNum(stats.total)} offres • {mArchAllowed ? `${fmtNum(mStats.total)} marchés` : 'Marchés protégés'}</p>
+        </main>
+      )}
+
+      {(tab === 'jobs' || tab === 'stages' || tab === 'concours' || tab === 'new') && (
       <section className="hero">
         <div className="hero-stats">
-          <div className="hstat"><b>{pageStats.total}</b><span>{tab === 'stages' ? 'stages' : tab === 'concours' ? 'concours' : 'offres'}</span></div>
+          <div className="hstat"><b>{pageStats.total}</b><span>{tab === 'stages' ? 'stages' : tab === 'concours' ? 'concours' : tab === 'new' ? 'nouvelles' : 'offres'}</span></div>
           <div className="hstat green"><b>{pageStats.fresh}</b><span>≤ 7 jours</span></div>
           <div className="hstat orange"><b>{pageStats.urgent}</b><span>urgentes</span></div>
           <div className="hstat stages"><b>{pageStats.posts}</b><span>postes</span></div>
@@ -2272,15 +2635,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         <div className="updated">{refreshing ? 'Actualisation…' : loading ? 'Chargement…' : `Dernière actualisation : ${(updatedAt || '').slice(0, 16).replace('T', ' ') || 'à l’instant'} • ${filtered.length} affichées`}</div>
       </section>
       )}
-
-      <div className="section-bar">
-        <img src={section.icon} alt="" className="section-logo" />
-        <span className="section-emoji"><Icon n={section.ico} size={22} /></span>
-        <b>{section.label}</b>
-        {(tab === 'jobs' || tab === 'stages' || tab === 'concours') && <span className="section-count">{filtered.length} affichée{filtered.length > 1 ? 's' : ''}</span>}
-        {tab === 'marches' && mArchAllowed && <span className="section-count">{fmtNum(mStats.open)} ouverts</span>}
-        {tab === 'marches' && !mArchAllowed && <span className="section-count m-locked-count"><Icon n="lock" size={12} /> Réservé</span>}
-      </div>
 
       {tab === 'marches' && !mArchAllowed && (
         <main className="feed m-gate-feed">
@@ -2354,23 +2708,23 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         </section>
       )}
 
-      {(tab === 'jobs' || tab === 'stages' || tab === 'concours' || (tab === 'marches' && mArchAllowed)) && (
+      {(tab === 'jobs' || tab === 'stages' || tab === 'concours' || tab === 'new' || (tab === 'marches' && mArchAllowed)) && (
       <div className="searchbar">
         <Icon n="search" size={18} /><input placeholder={tab === 'marches' ? 'Rechercher : référence, organisme, objet, ville…' : 'Rechercher : poste, entreprise, ville…'} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
       )}
-      {(tab === 'jobs' || tab === 'stages' || tab === 'concours') && (
+      {(tab === 'jobs' || tab === 'stages' || tab === 'concours' || tab === 'new') && (
       <div className="filters modern-filters">
         <label className="fselect"><span><Icon n="pin" size={16} /></span><select value={city} onChange={(e) => setCity(e.target.value)}>
-          <option value="">Toutes villes</option>
+          <option value="">Villes</option>
           {cities.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
         </select></label>
         <label className="fselect"><span><Icon n="plug" size={16} /></span><select value={source} onChange={(e) => setSource(e.target.value)}>
-          <option value="">Toutes sources</option>
+          <option value="">Sources</option>
           {sources.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
         </select></label>
         <label className="fselect"><span><Icon n="target" size={16} /></span><select value={specialty} onChange={(e) => setSpecialty(e.target.value)}>
-          <option value="">Toutes spécialités</option>
+          <option value="">Spécialités</option>
           {specialties.map(([s, n]) => <option key={s} value={s}>{s.length > 28 ? s.slice(0, 28) + '…' : s} ({n})</option>)}
         </select></label>
         <button className={'fchip' + (urgentOnly ? ' active' : '')} onClick={() => setUrgentOnly(!urgentOnly)} title="Deadlines ≤ 7 jours"><Icon n="clock" size={15} /> ≤ 7j</button>
@@ -2390,7 +2744,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           {mTypes.map(([t, n]) => <option key={t} value={t}>{t.length > 30 ? t.slice(0, 30) + '…' : t} ({n})</option>)}
         </select></label>
         <label className="fselect"><span><Icon n="pin" size={16} /></span><select value={mRegion} onChange={(e) => setMRegion(e.target.value)}>
-          <option value="">Toutes régions</option>
+          <option value="">Régions</option>
           {mRegionList.map(([r, n]) => <option key={r} value={r}>{r.length > 26 ? r.slice(0, 26) + '…' : r} ({n})</option>)}
         </select></label>
         <label className="fselect"><span><Icon n="file" size={16} /></span><select value={mCat} onChange={(e) => setMCat(e.target.value)}>
@@ -2398,7 +2752,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           {mCats.map(([c, n]) => <option key={c} value={c}>{c} ({n})</option>)}
         </select></label>
         <label className="fselect"><span><Icon n="target" size={16} /></span><select value={mVille} onChange={(e) => setMVille(e.target.value)}>
-          <option value="">Toutes villes</option>
+          <option value="">Villes</option>
           {mVilles.map(([c, n]) => <option key={c} value={c}>{c.length > 26 ? c.slice(0, 26) + '…' : c} ({n})</option>)}
         </select></label>
         {(query || mCat || mVille || mType || mRegion || mKw || mQuick || mStatus !== 'open') && (
@@ -2455,7 +2809,10 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
                       <span><Icon n="file" size={14} />{m.categorie || 'Marché'}</span>
                     </div>
                   </div>
-                  <span className="mcard-arrow" aria-hidden="true"><Icon n="arrow" size={14} /></span>
+                  <div className="mcard-tools">
+                    <button type="button" className={'offer-save' + (isFavorite('marche', m.id) ? ' saved' : '')} aria-label="Ajouter aux favoris" aria-pressed={isFavorite('marche', m.id)} onClick={(e) => { e.stopPropagation(); toggleFavorite('marche', m.id); }}><Icon n="heart" size={15} /></button>
+                    <span className="mcard-arrow" aria-hidden="true"><Icon n="arrow" size={14} /></span>
+                  </div>
                 </div>
                 <p className="desc m-objet">{m.objet || '—'}</p>
                 <div className="chips">
@@ -2479,7 +2836,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         </main>
       )}
 
-      {(tab === 'jobs' || tab === 'stages') && (
+      {(tab === 'jobs' || tab === 'stages' || tab === 'new') && (
         <main className="feed">
           {tab === 'stages' && (
             <div className="stage-lead">
@@ -2491,14 +2848,15 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             </div>
           )}
           <div className="list-head">
-            <div><b>{filtered.length}</b><span>{tab === 'stages' ? 'stage' : 'offre'}{filtered.length > 1 ? 's' : ''} {query || city || source || specialty || urgentOnly ? 'filtrée' + (filtered.length > 1 ? 's' : '') : 'disponible' + (filtered.length > 1 ? 's' : '')}</span></div>
+            <div><b>{filtered.length}</b><span>{tab === 'stages' ? 'stage' : tab === 'new' ? 'nouvelle offre' : 'offre'}{filtered.length > 1 ? 's' : ''} {query || city || source || specialty || urgentOnly ? 'filtrée' + (filtered.length > 1 ? 's' : '') : 'disponible' + (filtered.length > 1 ? 's' : '')}</span></div>
             <span className="list-sort"><Icon n="clock" size={13} />Plus récentes</span>
           </div>
           {loading && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div key={i} className="skeleton" />)}</div>}
           {!loading && filtered.length === 0 && <div className="empty">Aucune offre. Touchez ↻ pour actualiser.</div>}
-          {filtered.slice(0, jLimit).map((j) => (
-            <OfferCard key={j.id} job={j} type={tab === 'stages' ? 'stage' : 'job'} onOpen={openDetail} />
-          ))}
+          {filtered.slice(0, jLimit).map((j) => {
+            const jt = tab === 'stages' ? 'stage' : tab === 'new' ? jobTypeOf(j) : 'job';
+            return <OfferCard key={j.id} job={j} type={jt} onOpen={openDetail} saved={isFavorite(jt, j.id)} onSave={toggleFavorite} />;
+          })}
           {filtered.length > jLimit && (
             <button className="more more-btn" onClick={() => setJLimit((n) => n + 120)}>
               Afficher plus d’offres <span>· {filtered.length - jLimit} restantes</span>
@@ -2516,7 +2874,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           {loading && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div key={i} className="skeleton" />)}</div>}
           {!loading && filtered.length === 0 && <div className="empty">Aucun concours. Touchez ↻ pour actualiser.</div>}
           {filtered.slice(0, 80).map((j) => (
-            <OfferCard key={j.id} job={j} type="concours" onOpen={openDetail} />
+            <OfferCard key={j.id} job={j} type="concours" onOpen={openDetail} saved={isFavorite('concours', j.id)} onSave={toggleFavorite} />
           ))}
         </main>
       )}
@@ -2753,13 +3111,11 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         </main>
       )}
 
-      <nav className="bottomnav" aria-label="Navigation principale">
-        <button className={tab === 'jobs' ? 'active' : ''} aria-current={tab === 'jobs' ? 'page' : undefined} onClick={() => goTab('jobs')}><Icon n="briefcase" size={21} /><span>Offres</span></button>
-        <button className={tab === 'stages' ? 'active' : ''} aria-current={tab === 'stages' ? 'page' : undefined} onClick={() => goTab('stages')}><Icon n="cap" size={21} /><span>Stages</span></button>
-        <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><Icon n="landmark" size={21} /><span>Concours</span></button>
-        <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><Icon n="scale" size={21} /><span>Marchés</span></button>
-        <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><Icon n="file" size={21} /><span>Exams</span></button>
-        <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><Icon n="bell" size={21} /><span>Alertes</span>{unread > 0 && <b className="nav-badge">{unread}</b>}</button>
+      <nav className="poster-nav" aria-label="Navigation principale">
+        <button className={isHomeActive ? 'active' : ''} aria-current={isHomeActive ? 'page' : undefined} onClick={() => goTab('home')}><Icon n="home" size={22} /><span>Accueil</span></button>
+        <button className={tab === 'search' ? 'active' : ''} aria-current={tab === 'search' ? 'page' : undefined} onClick={() => goTab('search')}><Icon n="search" size={22} /><span>Recherche</span></button>
+        <button className={tab === 'favorites' ? 'active' : ''} aria-current={tab === 'favorites' ? 'page' : undefined} onClick={() => goTab('favorites')}><Icon n="heart" size={22} /><span>Favoris</span>{favoriteItems.length > 0 && <b className="nav-badge">{favoriteItems.length > 99 ? '99+' : favoriteItems.length}</b>}</button>
+        <button className={isProfileActive ? 'active' : ''} aria-current={isProfileActive ? 'page' : undefined} onClick={() => goTab('profile')}><Icon n="user" size={22} /><span>Profil</span></button>
       </nav>
 
       {detail && (
@@ -2820,7 +3176,7 @@ export default function App() {
     <>
       {intro && <SplashIntro />}
       {!session
-        ? <AuthScreen onAuthed={setSession} themePref={themePref} onThemeChange={setThemePref} />
+        ? <AuthScreen onAuthed={(s) => { setSession(s); registerAccountRecord(s, ''); }} themePref={themePref} onThemeChange={setThemePref} />
         : <MainApp session={session} themePref={themePref} onThemeChange={setThemePref} onLogout={() => { clearSession(); clearMarchesSession(); setSession(null); }} />}
     </>
   );
