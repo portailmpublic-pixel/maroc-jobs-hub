@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-10-28T21:31:40.013Z",
+  "updatedAt": "2026-10-29T11:19:37.250Z",
   "phone": "212663369080",
-  "total": 1189,
+  "total": 1227,
   "alerts": [
+    {
+      "id": "n1793272777249",
+      "at": "2026-10-29T11:19:37.249Z",
+      "title": "+44 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 44 nouveauté(s) (cloud)\n💼 Contrôleur de gestion —  (Casablanca) ⏰2026-12-29\n💼 Conseillers clientèle francophones - service client Sidi Maarouf — Majorel / Teleperformance (Casablanca) ⏰2026-12-29\n💼 Superviseur Réseau — Groupe Label'Vie - Carrefour (El Jadida) ⏰2026-12-29\n💼 Responsable Paie et Administration — Fondation Arrawaj (Rabat) ⏰2026-12-29\n💼 HR & Safety Manager (H/F) — Centrale Danone (Kénitra) ⏰2026-12-29\n💼 Superviseur Contrôle et Sécurité — Groupe Label'Vie - Carrefour (Tanger) ⏰2026-12-29\n💼 Attaché bureau de commandes —  (Agadir) ⏰2026-12-29\n💼 Contrôleurse de gestion junior H/F — Mogesse Banking Solutions - MBS (Casablanca) ⏰2026-12-29\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — (Auditeur (RH 116/2026 (2026-10-29)\n- Concours — Agent Informatique (2026-10-29)\n- Concours — Responsable de site de Bibliothèque -Médiathèque (2026-10-29)\n- Concours — (Formateur « Sécurité minière » (RH 117/2026 (2026-10-30)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-30)\n📊 Total suivi : 1227 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 44,
+        "concours": 4,
+        "total": 1227
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793223099970",
       "at": "2026-10-28T21:31:39.970Z",
