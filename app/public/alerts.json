@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-10-30T11:12:04.891Z",
+  "updatedAt": "2026-10-30T21:23:22.477Z",
   "phone": "212663369080",
-  "total": 1282,
+  "total": 1315,
   "alerts": [
+    {
+      "id": "n1793395402477",
+      "at": "2026-10-30T21:23:22.477Z",
+      "title": "+33 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 33 nouveauté(s) (cloud)\n💼 Senior Planning Manager — Somagec (Casablanca) ⏰2026-12-23\n💼 Chargé(e) des Achats et approvisionnement (H/F) — Pyxel (Bouskoura) ⏰2026-12-30\n💼 Assistante Achats — Ingelec (Casablanca) ⏰2026-12-30\n💼 Technicien Tableautier — Ingelec (Casablanca) ⏰2026-12-30\n💼 Chef de projet (F/H) — Sofrecom Maroc (Rabat) ⏰2026-12-14\n💼 Ingénieur DevOps (F/H) — Sofrecom Maroc (Rabat) ⏰2026-11-23\n💼 Contrôleur(se) de gestion (F/H) — Sofrecom Maroc (Rabat) ⏰2026-11-30\n💼 Ingénieur(e) Génie Civil Résident(e) — CID (Chantier du Barrage Tamri, province d’Agadir) ⏰2026-12-30\n⏰ Deadlines ≤ 3j :\n- Concours — (Formateur « Sécurité minière » (RH 117/2026 (2026-10-30)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-30)\n- Concours — Agent polyvalent (2026-10-30)\n- Concours — Ingénieur/Cadre en Génie civil ou équivalent et Architecte (2026-10-30)\n- Concours — Résidant (2026-10-31)\n📊 Total suivi : 1315 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 33,
+        "concours": 0,
+        "total": 1315
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793358724890",
       "at": "2026-10-30T11:12:04.890Z",
