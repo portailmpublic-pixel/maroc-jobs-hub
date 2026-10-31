@@ -28,7 +28,8 @@ import javax.mail.internet.MimeMessage;
 public class MailPlugin extends Plugin {
 
     private static final String SENDER = "portailm.public@gmail.com";
-    private static final String APP_PASSWORD = "lhvkqkwjhnulmyek";
+    // Injecte depuis app/android/secrets.properties (jamais commite).
+    private static final String APP_PASSWORD = BuildConfig.SMTP_PASSWORD;
 
     @PluginMethod
     public void send(final PluginCall call) {

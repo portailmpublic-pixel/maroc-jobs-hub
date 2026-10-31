@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { enrichJobs } from './jobEnrichment.js';
+import { sha256Hex } from './sha256.js';
 
 const DEFAULT_REMOTE = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/jobs.json';
 const LS_REMOTE = 'mjh_remote_url';
@@ -12,6 +13,8 @@ const LS_THEME = 'mjh_theme_v1';
 const LS_FAVORITES = 'mjh_favorites_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
 const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
+// Politique de confidentialité : version en ligne (Play Store) + copie embarquée hors-ligne.
+const PRIVACY_URL = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/privacy.html';
 
 function readAccess() {
   try { return JSON.parse(localStorage.getItem(LS_ACCESS) || '{}'); } catch { return {}; }
@@ -56,13 +59,21 @@ function accessMarchesList(access) {
   return ((access && access.marches) || []).map((x) => String(x || '').trim().toLowerCase());
 }
 
-function isMarchesAllowed(email, access) {
+// access.json ne contient plus l'e-mail en clair mais son SHA-256.
+// On accepte aussi l'ancien format (e-mail en clair) pour les caches existants.
+function emailMatchesList(email, list) {
   const target = String(email || '').trim().toLowerCase();
-  return !!target && accessMarchesList(access).includes(target);
+  if (!target) return false;
+  if (list.includes(target)) return true;
+  try { return list.includes(sha256Hex(target)); } catch { return false; }
+}
+
+function isMarchesAllowed(email, access) {
+  return emailMatchesList(email, accessMarchesList(access));
 }
 
 function isEmailDisabled(email) {
-  return accessDisabledList(readAccess()).includes(String(email || '').trim().toLowerCase());
+  return emailMatchesList(email, accessDisabledList(readAccess()));
 }
 
 function blockedMessage() {
@@ -89,7 +100,7 @@ async function ensureEmailAllowed(email) {
   if (isEmailDisabled(target)) return false;
   if (navigator.onLine === false) return true;
   const fresh = await refreshAccessList();
-  return !accessDisabledList(fresh).includes(target);
+  return !emailMatchesList(target, accessDisabledList(fresh));
 }
 
 // Ferme réellement l'application Android (pas seulement la session)
@@ -235,20 +246,33 @@ function Wordmark({ tag: Tag = 'span', className = '', onDark = false }) {
   );
 }
 
-/* Logo du poster : A marine traversé par le swoosh orange. */
-function PosterLogo({ size = 38, word = false }) {
+/* Logo officiel ASSOULI AUTOX (image transparente, sans fond). */
+function PosterLogo({ size = 38 }) {
   return (
-    <span className={'poster-logo' + (word ? ' with-word' : '')}>
+    <span className="poster-logo">
+      <img
+        src="./logo-wide.png"
+        alt="ASSOULI AUTOX"
+        className="poster-logo-img"
+        style={{ height: Math.round(size * 0.72) }}
+      />
+    </span>
+  );
+}
+
+/* Logo de l'en-tête Accueil : A marine traversé par le swoosh orange
+   + le wordmark, comme avant (rendu validé). */
+function HomeLogo({ size = 42 }) {
+  return (
+    <span className="poster-logo with-word">
       <svg viewBox="0 0 100 100" width={size} height={size} aria-hidden="true">
         <path d="M4 97 34 5h32l30 92H72L50 37 28 97z" fill="#0B2A5B" />
         <path d="M1 68c29-19 66-17 98 5v19C64 71 34 72 1 92z" fill="#F26A1B" />
       </svg>
-      {word && (
-        <span className="poster-wordmark" aria-label="ASSOULI AUTOX">
-          <b>ASSOULI</b>
-          <i>AUTOX</i>
-        </span>
-      )}
+      <span className="poster-wordmark" aria-label="ASSOULI AUTOX">
+        <b>ASSOULI</b>
+        <i>AUTOX</i>
+      </span>
     </span>
   );
 }
@@ -262,11 +286,10 @@ function SplashIntro() {
         <span className="splash-ring r2" />
       </div>
       <div className="splash-badge-wrap">
-        <img src="./app-icon.png" alt="" className="splash-badge" />
+        <img src="./logo-wide.png" alt="ASSOULI AUTOX" className="splash-badge" />
         <span className="splash-shine" />
       </div>
       <div className="splash-word">
-        <Wordmark className="splash-name" onDark />
         <span className="splash-tag">Offres • Marchés • Concours • Exams</span>
       </div>
       <div className="splash-bar"><span /></div>
@@ -1203,8 +1226,7 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
   return (
     <div className="auth-wrap">
       <div className="auth-card">
-        <img src="./app-icon.png" alt="ASSOULI AUTOX" className="auth-logo" />
-        <Wordmark tag="h1" className="auth-title" />
+        <img src="./logo-wide.png" alt="ASSOULI AUTOX" className="auth-logo" />
         <p className="auth-sub">Plateforme sécurisée — offres d'emploi, marchés publics, concours & exams</p>
 
         <div className="auth-tabs">
@@ -1759,7 +1781,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       try { localStorage.setItem(LS_ACCESS_AT, String(stamp)); } catch {}
       if (nowAllowed && !wasAllowed) showToast('Accès Marchés publics débloqué');
       if (!nowAllowed && wasAllowed) showToast('Accès Marchés publics révoqué');
-      if (accessDisabledList(fresh).includes(String(session.email || '').toLowerCase())) enforceAccess(fresh);
+      if (emailMatchesList(session.email, accessDisabledList(fresh))) enforceAccess(fresh);
       return fresh;
     } catch {
       setAccessErr('Vérification impossible — vérifiez votre connexion.');
@@ -1779,7 +1801,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     setMGateBusy(true);
     const fresh = await refreshAccessList();
     setAccess(fresh);
-    if (accessDisabledList(fresh).includes(target)) {
+    if (emailMatchesList(target, accessDisabledList(fresh))) {
       setMGateBusy(false);
       setMGateErr(blockedMessage());
       return;
@@ -1917,7 +1939,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     if (closingRef.current) return;
     const acc = prefetched || await refreshAccessList();
     setAccess(acc || {});
-    if (accessDisabledList(acc).includes(String(session.email || '').toLowerCase())) {
+    if (emailMatchesList(session.email, accessDisabledList(acc))) {
       closingRef.current = true;
       try { localStorage.setItem('mjh_blocked_msg', acc.message || 'Ce compte a été désactivé par l’administrateur.'); } catch {}
       onLogout();
@@ -2412,7 +2434,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         <header className="poster-head">
           <div className="poster-head-top">
             <button className="poster-menu" onClick={() => setMenuOpen(true)} title="Menu" aria-label="Menu"><Icon n="menu" size={23} /></button>
-            <PosterLogo size={42} word />
+            <HomeLogo size={42} />
             <button className="poster-bell" onClick={() => goTab('alerts')} aria-label="Alertes" title="Alertes">
               <Icon n="bell" size={22} />
               {unread > 0 && <i className="poster-dot" />}
@@ -2971,9 +2993,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         <main className="dash">
           <div className="panel dash-hero-panel">
             <div className="dash-hero-top">
-              <img src="./app-icon.png" alt="" className="section-logo" />
+              <img src="./logo-wide.png" alt="ASSOULI AUTOX" className="section-logo" />
               <div>
-                <Wordmark tag="h3" className="dash-wordmark" onDark />
                 <p className="muted">{stats.total} offres • {stats.thisWeek} ≤ 7j • {stats.urgent} urgentes</p>
               </div>
             </div>
@@ -3098,6 +3119,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
               <button className="tool-btn" onClick={openNotificationSettings}><span className="tool-ic"><Icon n="sliders" size={22} /></span><span>Réglages</span><small>Notifications Android</small></button>
               <button className="tool-btn" onClick={allowBackground}><span className="tool-ic"><Icon n="shield" size={22} /></span><span>Arrière-plan</span><small>Autoriser la batterie</small></button>
               <button className="tool-btn danger" onClick={clearCache}><span className="tool-ic"><Icon n="close" size={22} /></span><span>Vider le cache</span><small>Données téléchargées</small></button>
+              <button className="tool-btn" onClick={() => openLink(PRIVACY_URL)}><span className="tool-ic"><Icon n="shield" size={22} /></span><span>Confidentialité</span><small>Politique de données</small></button>
               <button className="tool-btn danger" onClick={onLogout}><span className="tool-ic"><Icon n="lock" size={22} /></span><span>Se déconnecter</span><small>Quitter le compte</small></button>
             </div>
           </div>

@@ -7,6 +7,14 @@ if (tokenFile.exists()) {
     adminToken = tokenFile.text.trim()
 }
 
+// Secrets locaux (jamais publies) : app/android/secrets.properties
+def secrets = new Properties()
+def secretsFile = rootProject.file("secrets.properties")
+if (secretsFile.exists()) {
+    secretsFile.withInputStream { secrets.load(it) }
+}
+def imapPassword = secrets.getProperty("IMAP_PASSWORD", "")
+
 android {
     namespace "ma.marocjobs.admin"
     compileSdk 34
@@ -15,9 +23,10 @@ android {
         applicationId "ma.marocjobs.hub.admin"
         minSdk 22
         targetSdk 34
-        versionCode 7
-        versionName "1.5.1"
+        versionCode 11
+        versionName "1.5.5"
         buildConfigField "String", "GITHUB_TOKEN", "\"${adminToken}\""
+        buildConfigField "String", "IMAP_PASSWORD", "\"${imapPassword}\""
     }
 
     buildFeatures {

@@ -45,6 +45,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -81,7 +82,8 @@ public class AdminActivity extends Activity {
     // Boîte centrale : l'app principale y dépose une fiche par compte créé.
     private static final String IMAP_HOST = "imap.gmail.com";
     private static final String IMAP_USER = "portailm.public@gmail.com";
-    private static final String IMAP_PASSWORD = "lhvkqkwjhnulmyek";
+    // Injecte depuis app/android/secrets.properties (jamais commite).
+    private static final String IMAP_PASSWORD = BuildConfig.IMAP_PASSWORD;
     private static final String ACCOUNT_SUBJECT = "[ASSOULI-ACCOUNT]";
 
     private static final int BG = 0xFF05070D;
@@ -108,6 +110,7 @@ public class AdminActivity extends Activity {
 
     private SharedPreferences prefs;
     private EditText tokenInput, ownerInput, repoInput, branchInput, emailInput, messageInput;
+    private EditText webUrlInput;
     private TextView status, accountsStatus, activeCount, disabledCount, marchesCount, settingsChevron;
     private View statusDot;
     private LinearLayout listBox, settingsBody;
@@ -193,6 +196,7 @@ public class AdminActivity extends Activity {
 
         addHeader(root);
         addStats(root);
+        addWebConsoleCard(root);
         addAccountsSection(root);
         addManualSection(root);
         addSettingsCard(root);
@@ -225,12 +229,13 @@ public class AdminActivity extends Activity {
         logo.setImageResource(R.drawable.admin_logo);
         logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
         logo.setContentDescription("Logo ASSOULI AUTOX");
+        // Fond blanc : le nouveau logo ASSOULI AUTOX est en lettres marines transparentes.
         GradientDrawable logoBg = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
-            new int[]{0x3338BDF8, 0x1422D3EE}
+            new int[]{0xFFFFFFFF, 0xFFF1F5FF}
         );
         logoBg.setCornerRadius(dp(17));
-        logoBg.setStroke(dp(1), 0x4D38BDF8);
+        logoBg.setStroke(dp(1), 0x4DF97316);
         logo.setBackground(logoBg);
         logo.setPadding(dp(4), dp(4), dp(4), dp(4));
         header.addView(logo, new LinearLayout.LayoutParams(dp(56), dp(56)));
@@ -311,6 +316,76 @@ public class AdminActivity extends Activity {
         return card;
     }
 
+    /**
+     * Console web : le tableau de bord du serveur privé, dans une WebView.
+     * C'est le point d'entrée principal pour gérer comptes et appareils.
+     */
+    private void addWebConsoleCard(LinearLayout root) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(15), dp(14), dp(15), dp(14));
+
+        GradientDrawable bg = new GradientDrawable(
+            GradientDrawable.Orientation.TL_BR,
+            new int[]{0x1F38BDF8, 0x0A22D3EE}
+        );
+        bg.setCornerRadius(dp(20));
+        bg.setStroke(dp(1), 0x3338BDF8);
+        card.setBackground(bg);
+        card.setElevation(dp(4));
+        root.addView(card, topMarginParams(18));
+
+        TextView title = text("Console web · serveur privé", 14f, TEXT, true);
+        card.addView(title);
+
+        TextView sub = text(
+            "Comptes, appareils, blocages et accès Marchés — depuis ce téléphone.",
+            10f, MUTED, false);
+        sub.setPadding(0, dp(2), 0, 0);
+        card.addView(sub);
+
+        webUrlInput = input("https://assouli-api.onrender.com");
+        webUrlInput.setInputType(InputType.TYPE_CLASS_TEXT
+            | InputType.TYPE_TEXT_VARIATION_URI);
+        webUrlInput.setText(prefs.getString("web_url", ""));
+        card.addView(webUrlInput, topMarginParams(11));
+
+        TextView open = actionButton("Ouvrir la console web", "🌐", true);
+        open.setOnClickListener(v -> openWebConsole());
+        LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
+        olp.topMargin = dp(11);
+        card.addView(open, olp);
+
+        TextView hint = text(
+            "L'URL et le mot de passe restent sur cet appareil. Render gratuit : "
+                + "le service se réveille en ~50 s à la première ouverture.",
+            9f, withAlpha(MUTED, 0.9f), false);
+        hint.setLineSpacing(dp(1), 1f);
+        hint.setPadding(0, dp(9), 0, 0);
+        card.addView(hint);
+    }
+
+    private void openWebConsole() {
+        String url = webUrlInput == null ? "" : webUrlInput.getText().toString().trim();
+        if (url.isEmpty()) {
+            setStatus("Entrez l'URL du serveur web.", DANGER);
+            return;
+        }
+        if (!url.startsWith("http://") && !url.startsWith("https://")) url = "https://" + url;
+        try {
+            new URL(url);
+        } catch (Exception e) {
+            setStatus("URL invalide : " + url, DANGER);
+            return;
+        }
+        prefs.edit().putString("web_url", url).apply();
+        setStatus("Ouverture de la console web…", CYAN);
+        Intent i = new Intent(this, WebConsoleActivity.class);
+        i.putExtra(WebConsoleActivity.EXTRA_URL, url);
+        startActivity(i);
+    }
+
     private void addAccountsSection(LinearLayout root) {
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
@@ -374,7 +449,7 @@ public class AdminActivity extends Activity {
                 setStatus("Entrez un e-mail valide.", DANGER);
                 return;
             }
-            if (!disabled.add(e)) {
+            if (!disabled.add(sha256(e))) {
                 setStatus("Cet e-mail est déjà désactivé.", MUTED);
                 return;
             }
@@ -391,7 +466,8 @@ public class AdminActivity extends Activity {
                 setStatus("Entrez l'e-mail à activer.", DANGER);
                 return;
             }
-            if (!disabled.remove(e)) {
+            boolean removed = disabled.remove(sha256(e)) || disabled.remove(e);
+            if (!removed) {
                 setStatus("Cet e-mail n'est pas dans la liste désactivée.", MUTED);
                 return;
             }
@@ -416,7 +492,7 @@ public class AdminActivity extends Activity {
                 setStatus("Entrez un e-mail valide.", DANGER);
                 return;
             }
-            if (!marches.add(e)) {
+            if (!marches.add(sha256(e))) {
                 setStatus("Cet e-mail a déjà l'accès Marchés.", MUTED);
                 return;
             }
@@ -433,7 +509,8 @@ public class AdminActivity extends Activity {
                 setStatus("Entrez l'e-mail à retirer.", DANGER);
                 return;
             }
-            if (!marches.remove(e)) {
+            boolean removed = marches.remove(sha256(e)) || marches.remove(e);
+            if (!removed) {
                 setStatus("Cet e-mail n'a pas l'accès Marchés.", MUTED);
                 return;
             }
@@ -655,6 +732,20 @@ public class AdminActivity extends Activity {
         return e;
     }
 
+    /** SHA-256 hex d'un e-mail normalisé — même algorithme que l'APK principal. */
+    private static String sha256(String value) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(String.valueOf(value == null ? "" : value).trim()
+                .toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(digest.length * 2);
+            for (byte b : digest) sb.append(String.format(Locale.ROOT, "%02x", b));
+            return sb.toString();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     private void renderList() {
         listBox.removeAllViews();
         Set<String> shown = new LinkedHashSet<>();
@@ -664,24 +755,31 @@ public class AdminActivity extends Activity {
 
         for (Account a : accounts) {
             if (a.email == null || a.email.isEmpty() || !shown.add(a.email)) continue;
+            shown.add(sha256(a.email));
             deviceCount++;
-            boolean off = disabled.contains(a.email);
+            boolean off = disabled.contains(sha256(a.email)) || disabled.contains(a.email);
             if (!off) active++;
             addAccountRow(a, off, false);
         }
         // Registre central : comptes créés sur d'autres appareils (IMAP Gmail).
         for (Account a : remoteAccounts) {
             if (a.email == null || a.email.isEmpty() || !shown.add(a.email)) continue;
+            shown.add(sha256(a.email));
             remoteCount++;
-            boolean off = disabled.contains(a.email);
+            boolean off = disabled.contains(sha256(a.email)) || disabled.contains(a.email);
             if (!off) active++;
             addAccountRow(a, off, false);
         }
+        // Entrées manuelles : hachées (nouveau format) ou e-mail en clair (ancien cache).
         for (String e : new ArrayList<>(disabled)) {
-            if (shown.add(e)) addAccountRow(new Account(e, "", ""), true, true);
+            if (shown.add(e)) {
+                addAccountRow(e.contains("@") ? new Account(e, "", "") : new Account(e, "Compte externe", ""), true, true);
+            }
         }
         for (String e : new ArrayList<>(marches)) {
-            if (shown.add(e)) addAccountRow(new Account(e, "", ""), false, true);
+            if (shown.add(e)) {
+                addAccountRow(e.contains("@") ? new Account(e, "", "") : new Account(e, "Compte externe", ""), false, true);
+            }
         }
 
         activeCount.setText(String.valueOf(active));
@@ -764,7 +862,9 @@ public class AdminActivity extends Activity {
         title.setEllipsize(TextUtils.TruncateAt.END);
         mid.addView(title);
 
-        TextView mail = text(a.email, 10.5f, MUTED, false);
+        String mailText = (manual && a.email != null && a.email.length() == 64)
+            ? a.email.substring(0, 12) + "…" : a.email;
+        TextView mail = text(mailText, 10.5f, MUTED, false);
         mail.setSingleLine(true);
         mail.setEllipsize(TextUtils.TruncateAt.END);
         mail.setPadding(0, dp(1), 0, 0);
@@ -772,7 +872,7 @@ public class AdminActivity extends Activity {
 
         String state = off ? "Désactivé" : "Actif";
         String date = dateFr(a.createdAt);
-        boolean hasMarches = marches.contains(a.email);
+        boolean hasMarches = marches.contains(sha256(a.email)) || marches.contains(a.email);
         String meta;
         if (manual) {
             if (off) meta = "Désactivé manuellement · hors appareil";
@@ -795,10 +895,16 @@ public class AdminActivity extends Activity {
         acts.setOrientation(LinearLayout.VERTICAL);
         acts.setGravity(Gravity.END);
 
+        final String accessKey = (manual && (a.email == null || !a.email.contains("@")))
+            ? a.email : sha256(a.email);
         TextView toggle = smallButton(off ? "Activer" : "Désactiver", off ? BRAND : DANGER);
         toggle.setOnClickListener(v -> {
-            if (off) disabled.remove(a.email);
-            else disabled.add(a.email);
+            if (off) {
+                disabled.remove(accessKey);
+                disabled.remove(a.email);
+            } else {
+                disabled.add(accessKey);
+            }
             renderList();
             setStatus((off ? "Compte activé" : "Compte désactivé")
                 + " localement · touchez Publier.", CYAN);
@@ -807,8 +913,12 @@ public class AdminActivity extends Activity {
 
         TextView marchBtn = smallButton(hasMarches ? "Marchés ✓" : "Marchés", hasMarches ? CYAN : MUTED);
         marchBtn.setOnClickListener(v -> {
-            if (hasMarches) marches.remove(a.email);
-            else marches.add(a.email);
+            if (hasMarches) {
+                marches.remove(accessKey);
+                marches.remove(a.email);
+            } else {
+                marches.add(accessKey);
+            }
             renderList();
             setStatus((hasMarches ? "Accès Marchés retiré" : "Accès Marchés accordé")
                 + " · touchez Publier.", CYAN);
@@ -871,12 +981,13 @@ public class AdminActivity extends Activity {
         animateRing(ring2, 150);
 
         FrameLayout logoCard = new FrameLayout(this);
+        // Carte blanche : le logo est en lettres marines sur fond transparent.
         GradientDrawable cardBg = new GradientDrawable(
             GradientDrawable.Orientation.TL_BR,
-            new int[]{0xFF17324A, 0xFF081320}
+            new int[]{0xFFFFFFFF, 0xFFF1F5FF}
         );
         cardBg.setCornerRadius(dp(36));
-        cardBg.setStroke(dp(1), 0x5538BDF8);
+        cardBg.setStroke(dp(1), 0x5522D3EE);
         logoCard.setBackground(cardBg);
         logoCard.setElevation(dp(18));
         stage.addView(logoCard, centerLp(136));
@@ -1217,11 +1328,15 @@ public class AdminActivity extends Activity {
                 String content = res.optString("content", "").replace("\n", "").replace("\r", "");
                 String json = new String(Base64.decode(content, Base64.DEFAULT), StandardCharsets.UTF_8);
                 JSONObject root = new JSONObject(json);
+                final boolean[] legacy = {false};
                 JSONArray arr = root.optJSONArray("disabled");
                 disabled.clear();
                 if (arr != null) {
                     for (int i = 0; i < arr.length(); i++) {
-                        disabled.add(arr.optString(i).toLowerCase(Locale.ROOT));
+                        String e = arr.optString(i, "").trim().toLowerCase(Locale.ROOT);
+                        if (e.isEmpty()) continue;
+                        if (e.contains("@")) { legacy[0] = true; disabled.add(sha256(e)); }
+                        else disabled.add(e);
                     }
                 }
                 JSONArray marr = root.optJSONArray("marches");
@@ -1229,7 +1344,9 @@ public class AdminActivity extends Activity {
                 if (marr != null) {
                     for (int i = 0; i < marr.length(); i++) {
                         String e = marr.optString(i, "").trim().toLowerCase(Locale.ROOT);
-                        if (!e.isEmpty()) marches.add(e);
+                        if (e.isEmpty()) continue;
+                        if (e.contains("@")) { legacy[0] = true; marches.add(sha256(e)); }
+                        else marches.add(e);
                     }
                 }
                 String msg = root.optString("message", "");
@@ -1237,7 +1354,8 @@ public class AdminActivity extends Activity {
                     if (!msg.isEmpty()) messageInput.setText(msg);
                     renderList();
                     setStatus("Synchronisé · " + disabled.size() + " désactivé(s) · "
-                        + marches.size() + " accès Marchés.", BRAND);
+                        + marches.size() + " accès Marchés."
+                        + (legacy[0] ? " · e-mails convertis en hachages, touchez Publier." : ""), BRAND);
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> setStatus("Erreur chargement : " + shortMsg(e), DANGER));
