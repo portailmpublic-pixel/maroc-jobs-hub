@@ -11,4 +11,10 @@ app/ios/
 # (The public repo must only expose app/public/*.json + release assets.)
 server/
 
+# Internal Play Store / security notes: local only, not for the public repo.
+PLAY_STORE_GUIDE.md
+BILLING_ANALYSIS.md
+BILLING_SUMMARY.txt
+FINAL_SUMMARY.md
+
 design/icon-qa/
