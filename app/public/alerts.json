@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-10-30T21:23:22.477Z",
+  "updatedAt": "2026-10-31T10:44:24.182Z",
   "phone": "212663369080",
-  "total": 1315,
+  "total": 1337,
   "alerts": [
+    {
+      "id": "n1793443464181",
+      "at": "2026-10-31T10:44:24.181Z",
+      "title": "+26 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 26 nouveauté(s) (cloud)\n🏛️ Concours — Ingénieur d'Etat et Technicien spécialisé — Agence pour le Développement Agricole (Maroc) ⏰2026-11-02\n🏛️ Concours — ARCHITECTE — Agence urbaine de Nador (Nador) ⏰2026-11-02\n🏛️ Concours — Chargé de suivi dossiers d'assurances — Bank Al-Maghrib (Maroc) ⏰2026-11-02\n🏛️ Concours — Technicien Comptable — Société Nationales des Transports et de Logistique (SNTL) (Maroc) ⏰2026-11-03\n💼 Chauffeur livreur —  (Deroua)\n💼 DIRECTEUR (TRICE) PÉDAGOGIQUE – COLLÈGE & LYCEE —  (Berrechid)\n💼 Comptable femme/ Réceptionniste/ Serveur —  (Rabat)\n💼 Ingénieur paysagiste & technicien paysagiste (h/f) —  (Salé)\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Résidant (2026-10-31)\n- Concours — Élèves officiers - echelle 10 (2026-10-31)\n- Concours — Résidents- Faculté de Médecine et de Pharmacie de Casablanca (2026-10-31)\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n📊 Total suivi : 1337 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 26,
+        "concours": 4,
+        "total": 1337
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793395402477",
       "at": "2026-10-30T21:23:22.477Z",
