@@ -7,4 +7,8 @@ app/ios/
 .DS_Store
 *.apk
 
+# Backend source: keep it in a PRIVATE repo, never in the public one.
+# (The public repo must only expose app/public/*.json + release assets.)
+server/
+
 design/icon-qa/
