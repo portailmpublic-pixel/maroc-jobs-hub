@@ -15,9 +15,105 @@ const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc
 const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
 // Politique de confidentialité : version en ligne (Play Store) + copie embarquée hors-ligne.
 const PRIVACY_URL = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/privacy.html';
+// Serveur live (Render) : suivi des comptes en temps réel + vérification d'accès
+// instantanée. L'URL est définie une fois et pour toutes dans DEFAULT_API_BASE.
+// Chaîne vide = serveur live désactivé (l'app fonctionne exactement comme avant).
+const DEFAULT_API_BASE = '';
+const LS_API_BASE = 'mjh_api_url';
+const LS_DEVICE_ID = 'mjh_device_id_v1';
+const LS_LAST_PING = 'mjh_last_ping_v1';
+
+function apiBase() {
+  try {
+    return String(localStorage.getItem(LS_API_BASE) || DEFAULT_API_BASE)
+      .trim()
+      .replace(/\/+$/, '');
+  } catch { return DEFAULT_API_BASE; }
+}
+
+// Identifiant d'installation stable (pas l'appareil lui-même) : permet au
+// registre de reconnaître le téléphone de l'utilisateur à chaque ouverture.
+function deviceId() {
+  try {
+    let id = localStorage.getItem(LS_DEVICE_ID);
+    if (!id) {
+      id = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem(LS_DEVICE_ID, id);
+    }
+    return id;
+  } catch { return ''; }
+}
+
+// Modèle Android précis via les Client Hints (Chromium/WebView) quand c'est utile.
+async function nativeDeviceInfo() {
+  let model = '';
+  let android = '';
+  try {
+    const ua = navigator.userAgentData || null;
+    if (ua && typeof ua.getHighEntropyValues === 'function') {
+      const v = await ua.getHighEntropyValues(['model', 'platformVersion']);
+      model = String((v && v.model) || '').trim();
+      android = String((v && v.platformVersion) || '').trim();
+    }
+  } catch {}
+  if (!android) {
+    const m = /Android\s([\d.]+)/.exec(navigator.userAgent || '');
+    if (m) android = m[1];
+  }
+  return { model, android };
+}
 
 function readAccess() {
   try { return JSON.parse(localStorage.getItem(LS_ACCESS) || '{}'); } catch { return {}; }
+}
+
+// ---- Suivi live (serveur ASSOULI) ----
+// Signalement discret : e-mail + appareil au registre du serveur officiel.
+// Jamais d'échec visible : si le serveur est montant / en sommeil / absent,
+// l'application continue comme si de rien n'était.
+async function trackServer(kind, sess = null) {
+  const base = apiBase();
+  if (!base) return;
+  try {
+    const s = sess || readSession();
+    if (!s || !s.email) return;
+    if (kind === 'ping') {
+      // Un ping par heure maximum : le serveur garde l'appareil "vu récemment".
+      try {
+        const last = Number(localStorage.getItem(LS_LAST_PING) || 0);
+        if (last && Date.now() - last < 3600 * 1000) return;
+        localStorage.setItem(LS_LAST_PING, String(Date.now()));
+      } catch {}
+    }
+    let appVersion = '';
+    try {
+      const cap = await import('@capacitor/core');
+      if (cap.Capacitor.isNativePlatform()) {
+        const U = cap.registerPlugin('ApkUpdater');
+        const v = await U.getVersion();
+        if (v) appVersion = (v.versionName || '') + ' (' + (v.versionCode || '') + ')';
+      }
+    } catch {}
+    const { model, android } = await nativeDeviceInfo();
+    await fetch(base + '/api/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+      body: JSON.stringify({
+        kind,
+        email: String(s.email || '').trim().toLowerCase(),
+        name: String(s.name || '').trim(),
+        createdAt: String(s.since || '').trim(),
+        deviceId: deviceId(),
+        model,
+        manufacturer: '',
+        android,
+        appVersion,
+      }),
+    });
+  } catch {
+    // Silencieux : le suivi live ne doit jamais gêner l'utilisateur.
+  }
 }
 
 // ---- Apparence : clair / sombre / auto ----
@@ -82,6 +178,19 @@ function blockedMessage() {
 }
 
 async function refreshAccessList(opts = {}) {
+  // 1) Serveur live si configuré : fraîcheur immédiate (pas de cache GitHub).
+  const base = apiBase();
+  if (base) {
+    try {
+      const live = await fetchJSON(base + '/api/public/access.json', 6000, { cache: 'no-store' });
+      if (live && (Array.isArray(live.disabled) || Array.isArray(live.marches))) {
+        localStorage.setItem(LS_ACCESS, JSON.stringify(live));
+        return live;
+      }
+    } catch {
+      // Serveur absent/inactif : on suit sur GitHub, comme avant.
+    }
+  }
   try {
     const data = await fetchJSON(ACCESS_URL + '?v=' + Date.now(), 8000, { cache: 'no-store' });
     if (data && (Array.isArray(data.disabled) || Array.isArray(data.marches))) {
@@ -1207,6 +1316,8 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
     const sess = { email: target, name: acc.name, since: new Date().toISOString() };
     writeSession(sess);
     onAuthed(sess);
+    // Suivi live : enregistre la connexion immédiatement (totalement silencieux).
+    trackServer('login', sess);
   }
 
   async function resend() {
@@ -2035,7 +2146,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     }
   }
 
-  useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); checkAccessNow(); }, []);
+  useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); checkAccessNow(); trackServer('ping', session); }, []);
   // Registre central : envoie la fiche du compte à la boîte Gmail (admin).
   useEffect(() => { registerAccountRecord(session, appVer); }, [appVer]);
   useEffect(() => {
