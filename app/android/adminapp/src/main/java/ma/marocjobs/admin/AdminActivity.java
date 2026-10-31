@@ -449,7 +449,7 @@ public class AdminActivity extends Activity {
                 setStatus("Entrez un e-mail valide.", DANGER);
                 return;
             }
-            if (!disabled.add(sha256(e))) {
+            if (!disabled.add(e)) {
                 setStatus("Cet e-mail est déjà désactivé.", MUTED);
                 return;
             }
@@ -492,7 +492,7 @@ public class AdminActivity extends Activity {
                 setStatus("Entrez un e-mail valide.", DANGER);
                 return;
             }
-            if (!marches.add(sha256(e))) {
+            if (!marches.add(e)) {
                 setStatus("Cet e-mail a déjà l'accès Marchés.", MUTED);
                 return;
             }
@@ -895,15 +895,15 @@ public class AdminActivity extends Activity {
         acts.setOrientation(LinearLayout.VERTICAL);
         acts.setGravity(Gravity.END);
 
-        final String accessKey = (manual && (a.email == null || !a.email.contains("@")))
-            ? a.email : sha256(a.email);
+        // Format « ancien » : les e-mails en clair restent en clair (compatibilité
+        // de toutes les APK), les empreintes déjà présentes restent telles quelles.
         TextView toggle = smallButton(off ? "Activer" : "Désactiver", off ? BRAND : DANGER);
         toggle.setOnClickListener(v -> {
             if (off) {
-                disabled.remove(accessKey);
                 disabled.remove(a.email);
+                disabled.remove(sha256(a.email));
             } else {
-                disabled.add(accessKey);
+                disabled.add(a.email);
             }
             renderList();
             setStatus((off ? "Compte activé" : "Compte désactivé")
@@ -914,10 +914,10 @@ public class AdminActivity extends Activity {
         TextView marchBtn = smallButton(hasMarches ? "Marchés ✓" : "Marchés", hasMarches ? CYAN : MUTED);
         marchBtn.setOnClickListener(v -> {
             if (hasMarches) {
-                marches.remove(accessKey);
                 marches.remove(a.email);
+                marches.remove(sha256(a.email));
             } else {
-                marches.add(accessKey);
+                marches.add(a.email);
             }
             renderList();
             setStatus((hasMarches ? "Accès Marchés retiré" : "Accès Marchés accordé")
@@ -1328,15 +1328,14 @@ public class AdminActivity extends Activity {
                 String content = res.optString("content", "").replace("\n", "").replace("\r", "");
                 String json = new String(Base64.decode(content, Base64.DEFAULT), StandardCharsets.UTF_8);
                 JSONObject root = new JSONObject(json);
-                final boolean[] legacy = {false};
                 JSONArray arr = root.optJSONArray("disabled");
                 disabled.clear();
                 if (arr != null) {
                     for (int i = 0; i < arr.length(); i++) {
                         String e = arr.optString(i, "").trim().toLowerCase(Locale.ROOT);
                         if (e.isEmpty()) continue;
-                        if (e.contains("@")) { legacy[0] = true; disabled.add(sha256(e)); }
-                        else disabled.add(e);
+                        // E-mail en clair conservé tel quel (format historic), empreinte conservée aussi.
+                        disabled.add(e);
                     }
                 }
                 JSONArray marr = root.optJSONArray("marches");
@@ -1344,9 +1343,7 @@ public class AdminActivity extends Activity {
                 if (marr != null) {
                     for (int i = 0; i < marr.length(); i++) {
                         String e = marr.optString(i, "").trim().toLowerCase(Locale.ROOT);
-                        if (e.isEmpty()) continue;
-                        if (e.contains("@")) { legacy[0] = true; marches.add(sha256(e)); }
-                        else marches.add(e);
+                        if (!e.isEmpty()) marches.add(e);
                     }
                 }
                 String msg = root.optString("message", "");
@@ -1354,8 +1351,7 @@ public class AdminActivity extends Activity {
                     if (!msg.isEmpty()) messageInput.setText(msg);
                     renderList();
                     setStatus("Synchronisé · " + disabled.size() + " désactivé(s) · "
-                        + marches.size() + " accès Marchés."
-                        + (legacy[0] ? " · e-mails convertis en hachages, touchez Publier." : ""), BRAND);
+                        + marches.size() + " accès Marchés.", BRAND);
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> setStatus("Erreur chargement : " + shortMsg(e), DANGER));
