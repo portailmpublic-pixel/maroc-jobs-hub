@@ -39,7 +39,7 @@ public class AppControlPlugin extends Plugin {
         });
     }
 
-    /** Ouvre la demande d'exemption d'optimisation de batterie (travail en fond). */
+    /** Ouvre l'ecran d'exemption d'optimisation de batterie (sans permission restreinte). */
     @PluginMethod
     public void background(PluginCall call) {
         JSObject ret = new JSObject();
@@ -47,19 +47,11 @@ public class AppControlPlugin extends Plugin {
         try {
             Activity activity = getActivity();
             if (activity == null) { call.resolve(ret); return; }
-            Intent i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-            i.setData(Uri.parse("package:" + activity.getPackageName()));
-            activity.startActivity(i);
+            // Play Store: pas de REQUEST_IGNORE_BATTERY_OPTIMIZATIONS (permission restreinte).
+            // On ouvre directement la liste des applications a exclure.
+            activity.startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
             ret.put("ok", true);
-        } catch (Exception e) {
-            try {
-                Activity activity = getActivity();
-                if (activity != null) {
-                    activity.startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
-                    ret.put("ok", true);
-                }
-            } catch (Exception ignored) {}
-        }
+        } catch (Exception ignored) {}
         call.resolve(ret);
     }
 
