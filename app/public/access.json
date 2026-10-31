@@ -1,8 +1,9 @@
 {
-  "updatedAt": "2026-10-31T18:10:34Z",
+  "updatedAt": "2026-10-31T18:13:06Z",
   "disabled": [],
   "marches": [
-    "8da98ef3802e7634ec58107fba02d337e53683f03ef1c0fc3404b4ff9c7b8ed1"
+    "8da98ef3802e7634ec58107fba02d337e53683f03ef1c0fc3404b4ff9c7b8ed1",
+    "f95c1b8f8062a58ae611692cba52dc2300448b19d47af3a68a4c62c3c056e9b9"
   ],
   "message": "Ce compte a été désactivé par l’administrateur. Contactez le support ASSOULI AUTOX."
 }
