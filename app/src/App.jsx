@@ -2700,6 +2700,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span>{kinds.concours > 0 && <b className="count">{kinds.concours}</b>}</button>
           <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mArchAllowed && mStats.open > 0 && <b className="count">{compactNum(mStats.open)}</b>}{!mArchAllowed && <b className="count"><Icon n="lock" size={11} /></b>}</button>
           <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><span className="dn-l"><Icon n="file" size={19} />Exams & Corrigés</span></button>
+          <button className={germanOpen ? 'active' : ''} onClick={() => { setMenuOpen(false); setGermanOpen(true); loadGerman(); }}><span className="dn-l"><Icon n="file" size={19} />Deutsch · Examens</span>{!germanOk && <b className="count"><Icon n="lock" size={11} /></b>}</button>
           <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><span className="dn-l"><Icon n="bell" size={19} />Alertes</span>{unread > 0 && <b className="count red">{unread}</b>}</button>
           <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><span className="dn-l"><Icon n="chart" size={19} />Dashboard</span></button>
           <button className={tab === 'setup' ? 'active' : ''} onClick={() => goTab('setup')}><span className="dn-l"><Icon n="sliders" size={19} />Configuration</span></button>
@@ -2908,6 +2909,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
               <button onClick={() => goTab('setup')}><span className="pm-ic slate"><Icon n="sliders" size={19} /></span><span className="pm-txt"><b>Configuration</b><small>Notifications, cache, mises à jour</small></span><Icon n="chevron" size={16} /></button>
               <button onClick={() => goTab('marches')}><span className="pm-ic red"><Icon n="scale" size={19} /></span><span className="pm-txt"><b>Marchés publics</b><small>{mArchAllowed ? `${fmtNum(mStats.open)} consultations ouvertes` : 'Accès sur autorisation'}</small></span>{mArchAllowed ? <Icon n="chevron" size={16} /> : <span className="pm-lock"><Icon n="lock" size={14} /></span>}</button>
               <button onClick={() => goTab('exams')}><span className="pm-ic purple"><Icon n="clipboard" size={19} /></span><span className="pm-txt"><b>Exams & corrigés</b><small>Préparer vos concours</small></span><Icon n="chevron" size={16} /></button>
+              <button onClick={() => { setGermanOpen(true); loadGerman(); }}><span className="pm-ic blue"><Icon n="file" size={19} /></span><span className="pm-txt"><b>Deutsch · Examens</b><small>{germanOk ? 'Goethe, telc, TestDaF, ÖSD' : 'Accès sur autorisation'}</small></span>{germanOk ? <Icon n="chevron" size={16} /> : <span className="pm-lock"><Icon n="lock" size={14} /></span>}</button>
             </div>
           </section>
           <section className="profile-card">
@@ -3411,7 +3413,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
               <button className="tool-btn" onClick={openNotificationSettings}><span className="tool-ic"><Icon n="sliders" size={22} /></span><span>Réglages</span><small>Notifications Android</small></button>
               <button className="tool-btn" onClick={allowBackground}><span className="tool-ic"><Icon n="shield" size={22} /></span><span>Arrière-plan</span><small>Autoriser la batterie</small></button>
               <button className="tool-btn danger" onClick={clearCache}><span className="tool-ic"><Icon n="close" size={22} /></span><span>Vider le cache</span><small>Données téléchargées</small></button>
-              <button className="tool-btn" onClick={() => openLink(PRIVACY_URL)}><span className="tool-ic"><Icon n="shield" size={22} /></span><span>Confidentialité</span><small>Politique de données</small></button>
               <button className="tool-btn danger" onClick={onLogout}><span className="tool-ic"><Icon n="lock" size={22} /></span><span>Se déconnecter</span><small>Quitter le compte</small></button>
             </div>
           </div>
