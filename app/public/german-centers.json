@@ -1,0 +1,116 @@
+{
+  "updatedAt": "2026-11-01T18:30:00Z",
+  "note": "Centres et établissements au Maroc. Les coordonnées des instituts sont officielles ; pour les universités, vérifiez les modalités auprès de l'établissement.",
+  "centers": [
+    {
+      "id": "goethe-rabat",
+      "name": "Goethe-Institut Rabat",
+      "type": "Centre d'examen officiel",
+      "city": "Rabat",
+      "address": "7, rue Sana'a, 10001 Rabat",
+      "phone": "+212 537 732650",
+      "email": "info-rabat@goethe.de",
+      "exams": ["Goethe A1–C2", "TestDaF"],
+      "url": "https://www.goethe.de/ins/ma/fr/index.html"
+    },
+    {
+      "id": "goethe-casablanca",
+      "name": "Goethe-Institut Casablanca",
+      "type": "Centre d'examen officiel",
+      "city": "Casablanca",
+      "address": "11, place du 16 Novembre, 20000 Casablanca",
+      "phone": "",
+      "email": "",
+      "exams": ["Goethe A1–C2", "TestDaF"],
+      "url": "https://www.goethe.de/ins/ma/fr/index.html"
+    },
+    {
+      "id": "um5-rabat",
+      "name": "Université Mohammed V · Études germaniques",
+      "type": "Université",
+      "city": "Rabat",
+      "address": "Faculté des Lettres et Sciences Humaines, Rabat",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques", "Préparation Goethe / TestDaF"],
+      "url": "https://www.um5.ac.ma/"
+    },
+    {
+      "id": "uh2c-casablanca",
+      "name": "Université Hassan II · Études germaniques",
+      "type": "Université",
+      "city": "Casablanca",
+      "address": "Faculté des Lettres et Sciences Humaines, Casablanca",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques"],
+      "url": "https://www.univh2c.ma/"
+    },
+    {
+      "id": "usmba-fes",
+      "name": "Université Sidi Mohamed Ben Abdellah · Allemand",
+      "type": "Université",
+      "city": "Fès",
+      "address": "Faculté des Lettres Dhar El Mahraz, Fès",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques"],
+      "url": "https://www.usmba.ac.ma/"
+    },
+    {
+      "id": "uca-marrakech",
+      "name": "Université Cadi Ayyad · Allemand",
+      "type": "Université",
+      "city": "Marrakech",
+      "address": "Faculté des Lettres et Sciences Humaines, Marrakech",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques"],
+      "url": "https://www.uca.ma/"
+    },
+    {
+      "id": "uiz-agadir",
+      "name": "Université Ibn Zohr · Allemand",
+      "type": "Université",
+      "city": "Agadir",
+      "address": "Faculté des Lettres et Sciences Humaines, Agadir",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques"],
+      "url": "https://www.uiz.ac.ma/"
+    },
+    {
+      "id": "ump-oujda",
+      "name": "Université Mohammed Premier · Allemand",
+      "type": "Université",
+      "city": "Oujda",
+      "address": "Faculté des Lettres, Oujda",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques"],
+      "url": "https://www.ump.ma/"
+    },
+    {
+      "id": "uae-tetouan",
+      "name": "Université Abdelmalek Essaâdi · Allemand",
+      "type": "Université",
+      "city": "Tétouan",
+      "address": "Faculté des Lettres et Sciences Humaines, Tétouan",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques"],
+      "url": "https://www.uae.ac.ma/"
+    },
+    {
+      "id": "umi-meknes",
+      "name": "Université Moulay Ismail · Allemand",
+      "type": "Université",
+      "city": "Meknès",
+      "address": "Faculté des Lettres et Sciences Humaines, Meknès",
+      "phone": "",
+      "email": "",
+      "exams": ["Licence études germaniques"],
+      "url": "https://www.umi.ac.ma/"
+    }
+  ]
+}

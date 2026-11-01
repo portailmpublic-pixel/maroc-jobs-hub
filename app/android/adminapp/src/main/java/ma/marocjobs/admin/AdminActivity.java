@@ -103,6 +103,7 @@ public class AdminActivity extends Activity {
     private final ExecutorService pool = Executors.newSingleThreadExecutor();
     private final Set<String> disabled = new LinkedHashSet<>();
     private final Set<String> marches = new LinkedHashSet<>();
+    private final Set<String> german = new LinkedHashSet<>();
     private final List<Account> accounts = new ArrayList<>();
     private final List<Account> remoteAccounts = new ArrayList<>();
     private boolean remoteBusy = false;
@@ -1069,6 +1070,26 @@ public class AdminActivity extends Activity {
         mbp.topMargin = dp(5);
         acts.addView(marchBtn, mbp);
 
+        boolean hasGerman = german.contains(sha256(a.email)) || german.contains(a.email);
+        TextView deBtn = smallButton(hasGerman ? "Deutsch ✓" : "Deutsch",
+            hasGerman ? 0xFFA78BFA : MUTED);
+        deBtn.setOnClickListener(v -> {
+            if (hasGerman) {
+                german.remove(a.email);
+                german.remove(sha256(a.email));
+            } else {
+                german.add(a.email);
+            }
+            renderList();
+            setStatus((hasGerman ? "Accès Deutsch retiré" : "Accès Deutsch accordé")
+                + " · envoi aux appareils…", CYAN);
+            autoPublish();
+        });
+        LinearLayout.LayoutParams gbp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        gbp.topMargin = dp(5);
+        acts.addView(deBtn, gbp);
+
         r.addView(acts);
     }
 
@@ -1487,12 +1508,20 @@ public class AdminActivity extends Activity {
                         if (!e.isEmpty()) marches.add(e);
                     }
                 }
+                JSONArray garr = root.optJSONArray("german");
+                german.clear();
+                if (garr != null) {
+                    for (int i = 0; i < garr.length(); i++) {
+                        String e = garr.optString(i, "").trim().toLowerCase(Locale.ROOT);
+                        if (!e.isEmpty()) german.add(e);
+                    }
+                }
                 String msg = root.optString("message", "");
                 runOnUiThread(() -> {
                     if (!msg.isEmpty()) messageInput.setText(msg);
                     renderList();
                     setStatus("Synchronisé · " + disabled.size() + " désactivé(s) · "
-                        + marches.size() + " accès Marchés.", BRAND);
+                        + marches.size() + " Marchés · " + german.size() + " Deutsch.", BRAND);
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> setStatus("Erreur chargement : " + shortMsg(e), DANGER));
@@ -1524,11 +1553,14 @@ public class AdminActivity extends Activity {
                 for (String e : disabled) arr.put(e);
                 JSONArray marr = new JSONArray();
                 for (String e : marches) marr.put(e);
+                JSONArray garr = new JSONArray();
+                for (String e : german) garr.put(e);
                 SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
                 fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
                 payload.put("updatedAt", fmt.format(new Date()));
                 payload.put("disabled", arr);
                 payload.put("marches", marr);
+                payload.put("german", garr);
                 payload.put("message", message.isEmpty()
                     ? "Ce compte a été désactivé par l’administrateur." : message);
 

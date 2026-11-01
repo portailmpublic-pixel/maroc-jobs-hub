@@ -9,6 +9,7 @@ const LS_CACHE = 'mjh_cache_';
 const LS_ACCESS = 'mjh_access_v1';
 const LS_ACCESS_AT = 'mjh_access_checked_v1';
 const LS_MARCHES_SESSION = 'mjh_marches_session_v1';
+const LS_GERMAN_SESSION = 'mjh_german_session_v1';
 const LS_THEME = 'mjh_theme_v1';
 const LS_FAVORITES = 'mjh_favorites_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
@@ -167,6 +168,16 @@ function emailMatchesList(email, list) {
 
 function isMarchesAllowed(email, access) {
   return emailMatchesList(email, accessMarchesList(access));
+}
+
+// Accès « Deutsch » (examens d'allemand) : liste séparée, autorisée elle aussi
+// depuis l'APK admin. Tant que l'e-mail n'y figure pas, l'espace reste verrouillé.
+function accessGermanList(access) {
+  return ((access && access.german) || []).map((x) => String(x || '').trim().toLowerCase());
+}
+
+function isGermanAllowed(email, access) {
+  return emailMatchesList(email, accessGermanList(access));
 }
 
 function isEmailDisabled(email) {
@@ -1650,6 +1661,32 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [mGateMsg, setMGateMsg] = useState('');
   const closingRef = useRef(false);
 
+  // ---- Espace « Deutsch » (examens d'allemand) : accès autorisé par l'admin ----
+  const [germanOpen, setGermanOpen] = useState(false);
+  const [germanTab, setGermanTab] = useState('exams');
+  const [germanData, setGermanData] = useState(() => readCached('german', null));
+  const [germanCenters, setGermanCenters] = useState(() => readCached('germanCenters', null));
+  const [germanBusy, setGermanBusy] = useState(false);
+  const [germanLevel, setGermanLevel] = useState('');
+  const [germanQ, setGermanQ] = useState('');
+  const [germanCity, setGermanCity] = useState('');
+  const [gEmail, setGEmail] = useState(() => { try { return localStorage.getItem(LS_GERMAN_SESSION) || ''; } catch { return ''; } });
+  const [gGateStep, setGGateStep] = useState('email');
+  const [gGateEmail, setGGateEmail] = useState(session.email || '');
+  const [gGateCode, setGGateCode] = useState('');
+  const [gGateInfo, setGGateInfo] = useState(null);
+  const [gGateBusy, setGGateBusy] = useState(false);
+  const [gGateErr, setGGateErr] = useState('');
+  const [gGateMsg, setGGateMsg] = useState('');
+  const germanOk = isGermanAllowed(session.email, access) || (!!gEmail && isGermanAllowed(gEmail, access));
+  const germanExams = ((germanData && germanData.exams) || []).filter((e) => {
+    if (germanLevel && !(e.level || '').includes(germanLevel)) return false;
+    const q = germanQ.trim().toLowerCase();
+    if (!q) return true;
+    return (e.title + ' ' + e.body + ' ' + e.level + ' ' + (e.note || '')).toLowerCase().includes(q);
+  });
+  const germanCities = [...new Set(((germanCenters && germanCenters.centers) || []).map((c) => c.city))];
+
   // ---- Fiches locales (pas de sortie vers le navigateur) ----
   function openDetail(type, id) {
     if (!id) return;
@@ -2001,6 +2038,94 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
 
   function requestMarchesAccess() {
     const text = `Bonjour, je demande l’accès à l’espace Marchés publics d’ASSOULI AUTOX pour : ${session.email} (${session.name || 'compte'}). Merci.`;
+    openLink('https://wa.me/212663369080?text=' + encodeURIComponent(text));
+  }
+
+  // ---- Espace « Deutsch » : chargement des données + connexion dédiée ----
+  async function loadGerman() {
+    if (germanBusy) return;
+    setGermanBusy(true);
+    try {
+      if (!germanData) {
+        const base = apiBase();
+        const urls = [base ? base + '/german-exams.json' : null, './german-exams.json'].filter(Boolean);
+        for (const u of urls) {
+          try {
+            const d = await fetchJSON(u, 9000, { cache: 'no-store' });
+            if (d && Array.isArray(d.exams)) { setGermanData(d); writeCached('german', d); break; }
+          } catch {}
+        }
+      }
+      if (!germanCenters) {
+        const base = apiBase();
+        const urls = [base ? base + '/german-centers.json' : null, './german-centers.json'].filter(Boolean);
+        for (const u of urls) {
+          try {
+            const d = await fetchJSON(u, 9000, { cache: 'no-store' });
+            if (d && Array.isArray(d.centers)) { setGermanCenters(d); writeCached('germanCenters', d); break; }
+          } catch {}
+        }
+      }
+    } finally {
+      setGermanBusy(false);
+    }
+  }
+
+  async function sendGermanCode() {
+    setGGateErr(''); setGGateMsg('');
+    const target = gGateEmail.trim().toLowerCase();
+    if (!validEmail(target)) { setGGateErr('Adresse e-mail invalide.'); return; }
+    setGGateBusy(true);
+    const fresh = await refreshAccessList();
+    setAccess(fresh);
+    if (emailMatchesList(target, accessDisabledList(fresh))) {
+      setGGateBusy(false);
+      setGGateErr(blockedMessage());
+      return;
+    }
+    if (!isGermanAllowed(target, fresh)) {
+      setGGateBusy(false);
+      setGGateErr('Cette adresse n’est pas autorisée pour l’espace Deutsch. Demandez l’autorisation à l’administrateur.');
+      return;
+    }
+    const code = makeCode();
+    setGGateInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: target });
+    const r = await sendVerificationEmail({ to: target, code, name: session.name || '' });
+    setGGateBusy(false);
+    if (!r.ok) {
+      setGGateInfo(null);
+      setGGateErr(`Impossible d'envoyer l'e-mail : ${r.error === 'web' ? 'envoi disponible dans l’application Android' : r.error}`);
+      return;
+    }
+    setGGateStep('code');
+    setGGateCode('');
+    setGGateMsg(`Code envoyé à ${target}`);
+  }
+
+  async function verifyGermanCode() {
+    setGGateErr(''); setGGateMsg('');
+    if (!gGateInfo) { setGGateErr('Code expiré — demandez un nouveau code.'); return; }
+    if (Date.now() > gGateInfo.exp) { setGGateErr('Code expiré. Demandez un nouveau code.'); return; }
+    if (gGateCode.trim() !== gGateInfo.code) { setGGateErr('Code incorrect. Vérifiez votre e-mail.'); return; }
+    setGGateBusy(true);
+    const fresh = await refreshAccessList();
+    setAccess(fresh);
+    if (!isGermanAllowed(gGateInfo.email, fresh)) {
+      setGGateBusy(false);
+      setGGateErr('Accès Deutsch retiré ou non autorisé. Contactez l’administrateur.');
+      return;
+    }
+    try { localStorage.setItem(LS_GERMAN_SESSION, gGateInfo.email); } catch {}
+    setGEmail(gGateInfo.email);
+    setGGateBusy(false);
+    setGGateStep('email');
+    setGGateInfo(null);
+    setGGateCode('');
+    showToast('Espace Deutsch débloqué');
+  }
+
+  function requestGermanAccess() {
+    const text = `Bonjour, je demande l’accès à l’espace Deutsch (examens d’allemand) d’ASSOULI AUTOX pour : ${session.email} (${session.name || 'compte'}). Merci.`;
     openLink('https://wa.me/212663369080?text=' + encodeURIComponent(text));
   }
 
@@ -3079,6 +3204,21 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             </div>
           </div>
 
+          <div
+            className="panel de-promo"
+            role="button"
+            tabIndex={0}
+            onClick={() => { setGermanOpen(true); loadGerman(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setGermanOpen(true); loadGerman(); } }}
+          >
+            <div className="de-promo-ic">DE</div>
+            <div className="de-promo-txt">
+              <b>Examens d’allemand · Deutsch</b>
+              <span>{germanOk ? 'Goethe A1–C2 · telc · TestDaF · ÖSD · centres au Maroc' : 'Accès privé — autorisation de l’administrateur'}</span>
+            </div>
+            <span className="de-promo-cta">{germanOk ? 'Ouvrir' : <Icon n="lock" size={16} />}</span>
+          </div>
+
           {((examIndex && examIndex.years) || []).length > 0 && (
             <div className="filters ex-filters">
               <span className="kw-label"><Icon n="calendar" size={13} /> Année</span>
@@ -3313,6 +3453,121 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           onDownloadExam={downloadExamFile}
           onDownloadFile={downloadFile}
         />
+      )}
+
+      {germanOpen && (
+        <div className="de-screen" role="dialog" aria-modal="true" aria-label="Examens d’allemand">
+          <header className="de-head">
+            <button className="de-back" onClick={() => setGermanOpen(false)} aria-label="Retour">‹</button>
+            <div className="de-head-txt">
+              <b>Deutsch</b>
+              <span>Examens officiels · centres au Maroc</span>
+            </div>
+            {germanOk && <span className="de-pill">Autorisé</span>}
+          </header>
+
+          {!germanOk ? (
+            <div className="de-gate">
+              <div className="de-gate-emblem"><Icon n="lock" size={26} /></div>
+              <span className="m-eyebrow">Accès privé</span>
+              <h2>Examens d’allemand</h2>
+              <p className="m-gate-sub">Cet espace est réservé aux comptes autorisés par l’administrateur ASSOULI AUTOX.</p>
+
+              {gGateStep === 'email' ? (
+                <>
+                  <label className="auth-field"><span>E-mail autorisé</span>
+                    <input className="auth-input" type="email" value={gGateEmail} onChange={(e) => setGGateEmail(e.target.value)} placeholder="vous@exemple.com" autoComplete="email" inputMode="email" />
+                  </label>
+                  <button className="auth-btn" disabled={gGateBusy} onClick={sendGermanCode}>{gGateBusy ? 'Vérification…' : 'Recevoir le code'}</button>
+                </>
+              ) : (
+                <>
+                  <div className="m-gate-sent"><Icon n="mail" size={16} /><span>Code envoyé à <b>{gGateInfo ? gGateInfo.email : gGateEmail}</b></span></div>
+                  <label className="auth-field"><span>Code à 6 chiffres</span>
+                    <input className="auth-input auth-code" value={gGateCode} onChange={(e) => setGGateCode(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" maxLength={6} />
+                  </label>
+                  <button className="auth-btn" disabled={gGateBusy} onClick={verifyGermanCode}>{gGateBusy ? 'Vérification…' : 'Débloquer l’espace Deutsch'}</button>
+                  <button className="auth-link" onClick={() => { setGGateStep('email'); setGGateInfo(null); setGGateCode(''); setGGateErr(''); setGGateMsg(''); }}>Utiliser une autre adresse</button>
+                </>
+              )}
+
+              {gGateErr && <div className="auth-error">{gGateErr}</div>}
+              {gGateMsg && <div className="auth-ok">{gGateMsg}</div>}
+              <button className="ghost de-request" onClick={requestGermanAccess}>Demander l’autorisation</button>
+            </div>
+          ) : (
+            <>
+              <div className="de-tabs">
+                <button className={germanTab === 'exams' ? 'active' : ''} onClick={() => setGermanTab('exams')}>Examens</button>
+                <button className={germanTab === 'centers' ? 'active' : ''} onClick={() => setGermanTab('centers')}>Centres &amp; écoles</button>
+              </div>
+
+              {germanTab === 'exams' ? (
+                <>
+                  <div className="searchbar de-search">
+                    <Icon n="search" size={17} />
+                    <input placeholder="Goethe, telc, TestDaF, niveau…" value={germanQ} onChange={(e) => setGermanQ(e.target.value)} />
+                  </div>
+                  <div className="filters de-levels">
+                    <button className={'fchip' + (!germanLevel ? ' active' : '')} onClick={() => setGermanLevel('')}>Tous</button>
+                    {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((l) => (
+                      <button key={l} className={'fchip' + (germanLevel === l ? ' active' : '')} onClick={() => setGermanLevel(germanLevel === l ? '' : l)}>{l}</button>
+                    ))}
+                  </div>
+
+                  {germanBusy && !germanData && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div className="skeleton" key={i} />)}</div>}
+
+                  <div className="de-list">
+                    {germanExams.map((e) => (
+                      <article className="de-card" key={e.id}>
+                        <div className="de-badge">{e.level}</div>
+                        <div className="de-body">
+                          <b>{e.title}</b>
+                          <span className="de-meta">{e.body} · {(e.skills || []).join(' · ')}</span>
+                          <span className="de-note">{e.note}</span>
+                          <div className="de-links">
+                            <button className="de-open" onClick={() => openLink(e.url)}>Sujet officiel</button>
+                            {(e.files || []).map((f) => (
+                              <button key={f.url} className="de-file" onClick={() => openLink(f.url)}>{f.label}</button>
+                            ))}
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                    {germanData && germanExams.length === 0 && <div className="empty">Aucun examen pour ce filtre.</div>}
+                  </div>
+
+                  <p className="de-foot">Sources officielles : Goethe-Institut, telc, TestDaF, ÖSD, g.a.s.t. — liens vérifiés. Les sujets réels passés ne sont pas publiés par les organismes.</p>
+                </>
+              ) : (
+                <>
+                  <div className="filters de-cities">
+                    <button className={'fchip' + (!germanCity ? ' active' : '')} onClick={() => setGermanCity('')}>Toutes les villes</button>
+                    {germanCities.map((c) => (
+                      <button key={c} className={'fchip' + (germanCity === c ? ' active' : '')} onClick={() => setGermanCity(germanCity === c ? '' : c)}>{c}</button>
+                    ))}
+                  </div>
+                  <div className="de-list">
+                    {((germanCenters && germanCenters.centers) || []).filter((c) => !germanCity || c.city === germanCity).map((c) => (
+                      <article className="de-center" key={c.id}>
+                        <div className="de-center-top"><b>{c.name}</b><span className="de-city">{c.city}</span></div>
+                        <span className="de-meta">{c.type}</span>
+                        {c.address && <span className="de-note">{c.address}</span>}
+                        {c.phone && <span className="de-note">{c.phone}</span>}
+                        {c.email && <span className="de-note">{c.email}</span>}
+                        <div className="de-links">
+                          <button className="de-open" onClick={() => openLink(c.url)}>Site officiel</button>
+                          {c.phone && <button className="de-file" onClick={() => openLink('tel:' + String(c.phone).replace(/\s/g, ''))}>Appeler</button>}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                  <p className="de-foot">Coordonnées des instituts : sources officielles. Pour les universités, confirmez les modalités auprès de l’établissement.</p>
+                </>
+              )}
+            </>
+          )}
+        </div>
       )}
 
       {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
