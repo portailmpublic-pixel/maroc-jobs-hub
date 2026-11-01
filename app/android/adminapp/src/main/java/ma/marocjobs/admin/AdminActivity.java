@@ -688,9 +688,10 @@ public class AdminActivity extends Activity {
         setStatus("Vérification de l’APK…", CYAN);
         pool.execute(() -> {
             try {
-                if (!urlExists(BuildConfig.MAIN_APK_URL)) {
-                    runOnUiThread(() -> setStatus("APK introuvable à l’URL de la version "
-                        + BuildConfig.MAIN_VERSION_NAME + ". Publiez d’abord l’APK.", DANGER));
+                String apkUrl = resolveApkUrl(owner, repo, token);
+                if (apkUrl.isEmpty()) {
+                    runOnUiThread(() -> setStatus("Aucun APK téléchargeable trouvé. Publiez d’abord "
+                        + "l’APK en « Release » GitHub (fichier .apk).", DANGER));
                     return;
                 }
                 String path = "app/public/app-version.json";
@@ -698,7 +699,7 @@ public class AdminActivity extends Activity {
                 JSONObject payload = new JSONObject();
                 payload.put("versionCode", BuildConfig.MAIN_VERSION_CODE);
                 payload.put("versionName", BuildConfig.MAIN_VERSION_NAME);
-                payload.put("url", BuildConfig.MAIN_APK_URL);
+                payload.put("url", apkUrl);
                 payload.put("notes", "Mise à jour obligatoire vers v"
                     + BuildConfig.MAIN_VERSION_NAME + ".");
                 SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
@@ -736,8 +737,26 @@ public class AdminActivity extends Activity {
         });
     }
 
-    private boolean urlExists(String urlStr) {
-        HttpURLConnection con = null;
+    // URL de l'APK : celle de la version figée, sinon le dernier fichier .apk publié
+    // en « Release » GitHub (l'admin n'a donc rien à saisir).
+    private String resolveApkUrl(String owner, String repo, String token) {
+        if (urlExists(BuildConfig.MAIN_APK_URL)) return BuildConfig.MAIN_APK_URL;
+        try {
+            JSONObject rel = request("GET", API + owner + "/" + repo + "/releases/latest", null, token);
+            JSONArray assets = rel.optJSONArray("assets");
+            if (assets != null) {
+                for (int i = 0; i < assets.length(); i++) {
+                    JSONObject a = assets.optJSONObject(i);
+                    if (a == null) continue;
+                    String u = a.optString("browser_download_url", "");
+                    if (u.toLowerCase().endsWith(".apk") && urlExists(u)) return u;
+                }
+            }
+        } catch (Exception ignored) {}
+        return "";
+    }
+
+    private boolean urlExists(String urlStr) {        HttpURLConnection con = null;
         try {
             con = (HttpURLConnection) new URL(urlStr).openConnection();
             con.setRequestMethod("HEAD");
