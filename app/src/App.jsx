@@ -12,6 +12,7 @@ const LS_MARCHES_SESSION = 'mjh_marches_session_v1';
 const LS_THEME = 'mjh_theme_v1';
 const LS_FAVORITES = 'mjh_favorites_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
+const ACCESS_API_URL = 'https://api.github.com/repos/portailmpublic-pixel/maroc-jobs-hub/contents/app/public/access.json?ref=master';
 const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
 // Politique de confidentialité : version en ligne (Play Store) + copie embarquée hors-ligne.
 const PRIVACY_URL = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/privacy.html';
@@ -178,7 +179,23 @@ function blockedMessage() {
 }
 
 async function refreshAccessList(opts = {}) {
-  // 1) Serveur live si configuré : fraîcheur immédiate (pas de cache GitHub).
+  // 1) GitHub API : toujours frais (pas de cache CDN, délai ~1-2s au lieu de 1-5 min)
+  try {
+    const r = await fetchJSON(ACCESS_API_URL, 6000, { cache: 'no-store' });
+    if (r && r.content && r.encoding === 'base64') {
+      try {
+        const txt = atob(r.content.replace(/\\n/g, ''));
+        const data = JSON.parse(txt);
+        if (data && (Array.isArray(data.disabled) || Array.isArray(data.marches))) {
+          localStorage.setItem(LS_ACCESS, JSON.stringify(data));
+          return data;
+        }
+      } catch {}
+    }
+  } catch {
+    // API indisponible : on suit sur raw URL
+  }
+  // 2) Raw URL (avec cache-bust)
   const base = apiBase();
   if (base) {
     try {
@@ -187,9 +204,7 @@ async function refreshAccessList(opts = {}) {
         localStorage.setItem(LS_ACCESS, JSON.stringify(live));
         return live;
       }
-    } catch {
-      // Serveur absent/inactif : on suit sur GitHub, comme avant.
-    }
+    } catch {}
   }
   try {
     const data = await fetchJSON(ACCESS_URL + '?v=' + Date.now(), 8000, { cache: 'no-store' });

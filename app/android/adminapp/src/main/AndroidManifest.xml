@@ -16,6 +16,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="ASSOULI ADMIN"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AdminTheme">
 
         <activity
@@ -29,5 +30,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Console web : tableau de bord du serveur privé (Render). -->
+        <activity
+            android:name=".WebConsoleActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="Console web"
+            android:windowSoftInputMode="adjustResize" />
     </application>
 </manifest>
