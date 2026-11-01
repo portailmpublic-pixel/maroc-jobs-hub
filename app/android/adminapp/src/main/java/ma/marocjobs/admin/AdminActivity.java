@@ -2,6 +2,7 @@ package ma.marocjobs.admin;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -643,62 +644,114 @@ public class AdminActivity extends Activity {
         TextView upTitle = text("Forcer la mise à jour (tous les appareils)", 12f, TEXT, true);
         up.addView(upTitle, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        EditText vc = input("Code version (ex. 19)");
-        EditText vn = input("Nom version (ex. 1.7.0)");
-        EditText vu = input("URL de téléchargement directe (.apk)");
-        EditText vnotes = input("Notes de mise à jour");
-        up.addView(vc); up.addView(vn); up.addView(vu); up.addView(vnotes);
-        TextView upBtn = actionButton("Publier la version", "⬆", true);
+
+        // Renseigné automatiquement à la compilation depuis la version de l'APK principal.
+        TextView upInfo = text("Version prête : v" + BuildConfig.MAIN_VERSION_NAME
+            + " (" + BuildConfig.MAIN_VERSION_CODE + ")", 11f, BRAND, true);
+        upInfo.setPadding(0, dp(6), 0, 0);
+        up.addView(upInfo);
+        TextView upUrl = text(BuildConfig.MAIN_APK_URL, 9.2f, MUTED, false);
+        upUrl.setSingleLine(true);
+        upUrl.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        upUrl.setPadding(0, dp(2), 0, 0);
+        up.addView(upUrl);
+
+        TextView upBtn = actionButton("Forcer la mise à jour v" + BuildConfig.MAIN_VERSION_NAME, "⬆", true);
+        LinearLayout.LayoutParams ubp = new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, dp(50));
+        ubp.topMargin = dp(10);
         upBtn.setOnClickListener(v -> {
             final String owner = ownerInput.getText().toString().trim();
             final String repo = repoInput.getText().toString().trim();
             final String branch = branchInput.getText().toString().trim();
             final String token = tokenInput.getText().toString().trim();
-            final String code = vc.getText().toString().trim();
-            final String name = vn.getText().toString().trim();
-            final String url = vu.getText().toString().trim();
-            final String notes = vnotes.getText().toString().trim();
-            if (token.isEmpty() || owner.isEmpty() || repo.isEmpty() || code.isEmpty()
-                    || url.isEmpty()) {
-                setStatus("Jeton, compte/dépôt, code version et URL requis.", DANGER);
+            if (token.isEmpty() || owner.isEmpty() || repo.isEmpty()) {
+                setStatus("Jeton, compte et dépôt requis.", DANGER);
                 return;
             }
-            setStatus("Publication de la version.", CYAN);
-            pool.execute(() -> {
-                try {
-                    String path = "app/public/app-version.json";
-                    String apiUrl = API + owner + "/" + repo + "/contents/" + path;
-                    String shaV = "";
-                    try {
-                        JSONObject cur = request("GET", apiUrl + "?ref=" + branch, null,
-                                token.isEmpty() ? null : token);
-                        shaV = cur.optString("sha", "");
-                    } catch (Exception ignored) {}
-                    JSONObject body = new JSONObject();
-                    JSONObject payload = new JSONObject();
-                    payload.put("versionCode", Integer.parseInt(code));
-                    payload.put("versionName", name.isEmpty() ? code : name);
-                    payload.put("url", url);
-                    payload.put("notes", notes.isEmpty() ? "Mise à jour obligatoire." : notes);
-                    payload.put("publishedAt", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-                            .format(new java.util.Date()));
-                    byte[] bytes = payload.toString(2).getBytes(StandardCharsets.UTF_8);
-                    body.put("message", "Admin: force update " + name);
-                    body.put("content", Base64.encodeToString(bytes, Base64.NO_WRAP));
-                    body.put("branch", branch);
-                    if (!shaV.isEmpty()) body.put("sha", shaV);
-                    request("PUT", apiUrl, body.toString().getBytes(StandardCharsets.UTF_8), token);
-                    runOnUiThread(() -> setStatus("Version publiée. Les appareils se mettront à jour au prochain lancement.", BRAND));
-                } catch (Exception e) {
-                    runOnUiThread(() -> setStatus("Erreur publication version : " + shortMsg(e), DANGER));
-                }
-            });
+            new AlertDialog.Builder(this)
+                .setTitle("Forcer la mise à jour")
+                .setMessage("Tous les appareils passeront à la version v"
+                    + BuildConfig.MAIN_VERSION_NAME + " (" + BuildConfig.MAIN_VERSION_CODE + ").")
+                .setNegativeButton("Annuler", null)
+                .setPositiveButton("Forcer", (d, w) -> publishForcedUpdate(owner, repo, branch, token))
+                .show();
         });
-        up.addView(upBtn, new LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        up.addView(upBtn, ubp);
         wrap.addView(up, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return wrap;
+    }
+
+    // Publie app-version.json avec les valeurs figées à la compilation : un seul bouton.
+    private void publishForcedUpdate(String owner, String repo, String branch, String token) {
+        setStatus("Vérification de l’APK…", CYAN);
+        pool.execute(() -> {
+            try {
+                if (!urlExists(BuildConfig.MAIN_APK_URL)) {
+                    runOnUiThread(() -> setStatus("APK introuvable à l’URL de la version "
+                        + BuildConfig.MAIN_VERSION_NAME + ". Publiez d’abord l’APK.", DANGER));
+                    return;
+                }
+                String path = "app/public/app-version.json";
+                String apiUrl = API + owner + "/" + repo + "/contents/" + path;
+                JSONObject payload = new JSONObject();
+                payload.put("versionCode", BuildConfig.MAIN_VERSION_CODE);
+                payload.put("versionName", BuildConfig.MAIN_VERSION_NAME);
+                payload.put("url", BuildConfig.MAIN_APK_URL);
+                payload.put("notes", "Mise à jour obligatoire vers v"
+                    + BuildConfig.MAIN_VERSION_NAME + ".");
+                SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+                fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+                payload.put("publishedAt", fmt.format(new Date()));
+                byte[] bytes = payload.toString(2).getBytes(StandardCharsets.UTF_8);
+
+                Exception last = null;
+                for (int attempt = 0; attempt < 3; attempt++) {
+                    String shaV = "";
+                    try {
+                        JSONObject cur = request("GET", apiUrl + "?ref=" + branch, null, token);
+                        shaV = cur.optString("sha", "");
+                    } catch (Exception ignored) {}
+                    JSONObject body = new JSONObject();
+                    body.put("message", "Admin: force update v" + BuildConfig.MAIN_VERSION_NAME);
+                    body.put("content", Base64.encodeToString(bytes, Base64.NO_WRAP));
+                    body.put("branch", branch);
+                    if (!shaV.isEmpty()) body.put("sha", shaV);
+                    try {
+                        request("PUT", apiUrl, body.toString().getBytes(StandardCharsets.UTF_8), token);
+                        runOnUiThread(() -> setStatus("Mise à jour v" + BuildConfig.MAIN_VERSION_NAME
+                            + " forcée ✓ tous les appareils l’installeront au prochain lancement.", BRAND));
+                        return;
+                    } catch (Exception e) {
+                        last = e;
+                        try { Thread.sleep(700); } catch (InterruptedException ignored) {}
+                    }
+                }
+                final Exception err = last;
+                runOnUiThread(() -> setStatus("Erreur publication version : " + shortMsg(err), DANGER));
+            } catch (Exception e) {
+                runOnUiThread(() -> setStatus("Erreur publication version : " + shortMsg(e), DANGER));
+            }
+        });
+    }
+
+    private boolean urlExists(String urlStr) {
+        HttpURLConnection con = null;
+        try {
+            con = (HttpURLConnection) new URL(urlStr).openConnection();
+            con.setRequestMethod("HEAD");
+            con.setInstanceFollowRedirects(true);
+            con.setConnectTimeout(12000);
+            con.setReadTimeout(12000);
+            con.setRequestProperty("User-Agent", "ASSOULI-ADMIN");
+            int code = con.getResponseCode();
+            return code >= 200 && code < 400;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            if (con != null) con.disconnect();
+        }
     }
 
     private LinearLayout.LayoutParams buttonParams(float weight, int startDp, int endDp) {
