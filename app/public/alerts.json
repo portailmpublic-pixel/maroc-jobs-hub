@@ -1,125 +1,17 @@
 {
-  "updatedAt": "2026-11-01T11:41:55.408Z",
+  "updatedAt": "2026-11-01T20:58:26.739Z",
   "phone": "212663369080",
-  "total": 1356,
+  "total": 1364,
   "alerts": [
     {
-      "id": "n1793533315407",
-      "at": "2026-11-01T11:41:55.407Z",
-      "title": "+9 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 9 nouveauté(s) (cloud)\n💼 Agente Backoffice Italofono (BONUS DI BENVENUTO DI 1000DH) - Weekend OFF — Marketing Call Center (Rabat) ⏰2027-01-01\n💼 Chauffeur VTC Uber (H/F) – véhicule fourni, statut auto-entrepreneur | Casablanca et Marrakech — Jony Travel (Casablanca)\n💼 Commercial(e) Développement et Partenariats (H/F) – hébergement en ligne | Casablanca, Rabat, Tanger, Marrakech, Agadir — NZZL (Casablanca)\n💼 Chauffeur Poids Lourd Permis EC (H/F) – camion Ampliroll | Zone Franche, Tanger — Elec Recyclage (Tanger)\n💼 Chauffeur de Direction (H/F) – CDI, 5 500 DH net, permis B, 2 postes | Casablanca — PROMAN (Casablanca)\n💼 Commercial(e) (H/F) – secteur tabac, 5 400 DH net + primes, plusieurs postes | Casablanca et Rabat — Extreme Agency (Casablanca)\n💼 Ouvrier(ère) (H/F) – intérim, travail en 3x8, plusieurs postes | Lissasfa – Khayata, Casablanca — Tectra (Casablanca)\n💼 Opérateur(trice) de Production (H/F) – débutants, juniors et seniors, intérim 3x8 | Lissasfa – Khayata, Casablanca — Tectra (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n- Concours — Chargé de suivi dossiers d'assurances (2026-11-02)\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n📊 Total suivi : 1356 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "id": "n1793566706738",
+      "at": "2026-11-01T20:58:26.738Z",
+      "title": "+8 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 8 nouveauté(s) (cloud)\n💼 Responsable Trésorerie & Financements (H/F) – 7 ans minimum d’expérience — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Comptable Confirmé(e) — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Chargé(e) de la Logistique — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Responsable Back Judiciaire —  (Casablanca)\n💼 Comptable —  (Casablanca)\n💼 Comptable —  (Témara)\n💼 Magasinier - Agent de réception —  (Casablanca)\n💼 Chef de Projet Électricité & Études (H/F) —  (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n- Concours — Chargé de suivi dossiers d'assurances (2026-11-02)\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n📊 Total suivi : 1364 offres. Ouvrez l'app/onglet Offres pour le détail.",
       "counts": {
-        "new": 9,
+        "new": 8,
         "concours": 0,
-        "total": 1356
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793478257201",
-      "at": "2026-10-31T20:24:17.201Z",
-      "title": "+13 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 13 nouveauté(s) (cloud)\n💼 Chargé Technique actifs — Groupe Label'Vie - Carrefour (Témara) ⏰2026-12-31\n💼 Adjoint Manager de Rayon Boulangerie/Pâtisserie 1 — Groupe Label'Vie - Carrefour (Agadir) ⏰2026-12-31\n💼 Manager de Rayon APLS (Autres Produits Libre Service) 1 — Groupe Label'Vie - Carrefour (Salé, Rabat-Salé-Kénitra, Maroc) ⏰2026-12-31\n💼 Adjoint Manager de Rayon Boulangerie/Pâtisserie 1 1 — Groupe Label'Vie - Carrefour (Tanger et périphérie) ⏰2026-12-31\n💼 Finance Business Partner — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-31\n💼 Finance Business Partner — Groupe Label'Vie - Carrefour (Fès) ⏰2026-12-31\n💼 Manager de rayon maison — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-31\n💼 Manager de rayon multimédia, image et son — Groupe Label'Vie - Carrefour (Meknès) ⏰2026-12-31\n⏰ Deadlines ≤ 3j :\n- Concours — Résidant (2026-10-31)\n- Concours — Élèves officiers - echelle 10 (2026-10-31)\n- Concours — Résidents- Faculté de Médecine et de Pharmacie de Casablanca (2026-10-31)\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n📊 Total suivi : 1350 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 13,
-        "concours": 0,
-        "total": 1350
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793443464181",
-      "at": "2026-10-31T10:44:24.181Z",
-      "title": "+26 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 26 nouveauté(s) (cloud)\n🏛️ Concours — Ingénieur d'Etat et Technicien spécialisé — Agence pour le Développement Agricole (Maroc) ⏰2026-11-02\n🏛️ Concours — ARCHITECTE — Agence urbaine de Nador (Nador) ⏰2026-11-02\n🏛️ Concours — Chargé de suivi dossiers d'assurances — Bank Al-Maghrib (Maroc) ⏰2026-11-02\n🏛️ Concours — Technicien Comptable — Société Nationales des Transports et de Logistique (SNTL) (Maroc) ⏰2026-11-03\n💼 Chauffeur livreur —  (Deroua)\n💼 DIRECTEUR (TRICE) PÉDAGOGIQUE – COLLÈGE & LYCEE —  (Berrechid)\n💼 Comptable femme/ Réceptionniste/ Serveur —  (Rabat)\n💼 Ingénieur paysagiste & technicien paysagiste (h/f) —  (Salé)\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Résidant (2026-10-31)\n- Concours — Élèves officiers - echelle 10 (2026-10-31)\n- Concours — Résidents- Faculté de Médecine et de Pharmacie de Casablanca (2026-10-31)\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n📊 Total suivi : 1337 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 26,
-        "concours": 4,
-        "total": 1337
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793395402477",
-      "at": "2026-10-30T21:23:22.477Z",
-      "title": "+33 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 33 nouveauté(s) (cloud)\n💼 Senior Planning Manager — Somagec (Casablanca) ⏰2026-12-23\n💼 Chargé(e) des Achats et approvisionnement (H/F) — Pyxel (Bouskoura) ⏰2026-12-30\n💼 Assistante Achats — Ingelec (Casablanca) ⏰2026-12-30\n💼 Technicien Tableautier — Ingelec (Casablanca) ⏰2026-12-30\n💼 Chef de projet (F/H) — Sofrecom Maroc (Rabat) ⏰2026-12-14\n💼 Ingénieur DevOps (F/H) — Sofrecom Maroc (Rabat) ⏰2026-11-23\n💼 Contrôleur(se) de gestion (F/H) — Sofrecom Maroc (Rabat) ⏰2026-11-30\n💼 Ingénieur(e) Génie Civil Résident(e) — CID (Chantier du Barrage Tamri, province d’Agadir) ⏰2026-12-30\n⏰ Deadlines ≤ 3j :\n- Concours — (Formateur « Sécurité minière » (RH 117/2026 (2026-10-30)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-30)\n- Concours — Agent polyvalent (2026-10-30)\n- Concours — Ingénieur/Cadre en Génie civil ou équivalent et Architecte (2026-10-30)\n- Concours — Résidant (2026-10-31)\n📊 Total suivi : 1315 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 33,
-        "concours": 0,
-        "total": 1315
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793358724890",
-      "at": "2026-10-30T11:12:04.890Z",
-      "title": "+42 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 42 nouveauté(s) (cloud)\n💼 Contrôleur de Gestion Sénior(H/F) — AXA Services Maroc (Salé) ⏰2026-12-30\n💼 Conseiller client (f/h) - technique -fès - français — Concentrix (Fès) ⏰2026-12-12\n💼 chargés de clientèle bilingues FR/ à Temara — Teleperformance - TP (Témara) ⏰2026-12-30\n💼 Technicien en Réparation Electronique - Intérim — ENI GROUP (Salé) ⏰2026-12-30\n💼 English-Speaking Customer Service Representative (Night Shift) — Marketing Call Center (Rabat) ⏰2026-12-26\n💼 Chargé(e) RH & Paie expérimenté(e) - Intérim — ENI GROUP (Had Soualem) ⏰2026-12-30\n💼 Commerciaux Sédentaires – Expert Fibre Optique (H/F) — Marketing Call Center (Rabat) ⏰2026-12-26\n💼 Vétérinaire/Chargé Reproduction et Santé équine (H/F) — Sorec (Meknès) ⏰2026-12-30\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — (Formateur « Sécurité minière » (RH 117/2026 (2026-10-30)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-30)\n- Concours — Agent polyvalent (2026-10-30)\n- Concours — Ingénieur/Cadre en Génie civil ou équivalent et Architecte (2026-10-30)\n- Concours — Résidant (2026-10-31)\n📊 Total suivi : 1282 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 42,
-        "concours": 4,
-        "total": 1282
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793309610978",
-      "at": "2026-10-29T21:33:30.978Z",
-      "title": "+16 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 16 nouveauté(s) (cloud)\n💼 HRBP HYPER — Groupe Label'Vie - Carrefour (Tout le Maroc) ⏰2026-12-29\n💼 HR Generalist - AGADIR 1 — Groupe Label'Vie - Carrefour (Rabat) ⏰2026-12-29\n💼 ASSISTANTE MEDICALE RH — Groupe Label'Vie - Carrefour (Fès) ⏰2026-12-29\n💼 Superviseur Réseau - Tanger — Groupe Label'Vie - Carrefour (Tanger) ⏰2026-12-29\n💼 Superviseur Réseau - Kénitra — Groupe Label'Vie - Carrefour (Kénitra) ⏰2026-12-29\n💼 Chargé Rh - Marrakech — Groupe Label'Vie - Carrefour (Marrakech) ⏰2026-12-29\n💼 HR GENERALIST - CASA — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-29\n💼 Ingénieur Qualité Opérations F/H — Safran Nacelles (Casablanca) ⏰2026-12-29\n⏰ Deadlines ≤ 3j :\n- Concours — (Auditeur (RH 116/2026 (2026-10-29)\n- Concours — Agent Informatique (2026-10-29)\n- Concours — Responsable de site de Bibliothèque -Médiathèque (2026-10-29)\n- Concours — (Formateur « Sécurité minière » (RH 117/2026 (2026-10-30)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-30)\n📊 Total suivi : 1243 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 16,
-        "concours": 0,
-        "total": 1243
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793272777249",
-      "at": "2026-10-29T11:19:37.249Z",
-      "title": "+44 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 44 nouveauté(s) (cloud)\n💼 Contrôleur de gestion —  (Casablanca) ⏰2026-12-29\n💼 Conseillers clientèle francophones - service client Sidi Maarouf — Majorel / Teleperformance (Casablanca) ⏰2026-12-29\n💼 Superviseur Réseau — Groupe Label'Vie - Carrefour (El Jadida) ⏰2026-12-29\n💼 Responsable Paie et Administration — Fondation Arrawaj (Rabat) ⏰2026-12-29\n💼 HR & Safety Manager (H/F) — Centrale Danone (Kénitra) ⏰2026-12-29\n💼 Superviseur Contrôle et Sécurité — Groupe Label'Vie - Carrefour (Tanger) ⏰2026-12-29\n💼 Attaché bureau de commandes —  (Agadir) ⏰2026-12-29\n💼 Contrôleurse de gestion junior H/F — Mogesse Banking Solutions - MBS (Casablanca) ⏰2026-12-29\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — (Auditeur (RH 116/2026 (2026-10-29)\n- Concours — Agent Informatique (2026-10-29)\n- Concours — Responsable de site de Bibliothèque -Médiathèque (2026-10-29)\n- Concours — (Formateur « Sécurité minière » (RH 117/2026 (2026-10-30)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-30)\n📊 Total suivi : 1227 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 44,
-        "concours": 4,
-        "total": 1227
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793223099970",
-      "at": "2026-10-28T21:31:39.970Z",
-      "title": "+28 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 28 nouveauté(s) (cloud)\n💼 Consultant AMOA Junior — ALTEN Maroc (Rabat) ⏰2026-12-28\n💼 Project Safety Manager (PSM) – Automotive Industry — ALTEN Maroc (Fès) ⏰2026-12-28\n💼 Aide comptable débutante —  (Casablanca) ⏰2026-12-28\n💼 CHEF COMPTABLE — Flormar (Casablanca) ⏰2026-12-28\n💼 Chargé de Contrôle qualité (Métallurgie) —  (Meknès) ⏰2026-12-28\n💼 Directeur méthodes & projets (Exp en grande distribution) — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-28\n💼 Chargée de gestion (F/H) — Sofrecom Maroc (Rabat) ⏰2026-12-22\n💼 Chargée de Suivi Administratif et Paie — Manpower Agences (Tanger) ⏰2026-12-28\n⏰ Deadlines ≤ 3j :\n- Superviseur Traitement - Usines (Taliouine-ASKAOUNE) (2026-10-28)\n- Concours — (Chef de pôle Tourisme et Hôtellerie -Casablanca (RH 115/2026 (2026-10-28)\n- Concours — Assistante de Direction (2026-10-28)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-10-28)\n- Concours — Archiviste Documentaliste (2026-10-28)\n📊 Total suivi : 1189 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 28,
-        "concours": 0,
-        "total": 1189
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793185196986",
-      "at": "2026-10-28T10:59:56.986Z",
-      "title": "+43 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 43 nouveauté(s) (cloud)\n💼 Consultant Technique Senior ServiceNow — DXC - CDG (Casablanca) ⏰2026-12-28\n💼 Développeur fullstack .NET/REACT Senior — DXC - CDG (Casablanca /Casanearshore) ⏰2026-12-28\n💼 Chargé de portefeuille (H/F) — Fondation Arrawaj (Bouskoura) ⏰2026-12-28\n💼 HR Generalist — Groupe Label'Vie - Carrefour (Agadir) ⏰2026-12-28\n💼 Responsable prospection — Groupe Label'Vie - Carrefour (Marrakech) ⏰2026-12-28\n💼 Chargé de portefeuille (H/F) — Fondation Arrawaj (Ouarzazate) ⏰2026-12-28\n💼 HR Coordinator — Groupe Label'Vie - Carrefour (Tanger) ⏰2026-12-28\n💼 Juriste Junior — CFG Bank (Casablanca) ⏰2026-12-28\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Superviseur Traitement - Usines (Taliouine-ASKAOUNE) (2026-10-28)\n- Concours — (Chef de pôle Tourisme et Hôtellerie -Casablanca (RH 115/2026 (2026-10-28)\n- Concours — Assistante de Direction (2026-10-28)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-10-28)\n- Concours — Archiviste Documentaliste (2026-10-28)\n📊 Total suivi : 1161 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 43,
-        "concours": 4,
-        "total": 1161
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793135323621",
-      "at": "2026-10-27T21:08:43.621Z",
-      "title": "+35 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 35 nouveauté(s) (cloud)\n💼 Ingénieur Montage et qualité (secteur automobile) — ALTEN Maroc (Fès) ⏰2026-12-27\n💼 Transport Specialist Italophone — ALTEN Maroc (Rabat) ⏰2026-12-27\n💼 RESPONSABLE ADMINISTRATIF ET FINANCIER - SAFI — Moulim Group (Safi) ⏰2026-12-27\n💼 SUPERVISEURS — ENI GROUP (Marrakech) ⏰2026-12-27\n💼 SUPERVISEUR — ENI GROUP (Nouaceur) ⏰2026-12-27\n💼 PROFIL HSE — ENI GROUP (Nouaceur) ⏰2026-12-27\n💼 Conseiller en ressources humaines Rabat — AXA Services Maroc (Rabat) ⏰2026-12-27\n💼 Contrôleur interne — Leet initiative (Khouribga) ⏰2026-12-27\n⏰ Deadlines ≤ 3j :\n- Concours — Cadre supérieur en sûreté (2026-10-27)\n- Concours — MAITRES DE CONFERENCES – CIVILS ET MILITAIRES à la FMPR (2026-10-27)\n- Concours — - Rabat Chargé des courses à handicaps ( H/F) (2026-10-27)\n- Superviseur Traitement - Usines (Taliouine-ASKAOUNE) (2026-10-28)\n- Concours — (Chef de pôle Tourisme et Hôtellerie -Casablanca (RH 115/2026 (2026-10-28)\n📊 Total suivi : 1121 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 35,
-        "concours": 0,
-        "total": 1121
+        "total": 1364
       },
       "kind": "nouvelles-offres"
     },
