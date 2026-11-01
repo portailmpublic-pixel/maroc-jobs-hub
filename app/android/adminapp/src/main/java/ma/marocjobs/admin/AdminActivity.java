@@ -970,7 +970,8 @@ public class AdminActivity extends Activity {
             }
             renderList();
             setStatus((off ? "Compte activé" : "Compte désactivé")
-                + " localement · touchez Publier.", CYAN);
+                + " · envoi aux appareils…", CYAN);
+            autoPublish();
         });
         acts.addView(toggle);
 
@@ -984,7 +985,8 @@ public class AdminActivity extends Activity {
             }
             renderList();
             setStatus((hasMarches ? "Accès Marchés retiré" : "Accès Marchés accordé")
-                + " · touchez Publier.", CYAN);
+                + " · envoi aux appareils…", CYAN);
+            autoPublish();
         });
         LinearLayout.LayoutParams mbp = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -1441,10 +1443,6 @@ public class AdminActivity extends Activity {
         pool.execute(() -> {
             try {
                 String url = API + owner + "/" + repo + "/contents/" + PATH;
-                if (sha == null || sha.isEmpty()) {
-                    JSONObject cur = request("GET", url + "?ref=" + branch, null, token);
-                    sha = cur.optString("sha", "");
-                }
                 JSONObject payload = new JSONObject();
                 JSONArray arr = new JSONArray();
                 for (String e : disabled) arr.put(e);
@@ -1460,24 +1458,53 @@ public class AdminActivity extends Activity {
 
                 final String accessJson = payload.toString();
                 byte[] bytes = payload.toString(2).getBytes(StandardCharsets.UTF_8);
-                JSONObject body = new JSONObject();
-                body.put("message", "Admin: update access (disabled + Marchés)");
-                body.put("content", Base64.encodeToString(bytes, Base64.NO_WRAP));
-                body.put("branch", branch);
-                if (!sha.isEmpty()) body.put("sha", sha);
 
-                JSONObject res = request("PUT", url,
-                    body.toString().getBytes(StandardCharsets.UTF_8), token);
+                // Le sha doit être relu juste avant chaque tentative : GitHub refuse
+                // (409) la publication si le fichier a changé entre-temps, et la
+                // décision de l'admin n'arrivait alors jamais sur les appareils.
+                JSONObject res = null;
+                Exception last = null;
+                for (int attempt = 0; attempt < 3 && res == null; attempt++) {
+                    String fresh = "";
+                    try {
+                        JSONObject cur = request("GET", url + "?ref=" + branch, null, token);
+                        fresh = cur.optString("sha", "");
+                    } catch (Exception ignored) {}
+                    JSONObject body = new JSONObject();
+                    body.put("message", "Admin: update access (disabled + Marchés)");
+                    body.put("content", Base64.encodeToString(bytes, Base64.NO_WRAP));
+                    body.put("branch", branch);
+                    if (!fresh.isEmpty()) body.put("sha", fresh);
+                    try {
+                        res = request("PUT", url,
+                            body.toString().getBytes(StandardCharsets.UTF_8), token);
+                        sha = fresh;
+                    } catch (Exception e) {
+                        last = e;
+                        try { Thread.sleep(700); } catch (InterruptedException ignored) {}
+                    }
+                }
+                if (res == null) throw (last != null ? last : new Exception("Publication refusée"));
                 JSONObject content = res.optJSONObject("content");
                 if (content != null) sha = content.optString("sha", sha);
                 runOnUiThread(() -> {
-                    setStatus("Publié ✓ appliqué au prochain contrôle des appareils.", BRAND);
+                    setStatus("Publié ✓ appliqué aux appareils en quelques secondes.", BRAND);
                     sendAccessBroadcast(accessJson);
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> setStatus("Erreur publication : " + shortMsg(e), DANGER));
             }
         });
+    }
+
+    // Publication automatique après chaque bascule (plus besoin de toucher Publier).
+    private void autoPublish() {
+        String token = tokenInput.getText().toString().trim();
+        if (token.isEmpty()) {
+            setStatus("Jeton GitHub manquant : modification locale seulement.", DANGER);
+            return;
+        }
+        saveRemote();
     }
 
     private JSONObject request(String method, String urlStr, byte[] body, String token) throws Exception {
