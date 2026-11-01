@@ -421,6 +421,32 @@ function SplashIntro() {
   );
 }
 
+function WelcomeBack({ name, onDone }) {
+  const full = String(name || '').trim();
+  const shown = full || 'vous';
+  useEffect(() => {
+    const t = setTimeout(onDone, 2300);
+    return () => clearTimeout(t);
+  }, [onDone]);
+  return (
+    <div className="welcome-overlay" role="status" aria-live="polite" onClick={onDone}>
+      <div className="welcome-aurora" />
+      <div className="welcome-spark s1" />
+      <div className="welcome-spark s2" />
+      <div className="welcome-spark s3" />
+      <div className="welcome-card">
+        <div className="welcome-halo">
+          <img src="./logo-wide.png" alt="" className="welcome-logo" />
+        </div>
+        <div className="welcome-kicker">Welcome back</div>
+        <h2 className="welcome-name">{shown}</h2>
+        <div className="welcome-sub">Ravi de vous revoir sur ASSOULI AUTOX</div>
+        <div className="welcome-progress"><span /></div>
+      </div>
+    </div>
+  );
+}
+
 function hueOf(s) { return ((String(s || '?').charCodeAt(0) || 63) * 47) % 360; }
 
 function daysUntil(deadline) {
@@ -3297,6 +3323,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
 export default function App() {
   const [session, setSession] = useState(() => readSession());
   const [intro, setIntro] = useState(true);
+  const [welcome, setWelcome] = useState(() => !!readSession());
   const [themePref, setThemePref] = useState(() => readThemePref());
   useEffect(() => {
     const t = setTimeout(() => setIntro(false), 1700);
@@ -3323,6 +3350,12 @@ export default function App() {
   return (
     <>
       {intro && <SplashIntro />}
+      {!intro && welcome && session && (
+        <WelcomeBack
+          name={session.name || String(session.email || '').split('@')[0]}
+          onDone={() => setWelcome(false)}
+        />
+      )}
       {!session
         ? <AuthScreen onAuthed={(s) => { setSession(s); registerAccountRecord(s, ''); }} themePref={themePref} onThemeChange={setThemePref} />
         : <MainApp session={session} themePref={themePref} onThemeChange={setThemePref} onLogout={() => { clearSession(); clearMarchesSession(); setSession(null); }} />}

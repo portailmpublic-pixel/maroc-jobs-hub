@@ -743,6 +743,10 @@ public class AdminActivity extends Activity {
         if (urlExists(BuildConfig.MAIN_APK_URL)) return BuildConfig.MAIN_APK_URL;
         try {
             JSONObject rel = request("GET", API + owner + "/" + repo + "/releases/latest", null, token);
+            // Sécurité : on n'accepte que la release de la version visée (jamais une
+            // version plus ancienne, sinon les appareils installeraient un APK obsolète).
+            String tag = rel.optString("tag_name", "");
+            if (!("v" + BuildConfig.MAIN_VERSION_NAME).equals(tag)) return "";
             JSONArray assets = rel.optJSONArray("assets");
             if (assets != null) {
                 for (int i = 0; i < assets.length(); i++) {

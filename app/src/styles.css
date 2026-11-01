@@ -685,6 +685,31 @@ img { max-width:100%; }
 @keyframes splashBar { 0%{width:8%} 100%{width:100%} }
 @keyframes splashOut { 0%,70%{opacity:1} 100%{opacity:0; visibility:hidden} }
 
+/* ================= ACCUEIL : « WELCOME BACK » ================= */
+.welcome-overlay { position:fixed; inset:0; z-index:9998; display:grid; place-items:center; overflow:hidden; padding:24px; background:radial-gradient(120% 85% at 50% 18%, #0b1a33 0%, #060a14 55%, #02030a 100%); animation: welcomeIn .38s ease both, welcomeOut .45s ease 1.85s forwards; }
+.welcome-aurora { position:absolute; width:min(120vw,520px); aspect-ratio:1; border-radius:50%; background:radial-gradient(circle at 35% 30%, rgba(20,224,180,.30), rgba(58,168,255,.18) 42%, transparent 68%); filter:blur(26px); animation: welcomeAurora 2.3s ease-in-out both; }
+.welcome-spark { position:absolute; width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.85); box-shadow:0 0 10px rgba(20,224,180,.9); opacity:0; }
+.welcome-spark.s1 { left:26%; top:64%; animation: welcomeSpark 2s ease .25s both; }
+.welcome-spark.s2 { left:72%; top:58%; animation: welcomeSpark 2.1s ease .45s both; }
+.welcome-spark.s3 { left:58%; top:74%; animation: welcomeSpark 1.9s ease .6s both; }
+.welcome-card { position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; max-width:min(88vw,420px); }
+.welcome-halo { position:relative; width:96px; height:96px; display:grid; place-items:center; border-radius:50%; background:radial-gradient(circle, rgba(20,224,180,.20), rgba(58,168,255,.10) 55%, transparent 72%); border:1px solid rgba(20,224,180,.28); box-shadow:0 0 0 1px rgba(255,255,255,.04) inset, 0 18px 46px -22px rgba(20,224,180,.75); animation: welcomeHalo .75s cubic-bezier(.16,1,.3,1) both; }
+.welcome-logo { width:66px; height:auto; object-fit:contain; filter:drop-shadow(0 0 10px rgba(20,224,180,.35)); }
+.welcome-kicker { margin-top:20px; font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:.42em; text-transform:uppercase; color:var(--brand-text); animation: welcomeKicker .6s cubic-bezier(.16,1,.3,1) .18s both; }
+.welcome-name { margin:8px 0 0; font-family:'Sora', var(--sans, sans-serif); font-weight:800; font-size:clamp(26px,8.4vw,40px); line-height:1.1; letter-spacing:-.035em; color:#fff; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; background:linear-gradient(100deg,#ffffff 12%, #b8fff0 46%, #8fd8ff 78%, #ffffff 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; filter:drop-shadow(0 6px 26px rgba(20,224,180,.28)); animation: welcomeName .8s cubic-bezier(.16,1,.3,1) .26s both; }
+.welcome-sub { margin-top:10px; font-size:12px; color:#8aa0b8; letter-spacing:.01em; animation: welcomeSub .7s ease .42s both; }
+.welcome-progress { margin-top:22px; width:min(56vw,180px); height:3px; border-radius:99px; background:rgba(255,255,255,.09); overflow:hidden; animation: welcomeSub .5s ease .5s both; }
+.welcome-progress span { display:block; height:100%; width:0; border-radius:99px; background:linear-gradient(90deg,var(--brand),var(--brand-2)); box-shadow:0 0 14px rgba(20,224,180,.55); animation: welcomeProgress 1.55s cubic-bezier(.4,0,.2,1) .55s both; }
+@keyframes welcomeIn { from{opacity:0} to{opacity:1} }
+@keyframes welcomeOut { from{opacity:1} to{opacity:0; visibility:hidden} }
+@keyframes welcomeAurora { 0%{opacity:0; transform:scale(.72)} 45%{opacity:1; transform:scale(1.05)} 100%{opacity:.9; transform:scale(1)} }
+@keyframes welcomeSpark { 0%{opacity:0; transform:translateY(14px) scale(.6)} 35%{opacity:1} 100%{opacity:0; transform:translateY(-46px) scale(1)} }
+@keyframes welcomeHalo { 0%{opacity:0; transform:scale(.6) rotate(-10deg)} 60%{opacity:1; transform:scale(1.06) rotate(2deg)} 100%{opacity:1; transform:scale(1) rotate(0)} }
+@keyframes welcomeKicker { 0%{opacity:0; letter-spacing:.9em; transform:translateY(6px)} 100%{opacity:1; letter-spacing:.42em; transform:none} }
+@keyframes welcomeName { 0%{opacity:0; transform:translateY(14px); filter:blur(10px)} 100%{opacity:1; transform:none; filter:blur(0)} }
+@keyframes welcomeSub { 0%{opacity:0; transform:translateY(8px)} 100%{opacity:1; transform:none} }
+@keyframes welcomeProgress { 0%{width:0} 100%{width:100%} }
+
 /* ================= LOGIN : CODE ENVOYÉ + OTP ================= */
 .auth-sent { display:flex; align-items:flex-start; gap:11px; margin:0 0 14px; padding:12px; border-radius:16px; background:radial-gradient(120% 120% at 0% 0%, rgba(20,224,180,.1), transparent 60%), var(--fill); border:1px solid rgba(20,224,180,.28); }
 .auth-sent-ic { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; background:rgba(20,224,180,.14); color:var(--brand-text); border:1px solid rgba(20,224,180,.3); flex:none; }
@@ -715,6 +740,9 @@ img { max-width:100%; }
 @media (prefers-reduced-motion: reduce) {
   .splash-intro { animation-duration:.5s; }
   .splash-badge-wrap, .splash-word, .splash-glow, .splash-ring, .splash-shine, .splash-bar span { animation:none; }
+  .welcome-overlay { animation-duration:.25s; }
+  .welcome-aurora, .welcome-halo, .welcome-kicker, .welcome-name, .welcome-sub, .welcome-progress span, .welcome-spark { animation:none; }
+  .welcome-progress span { width:100%; }
 }
 
 /* ================= MISE À JOUR AUTO ================= */
