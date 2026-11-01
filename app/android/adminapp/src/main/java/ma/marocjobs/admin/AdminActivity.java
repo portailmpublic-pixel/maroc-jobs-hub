@@ -635,6 +635,69 @@ public class AdminActivity extends Activity {
 
         wrap.addView(actions, new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        // ---- Forcer la mise à jour sur tous les appareils ----
+        LinearLayout up = new LinearLayout(this);
+        up.setOrientation(LinearLayout.VERTICAL);
+        up.setPadding(dp(16), dp(6), dp(16), dp(16));
+        TextView upTitle = text("Forcer la mise à jour (tous les appareils)", 12f, TEXT, true);
+        up.addView(upTitle, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        EditText vc = input("Code version (ex. 19)");
+        EditText vn = input("Nom version (ex. 1.7.0)");
+        EditText vu = input("URL de téléchargement directe (.apk)");
+        EditText vnotes = input("Notes de mise à jour");
+        up.addView(vc); up.addView(vn); up.addView(vu); up.addView(vnotes);
+        TextView upBtn = actionButton("Publier la version", "⬆", true);
+        upBtn.setOnClickListener(v -> {
+            final String owner = ownerInput.getText().toString().trim();
+            final String repo = repoInput.getText().toString().trim();
+            final String branch = branchInput.getText().toString().trim();
+            final String token = tokenInput.getText().toString().trim();
+            final String code = vc.getText().toString().trim();
+            final String name = vn.getText().toString().trim();
+            final String url = vu.getText().toString().trim();
+            final String notes = vnotes.getText().toString().trim();
+            if (token.isEmpty() || owner.isEmpty() || repo.isEmpty() || code.isEmpty()
+                    || url.isEmpty()) {
+                setStatus("Jeton, compte/dépôt, code version et URL requis.", DANGER);
+                return;
+            }
+            setStatus("Publication de la version.", CYAN);
+            pool.execute(() -> {
+                try {
+                    String path = "app/public/app-version.json";
+                    String apiUrl = API + owner + "/" + repo + "/contents/" + path;
+                    String shaV = "";
+                    try {
+                        JSONObject cur = request("GET", apiUrl + "?ref=" + branch, null,
+                                token.isEmpty() ? null : token);
+                        shaV = cur.optString("sha", "");
+                    } catch (Exception ignored) {}
+                    JSONObject body = new JSONObject();
+                    JSONObject payload = new JSONObject();
+                    payload.put("versionCode", Integer.parseInt(code));
+                    payload.put("versionName", name.isEmpty() ? code : name);
+                    payload.put("url", url);
+                    payload.put("notes", notes.isEmpty() ? "Mise à jour obligatoire." : notes);
+                    payload.put("publishedAt", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+                            .format(new java.util.Date()));
+                    byte[] bytes = payload.toString(2).getBytes(StandardCharsets.UTF_8);
+                    body.put("message", "Admin: force update " + name);
+                    body.put("content", Base64.encodeToString(bytes, Base64.NO_WRAP));
+                    body.put("branch", branch);
+                    if (!shaV.isEmpty()) body.put("sha", shaV);
+                    request("PUT", apiUrl, body.toString().getBytes(StandardCharsets.UTF_8), token);
+                    runOnUiThread(() -> setStatus("Version publiée. Les appareils se mettront à jour au prochain lancement.", BRAND));
+                } catch (Exception e) {
+                    runOnUiThread(() -> setStatus("Erreur publication version : " + shortMsg(e), DANGER));
+                }
+            });
+        });
+        up.addView(upBtn, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        wrap.addView(up, new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return wrap;
     }
 
