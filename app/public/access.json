@@ -1,11 +1,12 @@
 {
-  "updatedAt": "2026-11-01T15:01:02Z",
-  "disabled": [],
+  "updatedAt": "2026-11-01T15:06:32Z",
+  "disabled": [
+    "khadija.topo97@gmail.com"
+  ],
   "marches": [
     "soulaymanearth@gmail.com",
     "smartchat28@gmail.com",
-    "my1975mother@gmail.com",
-    "khadija.topo97@gmail.com"
+    "my1975mother@gmail.com"
   ],
   "message": "Ce compte a été désactivé par l’administrateur. Contactez le support ASSOULI AUTOX."
 }
