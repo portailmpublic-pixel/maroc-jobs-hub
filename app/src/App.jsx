@@ -547,6 +547,7 @@ const HOME_CATS = [
   { tab: 'concours', title: 'CONCOURS', desc: 'Accédez aux concours et réussissez', icon: 'file', tone: 'green' },
   { tab: 'exams', title: 'EXAMS', desc: 'Toutes les dates et informations', icon: 'clipboard', tone: 'purple' },
   { tab: 'marches', title: 'MARCHÉS PUBLICS', desc: 'Appels d’offres et opportunités', icon: 'landmark', tone: 'red' },
+  { key: 'deutsch', tab: 'exams', title: 'DEUTSCH', sub: 'A1 → C2', desc: 'Examens d’allemand & centres au Maroc', icon: 'file', tone: 'teal' },
   { tab: 'new', title: 'NEW OFFERS', desc: 'Les nouvelles offres en avant-première', icon: 'star', tone: 'teal' },
 ];
 
@@ -2752,14 +2753,14 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         <main className="home-body">
           <div className="home-cats">
             {HOME_CATS.map((c) => (
-              <button key={c.tab} type="button" className={'home-cat tone-' + c.tone} onClick={() => goTab(c.tab)}>
+              <button key={c.title} type="button" className={'home-cat tone-' + c.tone} onClick={() => c.key === 'deutsch' ? (setGermanOpen(true), loadGerman()) : goTab(c.tab)}>
                 <span className="hc-ic"><Icon n={c.icon} size={27} /></span>
                 <span className="hc-txt">
                   <b>{c.title}</b>
-                  {c.sub && <strong>{c.sub}</strong>}
+                  {c.sub && <strong>{c.key === 'deutsch' && !germanOk ? 'Accès privé' : c.sub}</strong>}
                   <small>{c.desc}</small>
                 </span>
-                <span className="hc-chev"><Icon n="chevron" size={18} /></span>
+                <span className="hc-chev"><Icon n={c.key === 'deutsch' && !germanOk ? 'lock' : 'chevron'} size={18} /></span>
               </button>
             ))}
           </div>
