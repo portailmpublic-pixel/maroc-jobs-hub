@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-01T20:58:26.999Z",
+  "updatedAt": "2026-11-02T13:08:16.405Z",
   "years": [
     2022,
     2023,
@@ -7,7 +7,7 @@
     2025,
     2026
   ],
-  "total": 6,
+  "total": 9,
   "offers": [
     {
       "id": "dreamjob-hassan1er",
@@ -558,6 +558,282 @@
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-e7379c18-857e-4135-be2a-53365d665497-2026-corrige-v7.pdf",
           "size": 6793
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d",
+      "title": "Concours — Assistant Juriste",
+      "company": "Société Nationales des Transports et de Logistique (SNTL)",
+      "specialty": "Droit",
+      "fonction": "Assistant Juriste",
+      "city": "Maroc",
+      "url": "https://www.emploi-public.ma/fr/concours/details/8df1189c-3b8a-40d0-b085-78758d3faa7d",
+      "familyLabel": "Administration / Gestion",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2022-sujet-v7.pdf",
+          "size": 9563
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2022-corrige-v7.pdf",
+          "size": 6848
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2023-sujet-v7.pdf",
+          "size": 9504
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2023-corrige-v7.pdf",
+          "size": 6752
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2024-sujet-v7.pdf",
+          "size": 9492
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2024-corrige-v7.pdf",
+          "size": 6727
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2025-sujet-v7.pdf",
+          "size": 9513
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2025-corrige-v7.pdf",
+          "size": 6749
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2026-sujet-v7.pdf",
+          "size": 9515
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-8df1189c-3b8a-40d0-b085-78758d3faa7d-2026-corrige-v7.pdf",
+          "size": 6748
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716",
+      "title": "Concours — Technicien en Développement Logiciel",
+      "company": "Société Nationales des Transports et de Logistique (SNTL)",
+      "specialty": "Développement logiciel",
+      "fonction": "Technicien en Développement Logiciel",
+      "city": "Maroc",
+      "url": "https://www.emploi-public.ma/fr/concours/details/c7a92e36-cc06-48a4-9c8d-22c4e339a716",
+      "familyLabel": "Informatique / Développement",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2022-sujet-v7.pdf",
+          "size": 9440
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2022-corrige-v7.pdf",
+          "size": 6974
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2023-sujet-v7.pdf",
+          "size": 9475
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2023-corrige-v7.pdf",
+          "size": 6982
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2024-sujet-v7.pdf",
+          "size": 9425
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2024-corrige-v7.pdf",
+          "size": 6900
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2025-sujet-v7.pdf",
+          "size": 9379
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2025-corrige-v7.pdf",
+          "size": 6843
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2026-sujet-v7.pdf",
+          "size": 9371
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-c7a92e36-cc06-48a4-9c8d-22c4e339a716-2026-corrige-v7.pdf",
+          "size": 6824
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a",
+      "title": "Concours — Cadre Supérieur Juriste",
+      "company": "Société Nationales des Transports et de Logistique (SNTL)",
+      "specialty": "Droit",
+      "fonction": "Cadre Supérieur Juriste",
+      "city": "Maroc",
+      "url": "https://www.emploi-public.ma/fr/concours/details/22e15000-86a6-4c58-87a2-9db969a11a7a",
+      "familyLabel": "Culture générale + logique",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2022-sujet-v7.pdf",
+          "size": 9125
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2022-corrige-v7.pdf",
+          "size": 6488
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2023-sujet-v7.pdf",
+          "size": 9135
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2023-corrige-v7.pdf",
+          "size": 6494
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2024-sujet-v7.pdf",
+          "size": 9179
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2024-corrige-v7.pdf",
+          "size": 6526
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2025-sujet-v7.pdf",
+          "size": 9151
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2025-corrige-v7.pdf",
+          "size": 6534
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2026-sujet-v7.pdf",
+          "size": 9143
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-22e15000-86a6-4c58-87a2-9db969a11a7a-2026-corrige-v7.pdf",
+          "size": 6535
         }
       ]
     }
