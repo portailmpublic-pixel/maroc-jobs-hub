@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-02T13:08:16.240Z",
+  "updatedAt": "2026-11-02T23:47:49.222Z",
   "phone": "212663369080",
-  "total": 1409,
+  "total": 1427,
   "alerts": [
+    {
+      "id": "n1793663269221",
+      "at": "2026-11-02T23:47:49.221Z",
+      "title": "+18 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 18 nouveauté(s) (cloud)\n💼 Chargé de marketing digital H/F — HEOMI (Casablanca) ⏰2026-11-16\n💼 Superviseur de Vente Terrain — Inyad (Casablanca) ⏰2027-01-02\n💼 Key Account Manager — Inyad (Casablanca) ⏰2026-11-30\n💼 Data Engineer/ Data Analyst — Akkodis Maroc (Casablanca) ⏰2026-11-03\n💼 Supply Chain Engineer (H/F) — Akkodis Maroc (Casablanca) ⏰2026-11-07\n💼 Pilote convergence (H/F) — Akkodis Maroc (Tanger) ⏰2026-11-14\n💼 Comptable polyvalent (Anglophone) — Akkodis Maroc (Casablanca) ⏰2026-11-24\n💼 Brigade boulangerie —  (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n- Concours — Chargé de suivi dossiers d'assurances (2026-11-02)\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n📊 Total suivi : 1427 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 18,
+        "concours": 0,
+        "total": 1427
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793624896236",
       "at": "2026-11-02T13:08:16.236Z",
