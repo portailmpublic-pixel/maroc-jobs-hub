@@ -3467,6 +3467,13 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             </div>
             {germanOk && <span className="de-pill">Autorisé</span>}
           </header>
+          <div className="de-hero">
+            <div className="de-hero-ic">DE</div>
+            <div className="de-hero-txt">
+              <b>Deutsch · Prüfungsvorbereitung</b>
+              <span>Goethe A1–C2 · telc · TestDaF · ÖSD · DTZ — Modellsätze & Übungstests</span>
+            </div>
+          </div>
 
           {!germanOk ? (
             <div className="de-gate">
@@ -3525,7 +3532,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
                         <div className="de-badge">{e.level}</div>
                         <div className="de-body">
                           <b>{e.title}</b>
-                          <span className="de-meta">{e.body} · {(e.skills || []).join(' · ')}</span>
+                          <span className="de-meta">{e.body} · {(e.deSkills && e.deSkills.length ? e.deSkills : (e.skills || [])).join(' · ')}</span>
                           <span className="de-note">{e.note}</span>
                           <div className="de-links">
                             <button className="de-open" onClick={() => openLink(e.url)}>Sujet officiel</button>

@@ -2529,3 +2529,9 @@ body { padding-bottom:0; }
 .de-city { flex:none; font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--brand-text); background:rgba(20,224,180,.10); border:1px solid rgba(20,224,180,.26); padding:3px 8px; border-radius:99px; }
 .de-foot { margin:14px 16px 0; font-size:10.5px; line-height:1.55; color:var(--muted); }
 @media (prefers-reduced-motion: reduce) { .de-screen { animation:none; } }
+
+.de-hero { display:flex; align-items:center; gap:12px; margin:14px 16px 0; padding:16px; border-radius:20px; background:linear-gradient(135deg, rgba(20,224,180,.12), rgba(58,168,255,.08)), var(--surface); border:1px solid rgba(20,224,180,.26); }
+.de-hero-ic { width:48px; height:48px; flex:none; border-radius:14px; display:grid; place-items:center; font-family:var(--mono); font-weight:800; font-size:15px; color:var(--brand-ink); background:var(--grad); }
+.de-hero-txt { min-width:0; display:flex; flex-direction:column; gap:2px; }
+.de-hero-txt b { font-size:15px; font-weight:800; letter-spacing:-.01em; color:var(--text); }
+.de-hero-txt span { font-size:11px; color:var(--muted); }

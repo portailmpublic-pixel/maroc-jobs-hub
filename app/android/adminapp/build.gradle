@@ -37,8 +37,8 @@ android {
         applicationId "ma.marocjobs.hub.admin"
         minSdk 22
         targetSdk 34
-        versionCode 21
-        versionName "1.6.5"
+        versionCode 22
+        versionName "1.6.6"
         buildConfigField "String", "GITHUB_TOKEN", "\"${adminToken}\""
         buildConfigField "String", "IMAP_PASSWORD", "\"${imapPassword}\""
         buildConfigField "int", "MAIN_VERSION_CODE", "${mainVersionCode}"

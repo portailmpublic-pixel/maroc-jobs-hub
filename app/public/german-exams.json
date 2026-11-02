@@ -7,12 +7,29 @@
       "body": "Goethe-Institut",
       "level": "A1",
       "title": "Goethe-Zertifikat A1 · Start Deutsch 1",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Modellsatz + Übungssätze officiels (PDF + audio).",
       "url": "https://www.goethe.de/ins/ma/de/spr/prf/gzsd1/ueb.html",
       "files": [
-        { "label": "Modellsatz (PDF)", "url": "https://www.goethe.de/pro/relaunch/prf/materialien/A1_sd1/sd_1_modellsatz.pdf" },
-        { "label": "Übungssatz 01 (PDF)", "url": "https://www.goethe.de/pro/relaunch/prf/materialien/A1_sd1/sd_1_uebungssatz01.pdf" }
+        {
+          "label": "Modellsatz (PDF)",
+          "url": "https://www.goethe.de/pro/relaunch/prf/materialien/A1_sd1/sd_1_modellsatz.pdf"
+        },
+        {
+          "label": "Übungssatz 01 (PDF)",
+          "url": "https://www.goethe.de/pro/relaunch/prf/materialien/A1_sd1/sd_1_uebungssatz01.pdf"
+        }
+      ],
+      "deSkills": [
+        "Lesen",
+        "Hörverstehen",
+        "Schreiben",
+        "Sprechen"
       ]
     },
     {
@@ -20,110 +37,221 @@
       "body": "Goethe-Institut",
       "level": "A2",
       "title": "Goethe-Zertifikat A2",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Modellsatz + Übungssätze officiels (PDF + audio).",
       "url": "https://www.goethe.de/ins/ma/de/spr/prf/gzsd2/ueb.html",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Lesen",
+        "Hörverstehen",
+        "Schreiben",
+        "Sprechen"
+      ]
     },
     {
       "id": "goethe-b1",
       "body": "Goethe-Institut",
       "level": "B1",
       "title": "Goethe-Zertifikat B1",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Modellsatz + Übungssätze officiels (PDF + audio).",
       "url": "https://www.goethe.de/ins/ma/de/spr/prf/gzb1/ueb.html",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Lesen",
+        "Hörverstehen",
+        "Schreiben",
+        "Sprechen"
+      ]
     },
     {
       "id": "goethe-b2",
       "body": "Goethe-Institut",
       "level": "B2",
       "title": "Goethe-Zertifikat B2",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Modellsatz + Übungssätze officiels (PDF + audio).",
       "url": "https://www.goethe.de/de/spr/kup/prf/prf/gzb2/ueb.html",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Lesen",
+        "Hörverstehen",
+        "Schreiben",
+        "Sprechen"
+      ]
     },
     {
       "id": "goethe-c1",
       "body": "Goethe-Institut",
       "level": "C1",
       "title": "Goethe-Zertifikat C1",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Übungsmaterialien officiels du nouveau format C1.",
       "url": "https://www.goethe.de/ins/ma/de/spr/prf/gzc1/u24.html",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Lesen",
+        "Hörverstehen",
+        "Schreiben",
+        "Sprechen"
+      ]
     },
     {
       "id": "goethe-c2",
       "body": "Goethe-Institut",
       "level": "C2",
       "title": "Goethe-Zertifikat C2 · Großes Deutsches Sprachdiplom",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Modellsatz + Übungssätze officiels.",
       "url": "https://www.goethe.de/ins/ma/de/spr/prf/gzc2/ueb.html",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Lesen",
+        "Hörverstehen",
+        "Schreiben",
+        "Sprechen"
+      ]
     },
     {
       "id": "telc-b1",
       "body": "telc",
       "level": "B1",
       "title": "Zertifikat Deutsch · telc Deutsch B1",
-      "skills": ["Leseverstehen", "Hörverstehen", "Schriftlicher Ausdruck", "Mündlicher Ausdruck"],
+      "skills": [
+        "Leseverstehen",
+        "Hörverstehen",
+        "Schriftlicher Ausdruck",
+        "Mündlicher Ausdruck"
+      ],
       "note": "Übungstest 1 + fichiers audio, téléchargement gratuit.",
       "url": "https://www.telc.net/sprachpruefungen/deutsch/zertifikat-deutsch-telc-deutsch-b1/",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Leseverstehen",
+        "Hörverstehen",
+        "Schriftlicher Ausdruck",
+        "Mündlicher Ausdruck"
+      ]
     },
     {
       "id": "telc-all",
       "body": "telc",
       "level": "A1–C1",
       "title": "telc · tous les Übungstests (A1 à C1)",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Espace de téléchargement officiel : sujets d'entraînement gratuits pour tous les niveaux.",
       "url": "https://www.telc.net/lehrmaterialien/downloadbereich/",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Leseverstehen",
+        "Hörverstehen",
+        "Schriftlicher Ausdruck",
+        "Mündlicher Ausdruck"
+      ]
     },
     {
       "id": "testdaf",
       "body": "TestDaF-Institut",
       "level": "B2–C1",
       "title": "TestDaF · accès à l'université allemande",
-      "skills": ["Leseverstehen", "Hörverstehen", "Schriftlicher Ausdruck", "Mündlicher Ausdruck"],
+      "skills": [
+        "Leseverstehen",
+        "Hörverstehen",
+        "Schriftlicher Ausdruck",
+        "Mündlicher Ausdruck"
+      ],
       "note": "Modelltests officiels (papier + numérique).",
       "url": "https://www.testdaf.de/de/teilnehmende/der-papierbasierte-testdaf/vorbereitung-auf-den-papierbasierten-testdaf/modelltests/",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Leseverstehen",
+        "Hörverstehen",
+        "Schriftlicher Ausdruck",
+        "Mündlicher Ausdruck"
+      ]
     },
     {
       "id": "osd-deutsch",
       "body": "ÖSD",
       "level": "A1–C1",
       "title": "ÖSD · Österreichisches Sprachdiplom Deutsch",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Présentation des examens et des niveaux.",
       "url": "https://www.osd.at/pruefungen/deutsch/",
-      "files": []
+      "files": [],
+      "deSkills": null
     },
     {
       "id": "osd-downloads",
       "body": "ÖSD",
       "level": "A1–C1",
       "title": "ÖSD · Modellprüfungen (téléchargements)",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Tous les modèles d'examen officiels à télécharger.",
       "url": "https://www.osd.at/downloads/",
-      "files": []
+      "files": [],
+      "deSkills": null
     },
     {
       "id": "dtz",
       "body": "g.a.s.t. / telc",
       "level": "A2–B1",
       "title": "DTZ · Deutsch-Test für Zuwanderer",
-      "skills": ["Lesen", "Hören", "Schreiben", "Sprechen"],
+      "skills": [
+        "Lesen",
+        "Hören",
+        "Schreiben",
+        "Sprechen"
+      ],
       "note": "Examen d'intégration ; modèles disponibles sur le site officiel.",
       "url": "https://www.gast.de/de/produkte",
-      "files": []
+      "files": [],
+      "deSkills": [
+        "Leseverstehen",
+        "Hörverstehen",
+        "Schriftlicher Ausdruck",
+        "Mündlicher Ausdruck"
+      ]
     }
   ]
 }
