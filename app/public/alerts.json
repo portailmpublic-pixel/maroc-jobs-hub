@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-01T20:58:26.739Z",
+  "updatedAt": "2026-11-02T13:08:16.240Z",
   "phone": "212663369080",
-  "total": 1364,
+  "total": 1409,
   "alerts": [
+    {
+      "id": "n1793624896236",
+      "at": "2026-11-02T13:08:16.236Z",
+      "title": "+45 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 45 nouveauté(s) (cloud)\n💼 stagiaire en administration des ventes (H/F) — Jameel Motors (Casablanca) ⏰2027-01-02\n💼 RESPONSABLE CONTRÔLE GPS & CARBURANT — Distrans Express Maroc (Casablanca) ⏰2027-01-02\n💼 Chargé de Conformité Réglementaire — Bank Assafa (Casablanca) ⏰2027-01-02\n💼 Chef de Projet Senior Innovation & Intelligence Artificielle (H/F) — ADM Value (CDI — Rabat) ⏰2026-11-11\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-02\n💼 Rabat – Télévendeur(se) énergie — ADM Value (CDI + primes déplafonnées) ⏰2026-12-13\n💼 Directeur d’activité – Assurances auto, moto & habitation. — ADM Value (Rabat) ⏰2026-12-16\n💼 Conseiller commercial en énergie – antichurn / rétention — ADM Value (Rabat) ⏰2026-12-13\n🏛️ dont 3 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n- Concours — Chargé de suivi dossiers d'assurances (2026-11-02)\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n📊 Total suivi : 1409 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 45,
+        "concours": 3,
+        "total": 1409
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793566706738",
       "at": "2026-11-01T20:58:26.738Z",
