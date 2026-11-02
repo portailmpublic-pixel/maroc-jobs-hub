@@ -111,6 +111,18 @@
       "email": "",
       "exams": ["Licence études germaniques"],
       "url": "https://www.umi.ac.ma/"
+    },
+    {
+      "id": "germany-school-meknes",
+      "name": "Germany School · Meknès",
+      "type": "Centre privé d’examen",
+      "city": "Meknès",
+      "address": "Meknès, Maroc",
+      "phone": "",
+      "email": "",
+      "exams": ["telc Deutsch A1–C1 (Hochschule)", "Goethe via partenaire"],
+      "url": "https://www.telc.net/en/language-examinations/find-a-telc-examination-centre",
+      "source": "telc.net / centre partenaire Germany School"
     }
   ]
 }
