@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-03T12:38:53.052Z",
+  "updatedAt": "2026-11-03T22:13:21.140Z",
   "phone": "212663369080",
-  "total": 1461,
+  "total": 1490,
   "alerts": [
+    {
+      "id": "n1793744001140",
+      "at": "2026-11-03T22:13:21.140Z",
+      "title": "+29 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 29 nouveauté(s) (cloud)\n💼 Data Scientist / Ingénieur IA confirmé — CAC (Centrale Automobile Chérifienne) (Casablanca) ⏰2026-11-16\n💼 Support N2 Multimédia — ALTEN Maroc (Fès) ⏰2026-12-26\n💼 Data Engineer Java / Scala Expérimenté – Data Platform — ALTEN Maroc (Rabat) ⏰2026-12-27\n💼 Chargé de developpement EE — ALTEN Maroc (Rabat) ⏰2026-12-27\n💼 E-BOM PILOTE — ALTEN Maroc (Tétouan) ⏰2026-12-27\n💼 Change management specialist — ALTEN Maroc (Tétouan) ⏰2026-12-27\n💼 Ingénieur Géométrie conception — ALTEN Maroc (Fès) ⏰2026-12-28\n💼 Chef de partie (cuisine chaud) —  (Marrakech)\n⏰ Deadlines ≤ 3j :\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n- Concours — Assistant Juriste (2026-11-03)\n- Concours — Technicien en Développement Logiciel (2026-11-03)\n- Concours — Cadre Supérieur Juriste (2026-11-03)\n📊 Total suivi : 1490 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 29,
+        "concours": 0,
+        "total": 1490
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793709533051",
       "at": "2026-11-03T12:38:53.051Z",

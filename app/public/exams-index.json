@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-03T12:38:53.341Z",
+  "updatedAt": "2026-11-03T22:13:21.382Z",
   "years": [
     2022,
     2023,
@@ -749,9 +749,9 @@
       "id": "emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770",
       "title": "Concours — Administrateur 2ème grade à la Présidence de l’UIZ spécialité Biotechnologie et sciences de la santé",
       "company": "Université Ibn Zohr - Agadir",
-      "specialty": "",
+      "specialty": "Biotechnologie et sciences de la santé",
       "fonction": "Administrateur 2ème grade à la Présidence de l’UIZ spécialité Biotechnologie et sciences de la santé",
-      "city": "Maroc",
+      "city": "Agadir",
       "url": "https://www.emploi-public.ma/fr/concours/details/0802d682-cb6a-4d14-b4ee-9299d0ffa770",
       "familyLabel": "Administration / Gestion",
       "files": [
@@ -761,7 +761,7 @@
           "title": "Sujet 2022",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2022-sujet-v7.pdf",
-          "size": 9781
+          "size": 9719
         },
         {
           "year": 2022,
@@ -769,7 +769,7 @@
           "title": "Corrigé 2022",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2022-corrige-v7.pdf",
-          "size": 7065
+          "size": 7003
         },
         {
           "year": 2023,
@@ -777,7 +777,7 @@
           "title": "Sujet 2023",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2023-sujet-v7.pdf",
-          "size": 9722
+          "size": 9660
         },
         {
           "year": 2023,
@@ -785,7 +785,7 @@
           "title": "Corrigé 2023",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2023-corrige-v7.pdf",
-          "size": 6969
+          "size": 6907
         },
         {
           "year": 2024,
@@ -793,7 +793,7 @@
           "title": "Sujet 2024",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2024-sujet-v7.pdf",
-          "size": 9710
+          "size": 9648
         },
         {
           "year": 2024,
@@ -801,7 +801,7 @@
           "title": "Corrigé 2024",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2024-corrige-v7.pdf",
-          "size": 6944
+          "size": 6882
         },
         {
           "year": 2025,
@@ -809,7 +809,7 @@
           "title": "Sujet 2025",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2025-sujet-v7.pdf",
-          "size": 9731
+          "size": 9669
         },
         {
           "year": 2025,
@@ -817,7 +817,7 @@
           "title": "Corrigé 2025",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2025-corrige-v7.pdf",
-          "size": 6966
+          "size": 6904
         },
         {
           "year": 2026,
@@ -825,7 +825,7 @@
           "title": "Sujet 2026",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2026-sujet-v7.pdf",
-          "size": 9733
+          "size": 9671
         },
         {
           "year": 2026,
@@ -833,7 +833,7 @@
           "title": "Corrigé 2026",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-0802d682-cb6a-4d14-b4ee-9299d0ffa770-2026-corrige-v7.pdf",
-          "size": 6965
+          "size": 6903
         }
       ]
     },
