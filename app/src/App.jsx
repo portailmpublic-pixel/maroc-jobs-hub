@@ -9,7 +9,6 @@ const LS_CACHE = 'mjh_cache_';
 const LS_ACCESS = 'mjh_access_v1';
 const LS_ACCESS_AT = 'mjh_access_checked_v1';
 const LS_MARCHES_SESSION = 'mjh_marches_session_v1';
-const LS_GERMAN_SESSION = 'mjh_german_session_v1';
 const LS_THEME = 'mjh_theme_v1';
 const LS_FAVORITES = 'mjh_favorites_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
@@ -168,16 +167,6 @@ function emailMatchesList(email, list) {
 
 function isMarchesAllowed(email, access) {
   return emailMatchesList(email, accessMarchesList(access));
-}
-
-// Accès « Deutsch » (examens d'allemand) : liste séparée, autorisée elle aussi
-// depuis l'APK admin. Tant que l'e-mail n'y figure pas, l'espace reste verrouillé.
-function accessGermanList(access) {
-  return ((access && access.german) || []).map((x) => String(x || '').trim().toLowerCase());
-}
-
-function isGermanAllowed(email, access) {
-  return emailMatchesList(email, accessGermanList(access));
 }
 
 function isEmailDisabled(email) {
@@ -547,7 +536,6 @@ const HOME_CATS = [
   { tab: 'concours', title: 'CONCOURS', desc: 'Accédez aux concours et réussissez', icon: 'file', tone: 'green' },
   { tab: 'exams', title: 'EXAMS', desc: 'Toutes les dates et informations', icon: 'clipboard', tone: 'purple' },
   { tab: 'marches', title: 'MARCHÉS PUBLICS', desc: 'Appels d’offres et opportunités', icon: 'landmark', tone: 'red' },
-  { key: 'deutsch', tab: 'exams', title: 'DEUTSCH', sub: 'A1 → C2', desc: 'Examens d’allemand & centres au Maroc', icon: 'file', tone: 'teal' },
   { tab: 'new', title: 'NEW OFFERS', desc: 'Les nouvelles offres en avant-première', icon: 'star', tone: 'teal' },
 ];
 
@@ -1604,6 +1592,10 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [updating, setUpdating] = useState(false);
   const [updatePct, setUpdatePct] = useState(0);
   const [appVer, setAppVer] = useState('');
+  const updateInfoRef = useRef(null);
+  const updateAutoRef = useRef('');
+  const updatingRef = useRef(false);
+  const updateListenerRef = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('home');
   // Favoris enregistrés sur l'appareil (onglet Favoris du poster).
@@ -1661,32 +1653,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [mGateErr, setMGateErr] = useState('');
   const [mGateMsg, setMGateMsg] = useState('');
   const closingRef = useRef(false);
-
-  // ---- Espace « Deutsch » (examens d'allemand) : accès autorisé par l'admin ----
-  const [germanOpen, setGermanOpen] = useState(false);
-  const [germanTab, setGermanTab] = useState('exams');
-  const [germanData, setGermanData] = useState(() => readCached('german', null));
-  const [germanCenters, setGermanCenters] = useState(() => readCached('germanCenters', null));
-  const [germanBusy, setGermanBusy] = useState(false);
-  const [germanLevel, setGermanLevel] = useState('');
-  const [germanQ, setGermanQ] = useState('');
-  const [germanCity, setGermanCity] = useState('');
-  const [gEmail, setGEmail] = useState(() => { try { return localStorage.getItem(LS_GERMAN_SESSION) || ''; } catch { return ''; } });
-  const [gGateStep, setGGateStep] = useState('email');
-  const [gGateEmail, setGGateEmail] = useState(session.email || '');
-  const [gGateCode, setGGateCode] = useState('');
-  const [gGateInfo, setGGateInfo] = useState(null);
-  const [gGateBusy, setGGateBusy] = useState(false);
-  const [gGateErr, setGGateErr] = useState('');
-  const [gGateMsg, setGGateMsg] = useState('');
-  const germanOk = isGermanAllowed(session.email, access) || (!!gEmail && isGermanAllowed(gEmail, access));
-  const germanExams = ((germanData && germanData.exams) || []).filter((e) => {
-    if (germanLevel && !(e.level || '').includes(germanLevel)) return false;
-    const q = germanQ.trim().toLowerCase();
-    if (!q) return true;
-    return (e.title + ' ' + e.body + ' ' + e.level + ' ' + (e.note || '')).toLowerCase().includes(q);
-  });
-  const germanCities = [...new Set(((germanCenters && germanCenters.centers) || []).map((c) => c.city))];
 
   // ---- Fiches locales (pas de sortie vers le navigateur) ----
   function openDetail(type, id) {
@@ -2042,94 +2008,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     openLink('https://wa.me/212663369080?text=' + encodeURIComponent(text));
   }
 
-  // ---- Espace « Deutsch » : chargement des données + connexion dédiée ----
-  async function loadGerman() {
-    if (germanBusy) return;
-    setGermanBusy(true);
-    try {
-      if (!germanData) {
-        const base = apiBase();
-        const urls = [base ? base + '/german-exams.json' : null, './german-exams.json'].filter(Boolean);
-        for (const u of urls) {
-          try {
-            const d = await fetchJSON(u, 9000, { cache: 'no-store' });
-            if (d && Array.isArray(d.exams)) { setGermanData(d); writeCached('german', d); break; }
-          } catch {}
-        }
-      }
-      if (!germanCenters) {
-        const base = apiBase();
-        const urls = [base ? base + '/german-centers.json' : null, './german-centers.json'].filter(Boolean);
-        for (const u of urls) {
-          try {
-            const d = await fetchJSON(u, 9000, { cache: 'no-store' });
-            if (d && Array.isArray(d.centers)) { setGermanCenters(d); writeCached('germanCenters', d); break; }
-          } catch {}
-        }
-      }
-    } finally {
-      setGermanBusy(false);
-    }
-  }
-
-  async function sendGermanCode() {
-    setGGateErr(''); setGGateMsg('');
-    const target = gGateEmail.trim().toLowerCase();
-    if (!validEmail(target)) { setGGateErr('Adresse e-mail invalide.'); return; }
-    setGGateBusy(true);
-    const fresh = await refreshAccessList();
-    setAccess(fresh);
-    if (emailMatchesList(target, accessDisabledList(fresh))) {
-      setGGateBusy(false);
-      setGGateErr(blockedMessage());
-      return;
-    }
-    if (!isGermanAllowed(target, fresh)) {
-      setGGateBusy(false);
-      setGGateErr('Cette adresse n’est pas autorisée pour l’espace Deutsch. Demandez l’autorisation à l’administrateur.');
-      return;
-    }
-    const code = makeCode();
-    setGGateInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: target });
-    const r = await sendVerificationEmail({ to: target, code, name: session.name || '' });
-    setGGateBusy(false);
-    if (!r.ok) {
-      setGGateInfo(null);
-      setGGateErr(`Impossible d'envoyer l'e-mail : ${r.error === 'web' ? 'envoi disponible dans l’application Android' : r.error}`);
-      return;
-    }
-    setGGateStep('code');
-    setGGateCode('');
-    setGGateMsg(`Code envoyé à ${target}`);
-  }
-
-  async function verifyGermanCode() {
-    setGGateErr(''); setGGateMsg('');
-    if (!gGateInfo) { setGGateErr('Code expiré — demandez un nouveau code.'); return; }
-    if (Date.now() > gGateInfo.exp) { setGGateErr('Code expiré. Demandez un nouveau code.'); return; }
-    if (gGateCode.trim() !== gGateInfo.code) { setGGateErr('Code incorrect. Vérifiez votre e-mail.'); return; }
-    setGGateBusy(true);
-    const fresh = await refreshAccessList();
-    setAccess(fresh);
-    if (!isGermanAllowed(gGateInfo.email, fresh)) {
-      setGGateBusy(false);
-      setGGateErr('Accès Deutsch retiré ou non autorisé. Contactez l’administrateur.');
-      return;
-    }
-    try { localStorage.setItem(LS_GERMAN_SESSION, gGateInfo.email); } catch {}
-    setGEmail(gGateInfo.email);
-    setGGateBusy(false);
-    setGGateStep('email');
-    setGGateInfo(null);
-    setGGateCode('');
-    showToast('Espace Deutsch débloqué');
-  }
-
-  function requestGermanAccess() {
-    const text = `Bonjour, je demande l’accès à l’espace Deutsch (examens d’allemand) d’ASSOULI AUTOX pour : ${session.email} (${session.name || 'compte'}). Merci.`;
-    openLink('https://wa.me/212663369080?text=' + encodeURIComponent(text));
-  }
-
   // ---- Outils de configuration (aucune donnée personnelle affichée) ----
   async function enableNotifications() {
     await setupNotifications();
@@ -2180,6 +2058,13 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     } catch { return null; }
   }
 
+  async function nativeUpdater() {
+    const { registerPlugin } = await import('@capacitor/core');
+    return registerPlugin('ApkUpdater');
+  }
+
+  // Mise à jour FORCÉE : dès qu'une version supérieure est publiée par l'admin,
+  // l'app télécharge et ouvre l'installateur Android immédiatement, sans bouton.
   async function checkUpdate(notify = false) {
     try {
       const info = await fetchJSON(UPDATE_URL + '?t=' + Date.now(), 8000);
@@ -2187,30 +2072,60 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       if (v) setAppVer(`${v.versionName} (${v.versionCode})`);
       if (!v || !info) return;
       if (Number(info.versionCode) > Number(v.versionCode)) {
+        updateInfoRef.current = info;
         setUpdateInfo(info);
-        if (notify) showToast(`Mise à jour ${info.versionName} disponible`);
-      } else if (notify) {
-        showToast('Application à jour');
+        if (updateAutoRef.current !== String(info.versionName)) {
+          updateAutoRef.current = String(info.versionName);
+          startUpdate(info);
+        }
+      } else {
+        updateInfoRef.current = null;
+        updateAutoRef.current = '';
+        setUpdateInfo(null);
+        if (notify) showToast('Application à jour');
       }
     } catch {
       if (notify) showToast('Vérification impossible (réseau)');
     }
   }
 
-  async function startUpdate() {
-    if (!updateInfo || updating) return;
+  async function startUpdate(infoOverride) {
+    const info = infoOverride || updateInfoRef.current || updateInfo;
+    if (!info) return;
+    if (updatingRef.current) {
+      // Téléchargement déjà en cours : on relance juste l'écran d'installation.
+      try { const P = await nativeUpdater(); await P.installDownloaded({ fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' }); } catch {}
+      return;
+    }
+    updatingRef.current = true;
     setUpdating(true); setUpdatePct(0);
     try {
-      const { registerPlugin } = await import('@capacitor/core');
-      const P = registerPlugin('ApkUpdater');
-      await P.addListener('progress', (e) => setUpdatePct(Math.max(0, Math.min(100, Number(e.percent) || 0))));
-      await P.downloadAndInstall({ url: updateInfo.url, fileName: 'ASSOULI-AUTOX-' + updateInfo.versionName + '.apk' });
-      showToast('Téléchargé — confirmez l’installation');
+      const P = await nativeUpdater();
+      if (!updateListenerRef.current) {
+        updateListenerRef.current = true;
+        P.addListener('progress', (e) => setUpdatePct(Math.max(0, Math.min(100, Number(e.percent) || 0))));
+      }
+      await P.downloadAndInstall({ url: info.url, fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' });
+      setUpdatePct(100);
     } catch (e) {
-      showToast('Mise à jour : ' + (e.message || 'réseau faible'));
+      // Autorisation « installer des applis inconnues » manquante : on ouvre
+      // les réglages Android. Au retour, l'installation est relancée seule.
+      try { const P = await nativeUpdater(); await P.openInstallSettings(); } catch {}
     } finally {
+      updatingRef.current = false;
       setUpdating(false);
     }
+  }
+
+  // Si l'utilisateur refuse/annule l'écran système puis revient dans l'app,
+  // on réaffiche l'installateur automatiquement (aucun bouton à toucher).
+  async function retryInstall() {
+    const info = updateInfoRef.current || updateInfo;
+    if (!info || updatingRef.current) return;
+    try {
+      const P = await nativeUpdater();
+      await P.installDownloaded({ fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' });
+    } catch {}
   }
 
   async function enforceAccess(prefetched) {
@@ -2345,23 +2260,40 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     window.addEventListener('access-changed', onAccessChanged);
     return () => window.removeEventListener('access-changed', onAccessChanged);
   }, [session]);
-  // Auto-refresh: every 30 min + each time the app comes back to foreground
+  // Auto-refresh : données toutes les 30 min, mise à jour vérifiée chaque minute.
+  // Dès qu'une version supérieure existe, l'installation démarre seule.
   useEffect(() => {
     const AUTO_MS = 30 * 60 * 1000;
+    const UPDATE_MS = 60 * 1000;
     const ACCESS_MS = 20 * 1000;
     const tick = () => { refresh(false, true); checkUpdate(); checkAccessNow(); };
     const interval = setInterval(tick, AUTO_MS);
+    const updateInterval = setInterval(() => {
+      if (navigator.onLine !== false) checkUpdate();
+    }, UPDATE_MS);
     const accessInterval = setInterval(() => {
       if (document.visibilityState === 'visible' && navigator.onLine !== false) enforceAccess();
     }, ACCESS_MS);
-    const onVis = () => { if (document.visibilityState === 'visible') tick(); };
+    // Tant que la mise à jour n'est pas installée, on relance l'écran
+    // d'installation système automatiquement (aucun bouton à toucher).
+    const retryInterval = setInterval(() => {
+      if (document.visibilityState === 'visible' && updateInfoRef.current) retryInstall();
+    }, 12 * 1000);
+    const onVis = () => {
+      if (document.visibilityState === 'visible') {
+        tick();
+        if (updateInfoRef.current) setTimeout(() => retryInstall(), 700);
+      }
+    };
     document.addEventListener('visibilitychange', onVis);
-    window.addEventListener('resume', tick); // Capacitor resume event
+    window.addEventListener('resume', onVis); // Capacitor resume event
     return () => {
       clearInterval(interval);
+      clearInterval(updateInterval);
       clearInterval(accessInterval);
+      clearInterval(retryInterval);
       document.removeEventListener('visibilitychange', onVis);
-      window.removeEventListener('resume', tick);
+      window.removeEventListener('resume', onVis);
     };
   }, [remote]);
   // Retour au premier plan via le plugin natif Capacitor : l'autorisation
@@ -2378,6 +2310,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           if (state && state.isActive) {
             checkAccessNow();
             refresh(false, true);
+            checkUpdate();
+            if (updateInfoRef.current) setTimeout(() => retryInstall(), 700);
           }
         });
         if (cancelled) handle.remove();
@@ -2701,7 +2635,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           <button className={tab === 'concours' ? 'active' : ''} aria-current={tab === 'concours' ? 'page' : undefined} onClick={() => goTab('concours')}><span className="dn-l"><Icon n="landmark" size={19} />Concours État</span>{kinds.concours > 0 && <b className="count">{kinds.concours}</b>}</button>
           <button className={tab === 'marches' ? 'active' : ''} aria-current={tab === 'marches' ? 'page' : undefined} onClick={() => goTab('marches')}><span className="dn-l"><Icon n="scale" size={19} />Marchés Publics</span>{mArchAllowed && mStats.open > 0 && <b className="count">{compactNum(mStats.open)}</b>}{!mArchAllowed && <b className="count"><Icon n="lock" size={11} /></b>}</button>
           <button className={tab === 'exams' ? 'active' : ''} aria-current={tab === 'exams' ? 'page' : undefined} onClick={() => goTab('exams')}><span className="dn-l"><Icon n="file" size={19} />Exams & Corrigés</span></button>
-          <button className={germanOpen ? 'active' : ''} onClick={() => { setMenuOpen(false); setGermanOpen(true); loadGerman(); }}><span className="dn-l"><Icon n="file" size={19} />Deutsch · Examens</span>{!germanOk && <b className="count"><Icon n="lock" size={11} /></b>}</button>
           <button className={tab === 'alerts' ? 'active' : ''} aria-current={tab === 'alerts' ? 'page' : undefined} onClick={() => goTab('alerts')}><span className="dn-l"><Icon n="bell" size={19} />Alertes</span>{unread > 0 && <b className="count red">{unread}</b>}</button>
           <button className={tab === 'dash' ? 'active' : ''} onClick={() => goTab('dash')}><span className="dn-l"><Icon n="chart" size={19} />Dashboard</span></button>
           <button className={tab === 'setup' ? 'active' : ''} onClick={() => goTab('setup')}><span className="dn-l"><Icon n="sliders" size={19} />Configuration</span></button>
@@ -2738,29 +2671,35 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         </header>
       )}
       {updateInfo && (
-        <div className="update-banner">
-          <span className="upd-ic"><Icon n="download" size={16} /></span>
-          <div className="upd-txt">
-            <b>Mise à jour {updateInfo.versionName}</b>
-            <span>{updateInfo.notes || 'Nouvelle version disponible'}</span>
-            {updating && <div className="upd-bar"><span style={{ width: updatePct + '%' }} /></div>}
+        <div className="update-lock" role="alertdialog" aria-modal="true" aria-label="Mise à jour obligatoire">
+          <div className="ul-card">
+            <div className="ul-ic"><Icon n="download" size={30} /></div>
+            <span className="ul-kicker">Mise à jour obligatoire</span>
+            <h2>Version {updateInfo.versionName}</h2>
+            <p>{updateInfo.notes || 'Une nouvelle version doit être installée pour continuer.'}</p>
+            <div className="ul-bar"><span style={{ width: (updating ? Math.max(6, updatePct) : 100) + '%' }} /></div>
+            <div className="ul-state">
+              {updating ? `Téléchargement sécurisé · ${updatePct}%` : 'Ouverture de l’installation…'}
+            </div>
+            <button className="ul-btn" onClick={() => startUpdate()}>
+              <Icon n="download" size={16} /> {updating ? 'Téléchargement en cours…' : 'Relancer l’installation'}
+            </button>
+            <small className="ul-note">L’application reste bloquée jusqu’à la fin de l’installation.</small>
           </div>
-          <button className="upd-btn" disabled={updating} onClick={startUpdate}>{updating ? updatePct + '%' : 'Installer'}</button>
-          {!updating && <button className="upd-x" onClick={() => setUpdateInfo(null)} aria-label="Plus tard"><Icon n="close" size={14} /></button>}
         </div>
       )}
       {tab === 'home' && (
         <main className="home-body">
           <div className="home-cats">
             {HOME_CATS.map((c) => (
-              <button key={c.title} type="button" className={'home-cat tone-' + c.tone} onClick={() => c.key === 'deutsch' ? (setGermanOpen(true), loadGerman()) : goTab(c.tab)}>
+              <button key={c.title} type="button" className={'home-cat tone-' + c.tone} onClick={() => goTab(c.tab)}>
                 <span className="hc-ic"><Icon n={c.icon} size={27} /></span>
                 <span className="hc-txt">
                   <b>{c.title}</b>
-                  {c.sub && <strong>{c.key === 'deutsch' && !germanOk ? 'Accès privé' : c.sub}</strong>}
+                  {c.sub && <strong>{c.sub}</strong>}
                   <small>{c.desc}</small>
                 </span>
-                <span className="hc-chev"><Icon n={c.key === 'deutsch' && !germanOk ? 'lock' : 'chevron'} size={18} /></span>
+                <span className="hc-chev"><Icon n="chevron" size={18} /></span>
               </button>
             ))}
           </div>
@@ -2910,7 +2849,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
               <button onClick={() => goTab('setup')}><span className="pm-ic slate"><Icon n="sliders" size={19} /></span><span className="pm-txt"><b>Configuration</b><small>Notifications, cache, mises à jour</small></span><Icon n="chevron" size={16} /></button>
               <button onClick={() => goTab('marches')}><span className="pm-ic red"><Icon n="scale" size={19} /></span><span className="pm-txt"><b>Marchés publics</b><small>{mArchAllowed ? `${fmtNum(mStats.open)} consultations ouvertes` : 'Accès sur autorisation'}</small></span>{mArchAllowed ? <Icon n="chevron" size={16} /> : <span className="pm-lock"><Icon n="lock" size={14} /></span>}</button>
               <button onClick={() => goTab('exams')}><span className="pm-ic purple"><Icon n="clipboard" size={19} /></span><span className="pm-txt"><b>Exams & corrigés</b><small>Préparer vos concours</small></span><Icon n="chevron" size={16} /></button>
-              <button onClick={() => { setGermanOpen(true); loadGerman(); }}><span className="pm-ic blue"><Icon n="file" size={19} /></span><span className="pm-txt"><b>Deutsch · Examens</b><small>{germanOk ? 'Goethe, telc, TestDaF, ÖSD' : 'Accès sur autorisation'}</small></span>{germanOk ? <Icon n="chevron" size={16} /> : <span className="pm-lock"><Icon n="lock" size={14} /></span>}</button>
             </div>
           </section>
           <section className="profile-card">
@@ -3207,21 +3145,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             </div>
           </div>
 
-          <div
-            className="panel de-promo"
-            role="button"
-            tabIndex={0}
-            onClick={() => { setGermanOpen(true); loadGerman(); }}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setGermanOpen(true); loadGerman(); } }}
-          >
-            <div className="de-promo-ic">DE</div>
-            <div className="de-promo-txt">
-              <b>Examens d’allemand · Deutsch</b>
-              <span>{germanOk ? 'Goethe A1–C2 · telc · TestDaF · ÖSD · centres au Maroc' : 'Accès privé — autorisation de l’administrateur'}</span>
-            </div>
-            <span className="de-promo-cta">{germanOk ? 'Ouvrir' : <Icon n="lock" size={16} />}</span>
-          </div>
-
           {((examIndex && examIndex.years) || []).length > 0 && (
             <div className="filters ex-filters">
               <span className="kw-label"><Icon n="calendar" size={13} /> Année</span>
@@ -3420,7 +3343,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           {updateInfo && (
             <div className="panel">
               <div className="row">
-                <button className="apply" onClick={startUpdate} disabled={updating}><Icon n="download" size={16} /> {updating ? `Téléchargement ${updatePct}%` : `Installer la mise à jour ${updateInfo.versionName}`}</button>
+                <button className="apply" onClick={() => startUpdate()} disabled={updating}><Icon n="download" size={16} /> {updating ? `Téléchargement ${updatePct}%` : `Installer la mise à jour ${updateInfo.versionName}`}</button>
               </div>
             </div>
           )}
@@ -3457,128 +3380,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         />
       )}
 
-      {germanOpen && (
-        <div className="de-screen" role="dialog" aria-modal="true" aria-label="Examens d’allemand">
-          <header className="de-head">
-            <button className="de-back" onClick={() => setGermanOpen(false)} aria-label="Retour">‹</button>
-            <div className="de-head-txt">
-              <b>Deutsch</b>
-              <span>Examens officiels · centres au Maroc</span>
-            </div>
-            {germanOk && <span className="de-pill">Autorisé</span>}
-          </header>
-          <div className="de-hero">
-            <div className="de-hero-ic">DE</div>
-            <div className="de-hero-txt">
-              <b>Deutsch · Prüfungsvorbereitung</b>
-              <span>Goethe A1–C2 · telc · TestDaF · ÖSD · DTZ — Modellsätze & Übungstests</span>
-            </div>
-          </div>
-
-          {!germanOk ? (
-            <div className="de-gate">
-              <div className="de-gate-emblem"><Icon n="lock" size={26} /></div>
-              <span className="m-eyebrow">Accès privé</span>
-              <h2>Examens d’allemand</h2>
-              <p className="m-gate-sub">Cet espace est réservé aux comptes autorisés par l’administrateur ASSOULI AUTOX.</p>
-
-              {gGateStep === 'email' ? (
-                <>
-                  <label className="auth-field"><span>E-mail autorisé</span>
-                    <input className="auth-input" type="email" value={gGateEmail} onChange={(e) => setGGateEmail(e.target.value)} placeholder="vous@exemple.com" autoComplete="email" inputMode="email" />
-                  </label>
-                  <button className="auth-btn" disabled={gGateBusy} onClick={sendGermanCode}>{gGateBusy ? 'Vérification…' : 'Recevoir le code'}</button>
-                </>
-              ) : (
-                <>
-                  <div className="m-gate-sent"><Icon n="mail" size={16} /><span>Code envoyé à <b>{gGateInfo ? gGateInfo.email : gGateEmail}</b></span></div>
-                  <label className="auth-field"><span>Code à 6 chiffres</span>
-                    <input className="auth-input auth-code" value={gGateCode} onChange={(e) => setGGateCode(e.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" maxLength={6} />
-                  </label>
-                  <button className="auth-btn" disabled={gGateBusy} onClick={verifyGermanCode}>{gGateBusy ? 'Vérification…' : 'Débloquer l’espace Deutsch'}</button>
-                  <button className="auth-link" onClick={() => { setGGateStep('email'); setGGateInfo(null); setGGateCode(''); setGGateErr(''); setGGateMsg(''); }}>Utiliser une autre adresse</button>
-                </>
-              )}
-
-              {gGateErr && <div className="auth-error">{gGateErr}</div>}
-              {gGateMsg && <div className="auth-ok">{gGateMsg}</div>}
-              <button className="ghost de-request" onClick={requestGermanAccess}>Demander l’autorisation</button>
-            </div>
-          ) : (
-            <>
-              <div className="de-tabs">
-                <button className={germanTab === 'exams' ? 'active' : ''} onClick={() => setGermanTab('exams')}>Examens</button>
-                <button className={germanTab === 'centers' ? 'active' : ''} onClick={() => setGermanTab('centers')}>Centres &amp; écoles</button>
-              </div>
-
-              {germanTab === 'exams' ? (
-                <>
-                  <div className="searchbar de-search">
-                    <Icon n="search" size={17} />
-                    <input placeholder="Goethe, telc, TestDaF, niveau…" value={germanQ} onChange={(e) => setGermanQ(e.target.value)} />
-                  </div>
-                  <div className="filters de-levels">
-                    <button className={'fchip' + (!germanLevel ? ' active' : '')} onClick={() => setGermanLevel('')}>Tous</button>
-                    {['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].map((l) => (
-                      <button key={l} className={'fchip' + (germanLevel === l ? ' active' : '')} onClick={() => setGermanLevel(germanLevel === l ? '' : l)}>{l}</button>
-                    ))}
-                  </div>
-
-                  {germanBusy && !germanData && <div className="skeleton-wrap">{[1, 2, 3].map((i) => <div className="skeleton" key={i} />)}</div>}
-
-                  <div className="de-list">
-                    {germanExams.map((e) => (
-                      <article className="de-card" key={e.id}>
-                        <div className="de-badge">{e.level}</div>
-                        <div className="de-body">
-                          <b>{e.title}</b>
-                          <span className="de-meta">{e.body} · {(e.deSkills && e.deSkills.length ? e.deSkills : (e.skills || [])).join(' · ')}</span>
-                          <span className="de-note">{e.note}</span>
-                          <div className="de-links">
-                            <button className="de-open" onClick={() => openLink(e.url)}>Sujet officiel</button>
-                            {(e.files || []).map((f) => (
-                              <button key={f.url} className="de-file" onClick={() => openLink(f.url)}>{f.label}</button>
-                            ))}
-                          </div>
-                        </div>
-                      </article>
-                    ))}
-                    {germanData && germanExams.length === 0 && <div className="empty">Aucun examen pour ce filtre.</div>}
-                  </div>
-
-                  <p className="de-foot">Sources officielles : Goethe-Institut, telc, TestDaF, ÖSD, g.a.s.t. — liens vérifiés. Les sujets réels passés ne sont pas publiés par les organismes.</p>
-                </>
-              ) : (
-                <>
-                  <div className="filters de-cities">
-                    <button className={'fchip' + (!germanCity ? ' active' : '')} onClick={() => setGermanCity('')}>Toutes les villes</button>
-                    {germanCities.map((c) => (
-                      <button key={c} className={'fchip' + (germanCity === c ? ' active' : '')} onClick={() => setGermanCity(germanCity === c ? '' : c)}>{c}</button>
-                    ))}
-                  </div>
-                  <div className="de-list">
-                    {((germanCenters && germanCenters.centers) || []).filter((c) => !germanCity || c.city === germanCity).map((c) => (
-                      <article className="de-center" key={c.id}>
-                        <div className="de-center-top"><b>{c.name}</b><span className="de-city">{c.city}</span></div>
-                        <span className="de-meta">{c.type}</span>
-                        {c.address && <span className="de-note">{c.address}</span>}
-                        {c.phone && <span className="de-note">{c.phone}</span>}
-                        {c.email && <span className="de-note">{c.email}</span>}
-                        <div className="de-links">
-                          <button className="de-open" onClick={() => openLink(c.url)}>Site officiel</button>
-                          {c.phone && <button className="de-file" onClick={() => openLink('tel:' + String(c.phone).replace(/\s/g, ''))}>Appeler</button>}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                  <p className="de-foot">Coordonnées des instituts : sources officielles. Pour les universités, confirmez les modalités auprès de l’établissement.</p>
-                </>
-              )}
-            </>
-          )}
-        </div>
-      )}
-
       {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
     </div>
   );
@@ -3587,13 +3388,25 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
 export default function App() {
   const [session, setSession] = useState(() => readSession());
   const [intro, setIntro] = useState(true);
-  const [welcome, setWelcome] = useState(() => !!readSession());
+  const [welcome, setWelcome] = useState(false);
+  const welcomedRef = useRef(false);
   const [themePref, setThemePref] = useState(() => readThemePref());
   useEffect(() => {
     const t = setTimeout(() => setIntro(false), 1700);
     syncNativeAccounts(loadAccounts());
     return () => clearTimeout(t);
   }, []);
+  // L'animation de bienvenue s'affiche juste après le splash et juste avant
+  // l'Accueil, que la session existe déjà ou qu'elle vienne d'être créée.
+  useEffect(() => {
+    if (session && !welcomedRef.current) {
+      welcomedRef.current = true;
+      setWelcome(true);
+    } else if (!session) {
+      welcomedRef.current = false;
+      setWelcome(false);
+    }
+  }, [session]);
   useEffect(() => {
     applyTheme(themePref);
     let mq = null;
