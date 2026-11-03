@@ -2122,10 +2122,15 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   async function retryInstall() {
     const info = updateInfoRef.current || updateInfo;
     if (!info || updatingRef.current) return;
+    const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
     try {
       const P = await nativeUpdater();
-      await P.installDownloaded({ fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' });
-    } catch {}
+      await P.installDownloaded({ fileName });
+    } catch {
+      // APK absent (téléchargement interrompu) : on relance tout seul.
+      updateAutoRef.current = '';
+      startUpdate(info);
+    }
   }
 
   async function enforceAccess(prefetched) {
