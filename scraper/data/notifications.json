@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1793709533051",
+    "at": "2026-11-03T12:38:53.051Z",
+    "kind": "nouvelles-offres",
+    "title": "+37 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 37 nouveauté(s) (cloud)\n💼 Finance Business Partner International & New Businesses (H/F) — Sothema (Casablanca) ⏰2027-01-03\n💼 Devops/ Sysops Expert — Akkodis Maroc (Casablanca) ⏰2027-01-03\n💼 Consultant Expert Cryptographie & Chiffrement — Akkodis Maroc (Casablanca) ⏰2027-01-03\n💼 Administrateur Bases de données - DBA — Akkodis Maroc (Tangier-Assilah Province) ⏰2027-01-03\n💼 Engineer Pharmaceutical Industry Germanophone — Capgemini Engineering (Casablanca) ⏰2027-01-03\n💼 Artificial Intelligence Engineer — AXA GBS Morocco (Sala al Jadida) ⏰2026-11-18\n💼 Test Lead — AXA GBS Morocco (Sala al Jadida) ⏰2026-11-18\n💼 Personal Assistant — AXA GBS Morocco (Rabat) ⏰2026-11-23\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n- Concours — Assistant Juriste (2026-11-03)\n- Concours — Technicien en Développement Logiciel (2026-11-03)\n- Concours — Cadre Supérieur Juriste (2026-11-03)\n📊 Total suivi : 1461 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 37,
+      "concours": 4,
+      "total": 1461
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1793663269221",
     "at": "2026-11-02T23:47:49.221Z",
     "kind": "nouvelles-offres",
