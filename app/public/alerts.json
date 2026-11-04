@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-04T12:48:03.705Z",
+  "updatedAt": "2026-11-04T22:26:33.860Z",
   "phone": "212663369080",
-  "total": 1513,
+  "total": 1531,
   "alerts": [
+    {
+      "id": "n1793831193859",
+      "at": "2026-11-04T22:26:33.859Z",
+      "title": "+18 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 18 nouveauté(s) (cloud)\n💼 Designer d'Intérieur & Conseiller(ère) Commercial(e) – Île Maurice (Ashley Furniture) — Ashley Furniture Homestore Mauritius (Phoenix (Maurice)) ⏰2027-01-04\n💼 Comptable Confirmé —  (Casablanca) ⏰2027-01-04\n💼 SAP FIORI — DXC - CDG (Rabat) ⏰2026-11-08\n💼 Consultant SAP SuccessFactors — DXC - CDG (Technopolis, Sala Al Jadida) ⏰2026-11-08\n💼 Remote Desktop Management (Anglophone Francophone) — DXC - CDG (Technopolis Salé) ⏰2026-11-09\n💼 Développeur Senior Kafka (H/F) — DXC - CDG (Casablanca) ⏰2026-11-08\n💼 Developpeur Java fullstack — DXC - CDG (Casablanca) ⏰2026-12-01\n💼 Consultant SAP SD/MM — DXC - CDG (Technopolis, Sala Al Jadida) ⏰2026-11-08\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat 1er grade à la Présidence de l’UIZ spécialité Architecture (2026-11-04)\n- Concours — Administrateur 2ème grade à la Présidence de l’UIZ spécialité Entrepreneuriat (2026-11-04)\n- Concours — Administrateur 2ème grade à la Présidence de l’UIZ spécialité Biotechnologie et sciences de la santé (2026-11-04)\n- Concours — Administrateur 3ème grade à la FMP Agadir spécialité Informatique (2026-11-04)\n- Concours — Ingénieur d'Etat (2026-11-04)\n📊 Total suivi : 1531 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 18,
+        "concours": 0,
+        "total": 1531
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793796483704",
       "at": "2026-11-04T12:48:03.704Z",
