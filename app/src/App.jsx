@@ -1442,9 +1442,9 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
             <div className="auth-sent">
               <span className="auth-sent-ic"><Icon n="mail" size={18} /></span>
               <div className="auth-sent-body">
-                <b>Code envoyé</b>
+                <b>{codeInfo && codeInfo.demo ? 'Accès démonstration' : 'Code envoyé'}</b>
                 <span className="auth-sent-mail">{codeInfo ? codeInfo.email : email}</span>
-                <span className="auth-sent-from">depuis portailm.public@gmail.com · vérifiez aussi les spams</span>
+                <span className="auth-sent-from">{codeInfo && codeInfo.demo ? 'compte de démonstration · aucun e-mail requis' : 'depuis portailm.public@gmail.com · vérifiez aussi les spams'}</span>
               </div>
               <span className="auth-sent-ok"><Icon n="check" size={13} /></span>
             </div>
@@ -2107,7 +2107,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       icon: 'trash',
       title: 'Supprimer votre compte ?',
       body: 'Votre compte et vos données sur cet appareil (favoris, préférences, cache et historique de lecture) seront définitivement effacés. Cette action est irréversible.',
-      confirmLabel: 'Supprimer définitivement',
+      confirmLabel: 'Supprimer',
       onConfirm: () => {
         const remaining = loadAccounts().filter((a) => a.email !== session.email);
         saveAccounts(remaining);
