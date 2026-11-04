@@ -9,6 +9,7 @@
 - **Langue principale** : Français (fr-MA)
 - **Pays** : Maroc (puis élargir au Maghreb)
 - **Politique de confidentialité** : https://portailmpublic-pixel.github.io/maroc-jobs-hub/privacy.html
+- **Page de suppression de compte (obligatoire Play)** : https://portailmpublic-pixel.github.io/maroc-jobs-hub/account-deletion.html
 - **E-mail de support** : portailm.public@gmail.com
 
 ## Description complète (à copier dans Play Console)
@@ -88,6 +89,7 @@ Déposer au minimum 2 captures (Play accepte jusqu’à 8 par type d’appareil)
 - [ ] Téléverser `play-assets/feature-graphic-1024x500.png`
 - [ ] Ajouter au moins 2 captures d’écran téléphone
 - [ ] Renseigner la politique de confidentialité
+- [ ] Renseigner la page de suppression de compte (`account-deletion.html`)
 - [ ] Compléter Data safety (voir ci-dessus)
 - [ ] Compléter Content rating (voir ci-dessus)
 - [ ] Ajouter les identifiants de démonstration dans « Accès à l’application »
