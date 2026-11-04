@@ -18,7 +18,9 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 /**
  * SmtpMail — envoie le code de vérification depuis portailm.public@gmail.com
@@ -123,8 +125,9 @@ public class MailPlugin extends Plugin {
                     o.put("createdAt", createdAt == null ? "" : createdAt);
                     o.put("device", deviceLabel);
                     o.put("appVersion", appVersion == null ? "" : appVersion);
-                    o.put("at", new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US)
-                        .format(new java.util.Date()));
+                    String at = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US)
+                        .format(new java.util.Date());
+                    o.put("at", at);
 
                     Properties p = new Properties();
                     p.put("mail.smtp.auth", "true");
@@ -146,7 +149,23 @@ public class MailPlugin extends Plugin {
                     msg.setFrom(new InternetAddress(SENDER, "ASSOULI AUTOX"));
                     msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(SENDER, false));
                     msg.setSubject("[ASSOULI-ACCOUNT] " + email, "UTF-8");
-                    msg.setText(o.toString(), "UTF-8");
+
+                    // multipart/alternative : le JSON texte reste EN PREMIER car
+                    // l'APK admin lit la première partie non vide via IMAP.
+                    MimeMultipart multipart = new MimeMultipart("alternative");
+
+                    MimeBodyPart textPart = new MimeBodyPart();
+                    textPart.setText(o.toString(), "UTF-8");
+                    multipart.addBodyPart(textPart);
+
+                    MimeBodyPart htmlPart = new MimeBodyPart();
+                    htmlPart.setContent(
+                        buildAccountHtml(email, name, createdAt, deviceLabel, appVersion, at),
+                        "text/html; charset=UTF-8"
+                    );
+                    multipart.addBodyPart(htmlPart);
+
+                    msg.setContent(multipart);
                     Transport.send(msg);
 
                     JSObject ret = new JSObject();
@@ -158,6 +177,70 @@ public class MailPlugin extends Plugin {
                 }
             }
         }).start();
+    }
+
+    private static String buildAccountHtml(String email, String name, String createdAt,
+                                           String deviceLabel, String appVersion, String at) {
+        String safeEmail = escape(email);
+        String safeName = escape(name == null || name.trim().isEmpty() ? "Non renseigné" : name);
+        String safeDevice = escape(deviceLabel);
+        String safeVersion = escape(appVersion == null || appVersion.trim().isEmpty() ? "—" : appVersion);
+        String safeDate = escape(createdAt == null || createdAt.trim().isEmpty() ? at : createdAt);
+        String mailto = "mailto:" + safeEmail;
+
+        String row = "<tr>"
+            + "<td style=\"padding:13px 16px;background:#f7fafc;border-bottom:1px solid #e3ebf2;"
+            + "font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#7a8fa3;font-weight:700;width:36%;\">%s</td>"
+            + "<td style=\"padding:13px 16px;border-bottom:1px solid #e3ebf2;font-size:14px;"
+            + "color:#0b1d33;font-weight:700;word-break:break-word;\">%s</td></tr>";
+
+        String rows = String.format(row, "Nom", safeName)
+            + String.format(row, "E-mail", safeEmail)
+            + String.format(row, "Appareil", safeDevice)
+            + String.format(row, "Version", safeVersion)
+            + String.format(row, "Inscription", safeDate);
+
+        return "<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\">"
+            + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+            + "<title>Nouveau compte ASSOULI AUTOX</title></head>"
+            + "<body style=\"margin:0;padding:0;background:#eef3f8;"
+            + "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"
+            + "color:#1b2a3d;\">"
+            + "<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;\">"
+            + "Nouveau compte ASSOULI AUTOX&#160;: " + safeEmail + "</div>"
+            + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+            + "style=\"background:#eef3f8;padding:28px 14px;\"><tr><td align=\"center\">"
+            + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+            + "style=\"max-width:560px;background:#ffffff;border-radius:20px;overflow:hidden;"
+            + "box-shadow:0 18px 40px -24px rgba(11,29,51,.45);\">"
+            + "<tr><td style=\"background:linear-gradient(135deg,#0b1d33 0%,#0e3b52 55%,#0a7f6b 100%);"
+            + "padding:30px 28px 26px;\">"
+            + "<div style=\"font-size:11px;letter-spacing:2.5px;text-transform:uppercase;"
+            + "color:#7cf2da;font-weight:700;\">ASSOULI AUTOX</div>"
+            + "<h1 style=\"margin:10px 0 0;font-size:24px;line-height:1.25;color:#ffffff;"
+            + "font-weight:800;\">Nouveau compte créé</h1>"
+            + "<p style=\"margin:8px 0 0;font-size:13px;color:#b9d4e4;\">"
+            + "Une nouvelle inscription vient d&rsquo;&ecirc;tre enregistr&eacute;e.</p>"
+            + "</td></tr>"
+            + "<tr><td style=\"padding:26px 28px 8px;\">"
+            + "<p style=\"margin:0 0 16px;font-size:14px;line-height:1.6;color:#40556b;\">"
+            + "Bonjour, un utilisateur vient de cr&eacute;er un compte sur "
+            + "<strong>ASSOULI AUTOX</strong>. Voici les informations transmises&nbsp;:</p>"
+            + "<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" "
+            + "style=\"border:1px solid #e3ebf2;border-radius:14px;overflow:hidden;\">"
+            + rows
+            + "</table>"
+            + "<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" style=\"margin:22px 0 4px;\">"
+            + "<tr><td style=\"border-radius:12px;background:#0a7f6b;\">"
+            + "<a href=\"" + mailto + "\" style=\"display:inline-block;padding:13px 22px;"
+            + "font-size:13.5px;font-weight:800;color:#ffffff;text-decoration:none;\">"
+            + "R&eacute;pondre &agrave; l&rsquo;utilisateur</a></td></tr></table>"
+            + "</td></tr>"
+            + "<tr><td style=\"padding:18px 28px 26px;\">"
+            + "<p style=\"margin:0;font-size:11px;line-height:1.6;color:#8a9bab;\">"
+            + "Message automatique envoy&eacute; par l&rsquo;application ASSOULI AUTOX. "
+            + "Aucune action n&rsquo;est requise.</p>"
+            + "</td></tr></table></td></tr></table></body></html>";
     }
 
     private static String escape(String s) {

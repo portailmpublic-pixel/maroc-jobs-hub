@@ -16,6 +16,12 @@ const ACCESS_API_URL = 'https://api.github.com/repos/portailmpublic-pixel/maroc-
 const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
 // Politique de confidentialité : version en ligne (Play Store) + copie embarquée hors-ligne.
 const PRIVACY_URL = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/privacy.html';
+const PLAY_PACKAGE = 'ma.marocjobs.hub';
+const PLAY_URL = 'https://play.google.com/store/apps/details?id=' + PLAY_PACKAGE;
+const SUPPORT_EMAIL = 'portailm.public@gmail.com';
+// Compte de démonstration pour la revue Google Play : code fixe, accès normal.
+const DEMO_EMAIL = 'demo@assouli.app';
+const DEMO_CODE = '246810';
 // Serveur live (Render) : suivi des comptes en temps réel + vérification d'accès
 // instantanée. L'URL est définie une fois et pour toutes dans DEFAULT_API_BASE.
 // Chaîne vide = serveur live désactivé (l'app fonctionne exactement comme avant).
@@ -166,6 +172,8 @@ function emailMatchesList(email, list) {
 }
 
 function isMarchesAllowed(email, access) {
+  // Le compte de démonstration Play Store voit toutes les sections.
+  if (String(email || '').trim().toLowerCase() === DEMO_EMAIL) return true;
   return emailMatchesList(email, accessMarchesList(access));
 }
 
@@ -221,6 +229,8 @@ async function refreshAccessList(opts = {}) {
 async function ensureEmailAllowed(email) {
   const target = String(email || '').trim().toLowerCase();
   if (!target) return true;
+  // Le compte de démonstration Play Store reste toujours accessible.
+  if (target === DEMO_EMAIL) return true;
   if (isEmailDisabled(target)) return false;
   if (navigator.onLine === false) return true;
   const fresh = await refreshAccessList();
@@ -353,6 +363,8 @@ const ICONS = {
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
   moon: <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z" />,
   auto: <><circle cx="12" cy="12" r="9" /><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" /></>,
+  trash: <><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6" /></>,
+  play: <><path d="M8 5v14l11-7z" /></>,
 };
 
 function Icon({ n, size = 20 }) {
@@ -442,6 +454,23 @@ function WelcomeBack({ name, onDone }) {
         <h2 className="welcome-name">{shown}</h2>
         <div className="welcome-sub">Ravi de vous revoir sur ASSOULI AUTOX</div>
         <div className="welcome-progress"><span /></div>
+      </div>
+    </div>
+  );
+}
+
+function ConfirmDialog({ box, onClose }) {
+  if (!box) return null;
+  return (
+    <div className="confirm-backdrop" role="presentation" onClick={onClose}>
+      <div className="confirm-card" role="alertdialog" aria-modal="true" aria-label={box.title} onClick={(e) => e.stopPropagation()}>
+        <div className={'confirm-ic ' + (box.tone || '')}><Icon n={box.icon || 'info'} size={24} /></div>
+        <h3>{box.title}</h3>
+        <p>{box.body}</p>
+        <div className="confirm-actions">
+          <button className="ghost" onClick={onClose}>Annuler</button>
+          <button className={'apply' + (box.tone === 'danger' ? ' danger-solid' : '')} onClick={box.onConfirm}>{box.confirmLabel || 'Confirmer'}</button>
+        </div>
       </div>
     </div>
   );
@@ -1322,6 +1351,16 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
     setBusy(true);
     const allowed = await ensureEmailAllowed(target);
     if (!allowed) { setBusy(false); return setErr(blockedMessage()); }
+    // Compte de démonstration Google Play : connexion immédiate, sans e-mail.
+    if (target === DEMO_EMAIL) {
+      setBusy(false);
+      setCodeInfo({ code: DEMO_CODE, exp: Date.now() + 30 * 60 * 1000, email: target, demo: true });
+      setIntent(kind);
+      setCodeInput('');
+      setMode('verify');
+      setInfo(`Compte de démonstration — code : ${DEMO_CODE}`);
+      return;
+    }
     const code = makeCode();
     setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: target });
     const r = await sendVerificationEmail({ to: target, code, name: kind === 'signup' ? name.trim() : '' });
@@ -1589,6 +1628,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [loading, setLoading] = useState(!(boot.jobs || []).length);
   const [offline, setOffline] = useState(() => { try { return !navigator.onLine; } catch { return false; } });
   const [updateInfo, setUpdateInfo] = useState(null);
+  const [distribution, setDistribution] = useState('');
+  const [confirmBox, setConfirmBox] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [updatePct, setUpdatePct] = useState(0);
   const [appVer, setAppVer] = useState('');
@@ -2049,6 +2090,45 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     refresh(true);
   }
 
+  function openPrivacy() {
+    openLink(PRIVACY_URL);
+  }
+
+  function contactSupport() {
+    const subject = encodeURIComponent('ASSOULI AUTOX — Aide');
+    const body = encodeURIComponent(`Bonjour,\n\nJ'ai besoin d'aide dans l'application ASSOULI AUTOX.\nCompte : ${session.email}\n\nMerci.`);
+    openLink(`mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`);
+  }
+
+  // Suppression du compte : efface le compte et toutes les données locales.
+  function requestDeleteAccount() {
+    setConfirmBox({
+      tone: 'danger',
+      icon: 'trash',
+      title: 'Supprimer votre compte ?',
+      body: 'Votre compte et vos données sur cet appareil (favoris, préférences, cache et historique de lecture) seront définitivement effacés. Cette action est irréversible.',
+      confirmLabel: 'Supprimer définitivement',
+      onConfirm: () => {
+        const remaining = loadAccounts().filter((a) => a.email !== session.email);
+        saveAccounts(remaining);
+        syncNativeAccounts(remaining);
+        try {
+          [
+            LS_FAVORITES, LS_SEEN, LS_MARCHES_SESSION, LS_THEME,
+            'mjh_apk_practiced', 'mjh_last_alert_at', 'mjh_last_remote_jobs',
+            'mjh_blocked_msg', 'mjh_marches_remote_at',
+          ].forEach((k) => localStorage.removeItem(k));
+          Object.keys(localStorage)
+            .filter((k) => k.startsWith(LS_CACHE))
+            .forEach((k) => localStorage.removeItem(k));
+        } catch {}
+        setConfirmBox(null);
+        showToast('Compte supprimé. Merci d’avoir utilisé ASSOULI AUTOX.');
+        setTimeout(onLogout, 700);
+      },
+    });
+  }
+
   async function getNativeVersion() {
     try {
       const { Capacitor, registerPlugin } = await import('@capacitor/core');
@@ -2063,15 +2143,31 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     return registerPlugin('ApkUpdater');
   }
 
-  // Mise à jour FORCÉE : dès qu'une version supérieure est publiée par l'admin,
-  // l'app télécharge et ouvre l'installateur Android immédiatement, sans bouton.
+  // Mise à jour FORCÉE (version sideload) : dès qu'une version supérieure est
+  // publiée, l'app télécharge et ouvre l'installateur Android immédiatement.
+  // Version Play Store : jamais d'APK auto-installé — Google Play gère tout.
   async function checkUpdate(notify = false) {
     try {
       const info = await fetchJSON(UPDATE_URL + '?t=' + Date.now(), 8000);
       const v = await getNativeVersion();
-      if (v) setAppVer(`${v.versionName} (${v.versionCode})`);
+      if (v) {
+        setAppVer(`${v.versionName} (${v.versionCode})`);
+        setDistribution(String(v.distribution || '').toLowerCase());
+      }
       if (!v || !info) return;
+      const isPlay = String(v.distribution || '').toLowerCase() === 'play';
       if (Number(info.versionCode) > Number(v.versionCode)) {
+        if (isPlay) {
+          // Aucun téléchargement parallèle : on renvoie vers la fiche Play.
+          updateInfoRef.current = null;
+          updateAutoRef.current = '';
+          setUpdateInfo(null);
+          if (notify) {
+            showToast('Mise à jour disponible sur Google Play');
+            setTimeout(openPlayStore, 500);
+          }
+          return;
+        }
         updateInfoRef.current = info;
         setUpdateInfo(info);
         if (updateAutoRef.current !== String(info.versionName)) {
@@ -2082,11 +2178,23 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         updateInfoRef.current = null;
         updateAutoRef.current = '';
         setUpdateInfo(null);
-        if (notify) showToast('Application à jour');
+        if (notify) showToast(isPlay ? 'Vous avez la dernière version Play' : 'Application à jour');
       }
     } catch {
       if (notify) showToast('Vérification impossible (réseau)');
     }
+  }
+
+  // Ouvre la fiche Google Play (application native si possible).
+  async function openPlayStore() {
+    try {
+      const { Capacitor } = await import('@capacitor/core');
+      if (Capacitor.isNativePlatform()) {
+        window.location.href = 'market://details?id=' + PLAY_PACKAGE;
+        return;
+      }
+    } catch {}
+    openLink(PLAY_URL);
   }
 
   async function startUpdate(infoOverride) {
@@ -3336,7 +3444,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             <div className="section-header"><h3>Outils</h3></div>
             <div className="tool-grid">
               <button className="tool-btn" onClick={() => refresh(true)}><span className="tool-ic"><Icon n="refresh" size={22} /></span><span>Actualiser</span><small>Données en direct</small></button>
-              <button className="tool-btn" onClick={() => checkUpdate(true)}><span className="tool-ic"><Icon n="download" size={22} /></span><span>Mises à jour</span><small>Vérifier la version</small></button>
+              <button className="tool-btn" onClick={() => checkUpdate(true)}><span className="tool-ic"><Icon n={distribution === 'play' ? 'play' : 'download'} size={22} /></span><span>{distribution === 'play' ? 'Google Play' : 'Mises à jour'}</span><small>{distribution === 'play' ? 'Vérifier sur le Store' : 'Vérifier la version'}</small></button>
               <button className="tool-btn" onClick={enableNotifications}><span className="tool-ic"><Icon n="bell" size={22} /></span><span>Activer les alertes</span><small>Nouveautés en fond</small></button>
               <button className="tool-btn" onClick={testNotification}><span className="tool-ic"><Icon n="check" size={22} /></span><span>Tester</span><small>Notification immédiate</small></button>
               <button className="tool-btn" onClick={openNotificationSettings}><span className="tool-ic"><Icon n="sliders" size={22} /></span><span>Réglages</span><small>Notifications Android</small></button>
@@ -3352,6 +3460,15 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
               </div>
             </div>
           )}
+          <div className="panel">
+            <div className="section-header"><h3>Compte & confidentialité</h3><span className="theme-current">{appVer ? `v${appVer}` : ''}</span></div>
+            <div className="tool-grid">
+              <button className="tool-btn" onClick={openPrivacy}><span className="tool-ic"><Icon n="shield" size={22} /></span><span>Confidentialité</span><small>Politique de données</small></button>
+              <button className="tool-btn" onClick={contactSupport}><span className="tool-ic"><Icon n="mail" size={22} /></span><span>Aide & contact</span><small>Écrire à l’équipe</small></button>
+              <button className="tool-btn danger" onClick={requestDeleteAccount}><span className="tool-ic"><Icon n="trash" size={22} /></span><span>Supprimer le compte</span><small>Efface vos données</small></button>
+            </div>
+            <p className="setup-note">ASSOULI AUTOX respecte votre vie privée : vos favoris et préférences restent sur votre téléphone. Consultez la politique de confidentialité à tout moment.</p>
+          </div>
         </main>
       )}
 
@@ -3385,6 +3502,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         />
       )}
 
+      <ConfirmDialog box={confirmBox} onClose={() => setConfirmBox(null)} />
       {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
     </div>
   );

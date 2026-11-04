@@ -6,6 +6,7 @@ app/ios/
 *.log
 .DS_Store
 *.apk
+*.aab
 
 # Backend source: keep it in a PRIVATE repo, never in the public one.
 # (The public repo must only expose app/public/*.json + release assets.)

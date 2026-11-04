@@ -2498,3 +2498,37 @@ body { padding-bottom:0; }
 @keyframes ulIn { from{opacity:0} to{opacity:1} }
 @keyframes ulPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
 @media (prefers-reduced-motion: reduce) { .update-lock, .ul-ic { animation:none; } }
+
+/* ================= CONFIRMATION & CONFIDENTIALITÉ ================= */
+.setup-note {
+  margin:12px 2px 0; font-size:10.5px; line-height:1.6; color:var(--muted);
+  padding:10px 12px; border-radius:12px; background:var(--fill); border:1px solid var(--line);
+}
+.confirm-backdrop {
+  position:fixed; inset:0; z-index:10040; display:grid; place-items:center; padding:22px;
+  background:rgba(6,14,26,.55); backdrop-filter:blur(7px);
+  animation:cfIn .18s ease both;
+}
+.confirm-card {
+  width:min(92vw,380px); padding:22px 20px 18px; border-radius:22px;
+  background:var(--card, #fff); border:1px solid var(--line);
+  box-shadow:0 34px 70px -28px rgba(6,18,36,.65);
+  text-align:center; animation:cfPop .22s cubic-bezier(.2,.9,.3,1.1) both;
+}
+.confirm-ic {
+  width:56px; height:56px; margin:0 auto 12px; border-radius:18px;
+  display:grid; place-items:center; color:#067A66; background:#E8F7F3; border:1px solid #BFE9DF;
+}
+.confirm-ic.danger { color:#B3261E; background:#FDEDEE; border-color:#F2C5C9; }
+.confirm-card h3 { margin:0; font-size:17px; font-weight:800; letter-spacing:-.02em; color:var(--heading); }
+.confirm-card p { margin:8px 0 0; font-size:12px; line-height:1.6; color:var(--muted); }
+.confirm-actions { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-top:18px; }
+.confirm-actions .ghost, .confirm-actions .apply { height:44px; border-radius:13px; font-size:12.5px; font-weight:800; }
+.apply.danger-solid { background:#C62828; color:#fff; box-shadow:0 12px 24px -12px rgba(198,40,40,.75); }
+.apply.danger-solid:active { filter:brightness(.94); }
+@keyframes cfIn { from{opacity:0} to{opacity:1} }
+@keyframes cfPop { from{opacity:0; transform:translateY(10px) scale(.97)} to{opacity:1; transform:none} }
+@media (prefers-reduced-motion: reduce) { .confirm-backdrop, .confirm-card { animation:none; } }
+[data-theme="dark"] .confirm-card { background:#111c2e; }
+[data-theme="dark"] .confirm-ic.danger { color:#FF9AA4; background:rgba(255,93,108,.12); border-color:rgba(255,93,108,.3); }
+[data-theme="dark"] .confirm-ic:not(.danger) { color:#7CF2DA; background:rgba(20,224,180,.12); border-color:rgba(20,224,180,.28); }

@@ -30,6 +30,7 @@ public class ApkUpdaterPlugin extends Plugin {
             JSObject ret = new JSObject();
             ret.put("versionCode", code);
             ret.put("versionName", pi.versionName == null ? "1.0" : pi.versionName);
+            ret.put("distribution", BuildConfig.DISTRIBUTION);
             call.resolve(ret);
         } catch (Exception e) {
             call.reject("version indisponible");
@@ -100,6 +101,42 @@ public class ApkUpdaterPlugin extends Plugin {
                 if (con != null) con.disconnect();
             }
         }).start();
+    }
+
+    @PluginMethod
+    public void installDownloaded(PluginCall call) {
+        try {
+            String fileName = call.getString("fileName", "ASSOULI-AUTOX.apk");
+            File dir = getContext().getExternalFilesDir("updates");
+            if (dir == null) dir = getContext().getCacheDir();
+            File apk = new File(dir, fileName);
+            if (!apk.exists() || apk.length() < 1000000) {
+                call.reject("APK absent");
+                return;
+            }
+            installApk(apk);
+            JSObject ret = new JSObject();
+            ret.put("path", apk.getAbsolutePath());
+            ret.put("size", apk.length());
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject(e.getMessage() == null ? "Installation impossible" : e.getMessage());
+        }
+    }
+
+    @PluginMethod
+    public void openInstallSettings(PluginCall call) {
+        try {
+            if (Build.VERSION.SDK_INT >= 26 && !getContext().getPackageManager().canRequestPackageInstalls()) {
+                Intent settings = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+                settings.setData(Uri.parse("package:" + getContext().getPackageName()));
+                settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(settings);
+            }
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Réglages indisponibles");
+        }
     }
 
     private void installApk(final File apk) {

@@ -8,6 +8,13 @@ if (secretsFile.exists()) {
 }
 def smtpPassword = secrets.getProperty("SMTP_PASSWORD", "")
 
+// Signature Play Store : upload-keystore.jks + keystore.properties (jamais publies).
+def keystoreProps = new Properties()
+def keystorePropsFile = rootProject.file("keystore.properties")
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
 android {
     namespace "ma.marocjobs.hub"
     compileSdk rootProject.ext.compileSdkVersion
@@ -15,8 +22,8 @@ android {
         applicationId "ma.marocjobs.hub"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 26
-        versionName "1.8.4"
+        versionCode 28
+        versionName "1.9.1"
         buildConfigField "String", "SMTP_PASSWORD", "\"${smtpPassword}\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -28,10 +35,35 @@ android {
     buildFeatures {
         buildConfig true
     }
+    signingConfigs {
+        release {
+            if (keystorePropsFile.exists()) {
+                storeFile rootProject.file(keystoreProps.getProperty("storeFile", "upload-keystore.jks"))
+                storePassword keystoreProps.getProperty("storePassword", "")
+                keyAlias keystoreProps.getProperty("keyAlias", "upload")
+                keyPassword keystoreProps.getProperty("keyPassword", "")
+            }
+        }
+    }
+    // Deux distributions :
+    //  - play     : conforme Play Store (aucune auto-installation APK)
+    //  - sideload : APK direct avec mise à jour forcée maison
+    flavorDimensions "distribution"
+    productFlavors {
+        play {
+            dimension "distribution"
+            buildConfigField "String", "DISTRIBUTION", "\"play\""
+        }
+        sideload {
+            dimension "distribution"
+            buildConfigField "String", "DISTRIBUTION", "\"sideload\""
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystorePropsFile.exists()) signingConfig signingConfigs.release
         }
     }
     packagingOptions {
