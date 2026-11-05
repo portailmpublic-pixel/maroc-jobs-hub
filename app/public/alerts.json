@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-05T12:57:17.039Z",
+  "updatedAt": "2026-11-05T22:34:13.386Z",
   "phone": "212663369080",
-  "total": 1563,
+  "total": 1589,
   "alerts": [
+    {
+      "id": "n1793918053374",
+      "at": "2026-11-05T22:34:13.374Z",
+      "title": "+26 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 26 nouveauté(s) (cloud)\n💼 Test Lead — AXA Services Maroc (Rabat) ⏰2027-01-05\n💼 CHARGÉ(E) DE TRÉSORERIE —  (Casablanca) ⏰2027-01-05\n💼 Service Delivery Lead, Application Packaging — ALTEN Maroc (Rabat) ⏰2027-01-05\n💼 INGENIEUR RESEAUX JUNIOR — GSM AL MAGHRIB (Casablanca) ⏰2027-01-05\n💼 Responsable Trésorerie —  (Casablanca) ⏰2027-01-05\n💼 Responsable Production —  (Casablanca) ⏰2027-01-05\n💼 Gestionnaire sinistre — AXA Services Maroc (Rabat) ⏰2027-01-05\n💼 INGENIEUR CLOUD SENIOR — GSM AL MAGHRIB (Casablanca) ⏰2027-01-05\n🏛️ dont 1 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d’Etat en topographie (2026-11-05)\n- Concours — Un Cadre au Département Territorial de Guelmim, relevant de la Direction de Développement des Zones de l'Arganier (DDZA) de l’ANDZOA) (2026-11-05)\n- Concours — Quatre (4) cadres, spécialité Génie Civil ou Génie Rural, au sein de la Direction du Développement des Zones de l’Arganier de l’ANDZOA (2026-11-05)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-11-05)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-11-05)\n📊 Total suivi : 1589 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 26,
+        "concours": 1,
+        "total": 1589
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793883437038",
       "at": "2026-11-05T12:57:17.038Z",
