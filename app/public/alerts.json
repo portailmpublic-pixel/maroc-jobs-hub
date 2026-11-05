@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-04T22:26:33.860Z",
+  "updatedAt": "2026-11-05T12:57:17.039Z",
   "phone": "212663369080",
-  "total": 1531,
+  "total": 1563,
   "alerts": [
+    {
+      "id": "n1793883437038",
+      "at": "2026-11-05T12:57:17.038Z",
+      "title": "+37 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 37 nouveauté(s) (cloud)\n💼 Stagiaire RH — Cnexia (Rabat) ⏰2027-01-05\n💼 Chargé de portefeuille (H/F) — Fondation Arrawaj (Casablanca) ⏰2027-01-05\n💼 Cadre Commercial — Atlas Nord Hydrocarbures (Casablanca) ⏰2027-01-05\n💼 Technicien Logistique — ALTEN Maroc (Tétouan) ⏰2027-01-05\n💼 Senior Business Developer – IT & Digital services —  (Casablanca) ⏰2027-01-05\n💼 Dessinateur(trice)-Projeteur(se) (H/F) — McDonald's Maroc (Casablanca) ⏰2027-01-05\n💼 Chargé – Sécurité & Gestion des Infrastructures et Parc Informatique et Télécom — Société de Développement des Services Publics de distribution (Rabat) ⏰2027-01-05\n💼 Assistante Achats — KITEA Group (Casablanca) ⏰2027-01-05\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d’Etat en topographie (2026-11-05)\n- Concours — Un Cadre au Département Territorial de Guelmim, relevant de la Direction de Développement des Zones de l'Arganier (DDZA) de l’ANDZOA) (2026-11-05)\n- Concours — Quatre (4) cadres, spécialité Génie Civil ou Génie Rural, au sein de la Direction du Développement des Zones de l’Arganier de l’ANDZOA (2026-11-05)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-11-05)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-11-05)\n📊 Total suivi : 1563 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 37,
+        "concours": 4,
+        "total": 1563
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793831193859",
       "at": "2026-11-04T22:26:33.859Z",
