@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-06T12:44:08.642Z",
+  "updatedAt": "2026-11-06T21:56:56.103Z",
   "phone": "212663369080",
-  "total": 1614,
+  "total": 1628,
   "alerts": [
+    {
+      "id": "n1794002216103",
+      "at": "2026-11-06T21:56:56.103Z",
+      "title": "+14 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 14 nouveauté(s) (cloud)\n💼 Inspecteur Commercial Sédentaire H/F — HEOMI (Casablanca) ⏰2026-12-08\n💼 Cloud engineering Administrateur / SRE Kubernetes Sénior — ALTEN Maroc (Rabat) ⏰2027-01-06\n💼 Chef de Département (H/F) - Hypermarché — Groupe Label'Vie - Carrefour (Mobilité Nationale) ⏰2027-01-06\n💼 HRBP HYPER — Groupe Label'Vie - Carrefour (Tout le Maroc) ⏰2027-01-06\n💼 Data Protection Officer — AXA Services Maroc (Rabat) ⏰2027-01-06\n💼 Expert Technique Applicatif / BA — ALTEN Maroc (Rabat) ⏰2027-01-06\n💼 Gent merchandising dÉco —  (Laayoune)\n💼 Besoin d'unn technicien génie civil —  (Errachidia)\n⏰ Deadlines ≤ 3j :\n- Supply Chain Engineer (H/F) (2026-11-07)\n- Conseillers Commerciaux en Assurance – Émission d’Appels (2026-11-07)\n- Concours — Maitre de conférences Faculté de Médecine et Pharmacie - Tanger (2026-11-07)\n- Concours — محاسب مسؤول عن مراقبة الإيرادات والمقبوضات النقدية (2026-11-07)\n- Concours — Chargé communication, image de marque et partenariats (2026-11-07)\n📊 Total suivi : 1628 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 14,
+        "concours": 0,
+        "total": 1628
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1793969048586",
       "at": "2026-11-06T12:44:08.586Z",
