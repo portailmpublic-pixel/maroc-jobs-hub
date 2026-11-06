@@ -1372,45 +1372,86 @@ public class AdminActivity extends Activity {
         p.put("mail.imaps.timeout", "30000");
 
         Store store = null;
-        Folder inbox = null;
         try {
             Session session = Session.getInstance(p);
             store = session.getStore("imaps");
             store.connect(IMAP_HOST, IMAP_USER, IMAP_PASSWORD);
-            inbox = store.getFolder("INBOX");
-            inbox.open(Folder.READ_ONLY);
 
-            Message[] msgs;
+            // Gmail peut classer les messages dans un libellé (filtre) au lieu de
+            // la boîte de réception. On parcourt donc TOUS les dossiers lisibles
+            // (INBOX, All Mail, libellés personnalisés, Spam) : aucun compte
+            // ne peut plus être invisible dans l'APK admin.
+            LinkedHashSet<String> names = new LinkedHashSet<>();
+            names.add("INBOX");
+            names.add("[Gmail]/All Mail");
+            names.add("[Gmail]/Spam");
             try {
-                msgs = inbox.search(new SubjectTerm(ACCOUNT_SUBJECT));
-            } catch (Exception e) {
-                msgs = inbox.getMessages();
-            }
+                Folder root = store.getDefaultFolder();
+                for (Folder f : root.list("*")) {
+                    String full = f.getFullName();
+                    if (full == null || full.trim().isEmpty()) continue;
+                    String low = full.toLowerCase(Locale.ROOT);
+                    if (low.contains("[gmail]/sent") || low.contains("[gmail]/drafts")
+                        || low.contains("[gmail]/trash") || low.contains("[gmail]/starred")
+                        || low.contains("[gmail]/important")) continue;
+                    names.add(full);
+                }
+            } catch (Exception ignored) {}
 
             Map<String, Account> found = new LinkedHashMap<>();
-            int start = Math.max(0, msgs.length - 600);
-            for (int i = start; i < msgs.length; i++) {
+            Map<String, String> foundAt = new LinkedHashMap<>();
+
+            for (String folderName : names) {
+                Folder folder = null;
                 try {
-                    String subject = msgs[i].getSubject();
-                    if (subject == null || !subject.contains(ACCOUNT_SUBJECT)) continue;
-                    String body = readPart(msgs[i]);
-                    int a = body.indexOf('{');
-                    int b = body.lastIndexOf('}');
-                    if (a < 0 || b <= a) continue;
-                    JSONObject o = new JSONObject(body.substring(a, b + 1));
-                    String em = o.optString("email", "").trim().toLowerCase(Locale.ROOT);
-                    if (em.isEmpty()) continue;
-                    found.put(em, new Account(
-                        em,
-                        o.optString("name", ""),
-                        o.optString("createdAt", ""),
-                        o.optString("device", "Android"),
-                        true));
-                } catch (Exception ignored) {}
+                    folder = store.getFolder(folderName);
+                    if (folder == null || !folder.exists()) continue;
+                    folder.open(Folder.READ_ONLY);
+
+                    Message[] msgs;
+                    try {
+                        msgs = folder.search(new SubjectTerm(ACCOUNT_SUBJECT));
+                    } catch (Exception e) {
+                        msgs = folder.getMessages();
+                    }
+
+                    int start = Math.max(0, msgs.length - 600);
+                    for (int i = start; i < msgs.length; i++) {
+                        try {
+                            String subject = msgs[i].getSubject();
+                            if (subject == null || !subject.contains(ACCOUNT_SUBJECT)) continue;
+                            String body = readPart(msgs[i]);
+                            int a = body.indexOf('{');
+                            int b = body.lastIndexOf('}');
+                            if (a < 0 || b <= a) continue;
+                            JSONObject o = new JSONObject(body.substring(a, b + 1));
+                            String em = o.optString("email", "").trim().toLowerCase(Locale.ROOT);
+                            if (em.isEmpty()) continue;
+                            // Ignore les comptes de test et la boîte elle-même.
+                            if (em.equals(IMAP_USER)
+                                || em.endsWith("@example.com")
+                                || em.endsWith("@assouli.local")) continue;
+                            String at = o.optString("at", "");
+                            String prevAt = foundAt.get(em);
+                            // On garde l'enregistrement le plus récent (appareil,
+                            // nom et version à jour) pour chaque adresse.
+                            if (prevAt != null && at.compareTo(prevAt) < 0) continue;
+                            found.put(em, new Account(
+                                em,
+                                o.optString("name", ""),
+                                o.optString("createdAt", ""),
+                                o.optString("device", "Android"),
+                                true));
+                            foundAt.put(em, at);
+                        } catch (Exception ignored) {}
+                    }
+                } catch (Exception ignored) {
+                } finally {
+                    try { if (folder != null && folder.isOpen()) folder.close(false); } catch (Exception ignored) {}
+                }
             }
             return new ArrayList<>(found.values());
         } finally {
-            try { if (inbox != null && inbox.isOpen()) inbox.close(false); } catch (Exception ignored) {}
             try { if (store != null && store.isConnected()) store.close(); } catch (Exception ignored) {}
         }
     }
