@@ -52,6 +52,7 @@ public class ApkUpdaterPlugin extends Plugin {
     @PluginMethod
     public void downloadAndInstall(final PluginCall call) {
         final String url = call.getString("url");
+        final String mirror = call.getString("mirror");
         final String fileName = call.getString("fileName", "ASSOULI-AUTOX.apk");
         if (url == null || url.trim().isEmpty()) {
             call.reject("URL manquante");
@@ -61,7 +62,7 @@ public class ApkUpdaterPlugin extends Plugin {
         final Context ctx = getContext();
         final DownloadManager dm = (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);
         if (dm == null) {
-            downloadDirect(call, url, fileName);
+            downloadDirect(call, url, mirror, fileName);
             return;
         }
 
@@ -92,6 +93,7 @@ public class ApkUpdaterPlugin extends Plugin {
                     long lastBytes = -1;
                     long lastChange = System.currentTimeMillis();
                     long started = System.currentTimeMillis();
+                    String failure = null;
 
                     while (true) {
                         DownloadManager.Query q = new DownloadManager.Query().setFilterById(id);
@@ -99,8 +101,8 @@ public class ApkUpdaterPlugin extends Plugin {
                         try {
                             c = dm.query(q);
                             if (c == null || !c.moveToFirst()) {
-                                call.reject("Téléchargement introuvable");
-                                return;
+                                failure = "Téléchargement introuvable";
+                                break;
                             }
                             int status = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
                             long done = c.getLong(c.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
@@ -113,41 +115,61 @@ public class ApkUpdaterPlugin extends Plugin {
                             int pct = total > 0
                                 ? (int) (done * 100 / total)
                                 : Math.min(95, (int) (done / 200000));
-                            if (pct != lastPct) {
-                                lastPct = pct;
-                                JSObject p = new JSObject();
-                                p.put("percent", pct);
-                                notifyListeners("progress", p, true);
-                            }
+                            JSObject p = new JSObject();
+                            p.put("percent", pct);
+                            p.put("done", done);
+                            p.put("total", total);
+                            notifyListeners("progress", p, true);
+                            lastPct = pct;
 
-                            if (status == DownloadManager.STATUS_SUCCESSFUL) break;
+                            if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                                failure = null;
+                                break;
+                            }
                             if (status == DownloadManager.STATUS_FAILED) {
                                 int reason = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON));
-                                call.reject("Téléchargement échoué (code " + reason + ")");
-                                return;
+                                failure = "Téléchargement échoué (code " + reason + ")";
+                                break;
                             }
                         } finally {
                             if (c != null) c.close();
                         }
 
                         long now = System.currentTimeMillis();
-                        // Aucun octet reçu pendant 60 s : on abandonne proprement
-                        // pour que l'écran propose le téléchargement manuel.
-                        if (lastBytes <= 0 && now - started > 60000) {
-                            try { dm.remove(id); } catch (Exception ignored) {}
-                            call.reject("Réseau trop lent ou bloqué");
-                            return;
+                        if (lastBytes <= 0 && now - started > 45000) {
+                            failure = "Réseau trop lent ou bloqué";
+                            break;
                         }
-                        if (now - lastChange > 180000) {
-                            try { dm.remove(id); } catch (Exception ignored) {}
-                            call.reject("Téléchargement interrompu");
-                            return;
+                        if (now - lastChange > 90000) {
+                            failure = "Téléchargement interrompu";
+                            break;
                         }
-                        Thread.sleep(700);
+                        if (now - started > 10 * 60 * 1000) {
+                            failure = "Téléchargement trop lent";
+                            break;
+                        }
+                        Thread.sleep(500);
+                    }
+
+                    try { dm.remove(id); } catch (Exception ignored) {}
+
+                    if (failure != null) {
+                        // Source principale bloquée/lente : on bascule
+                        // automatiquement sur la source de secours.
+                        if (mirror != null && !mirror.trim().isEmpty()) {
+                            downloadDirect(call, mirror, null, fileName);
+                        } else {
+                            call.reject(failure);
+                        }
+                        return;
                     }
 
                     if (!apk.exists() || apk.length() < MIN_APK_SIZE) {
-                        call.reject("Fichier incomplet");
+                        if (mirror != null && !mirror.trim().isEmpty()) {
+                            downloadDirect(call, mirror, null, fileName);
+                        } else {
+                            call.reject("Fichier incomplet");
+                        }
                         return;
                     }
 
@@ -157,16 +179,24 @@ public class ApkUpdaterPlugin extends Plugin {
                     installApk(apk);
                     call.resolve(ret);
                 } catch (Exception e) {
-                    call.reject(e.getMessage() == null ? "Téléchargement impossible" : e.getMessage());
+                    if (mirror != null && !mirror.trim().isEmpty()) {
+                        downloadDirect(call, mirror, null, fileName);
+                    } else {
+                        call.reject(e.getMessage() == null ? "Téléchargement impossible" : e.getMessage());
+                    }
                 }
             }).start();
         } catch (Exception e) {
-            call.reject(e.getMessage() == null ? "Téléchargement impossible" : e.getMessage());
+            if (mirror != null && !mirror.trim().isEmpty()) {
+                downloadDirect(call, mirror, null, fileName);
+            } else {
+                call.reject(e.getMessage() == null ? "Téléchargement impossible" : e.getMessage());
+            }
         }
     }
 
     /** Secours si le gestionnaire de téléchargement système est indisponible. */
-    private void downloadDirect(final PluginCall call, final String url, final String fileName) {
+    private void downloadDirect(final PluginCall call, final String url, final String nextUrl, final String fileName) {
         new Thread(() -> {
             FileOutputStream out = null;
             HttpURLConnection con = null;
@@ -191,18 +221,25 @@ public class ApkUpdaterPlugin extends Plugin {
                 out = new FileOutputStream(apk);
                 byte[] buf = new byte[65536];
                 long done = 0;
-                int lastPct = -1;
+                long started = System.currentTimeMillis();
+                long lastByteAt = started;
                 int n;
                 while ((n = in.read(buf)) > 0) {
                     out.write(buf, 0, n);
                     done += n;
-                    int pct = total > 0 ? (int) (done * 100 / total) : Math.min(95, (int) (done / 200000));
-                    if (pct != lastPct) {
-                        lastPct = pct;
-                        JSObject p = new JSObject();
-                        p.put("percent", pct);
-                        notifyListeners("progress", p, true);
+                    lastByteAt = System.currentTimeMillis();
+                    if (System.currentTimeMillis() - started > 10 * 60 * 1000) {
+                        throw new Exception("Téléchargement trop lent");
                     }
+                    if (System.currentTimeMillis() - lastByteAt > 45000) {
+                        throw new Exception("Téléchargement interrompu");
+                    }
+                    int pct = total > 0 ? (int) (done * 100 / total) : Math.min(95, (int) (done / 200000));
+                    JSObject p = new JSObject();
+                    p.put("percent", pct);
+                    p.put("done", done);
+                    p.put("total", total);
+                    notifyListeners("progress", p, true);
                 }
                 out.flush();
                 out.close();
@@ -217,6 +254,10 @@ public class ApkUpdaterPlugin extends Plugin {
                 installApk(apk);
                 call.resolve(ret);
             } catch (Exception e) {
+                if (nextUrl != null && !nextUrl.trim().isEmpty()) {
+                    downloadDirect(call, nextUrl, null, fileName);
+                    return;
+                }
                 call.reject(e.getMessage() == null ? "Téléchargement impossible" : e.getMessage());
             } finally {
                 try { if (out != null) out.close(); } catch (Exception ignored) {}

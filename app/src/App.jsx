@@ -1632,6 +1632,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [confirmBox, setConfirmBox] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [updatePct, setUpdatePct] = useState(0);
+  const [updateDetail, setUpdateDetail] = useState('');
   const [updateFailed, setUpdateFailed] = useState(false);
   const [appVer, setAppVer] = useState('');
   const updateInfoRef = useRef(null);
@@ -1639,6 +1640,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const updatingRef = useRef(false);
   const updateFailedRef = useRef(false);
   const updateListenerRef = useRef(false);
+  const updateLastProgressRef = useRef(0);
+  const updateWatchdogRef = useRef(null);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('home');
   // Favoris enregistrés sur l'appareil (onglet Favoris du poster).
@@ -2150,7 +2153,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   // Version Play Store : jamais d'APK auto-installé — Google Play gère tout.
   async function checkUpdate(notify = false) {
     try {
-      const info = await fetchJSON(UPDATE_URL + '?t=' + Date.now(), 8000);
+      const info = await fetchJSON(UPDATE_URL + '?t=' + Date.now(), 8000, { cache: 'no-store' });
       const v = await getNativeVersion();
       if (v) {
         setAppVer(`${v.versionName} (${v.versionCode})`);
@@ -2209,29 +2212,46 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     }
     updatingRef.current = true;
     updateFailedRef.current = false;
-    setUpdating(true); setUpdatePct(0); setUpdateFailed(false);
+    updateLastProgressRef.current = Date.now();
+    setUpdating(true); setUpdatePct(0); setUpdateDetail(''); setUpdateFailed(false);
+
+    const clearWatchdog = () => {
+      if (updateWatchdogRef.current) { clearInterval(updateWatchdogRef.current); updateWatchdogRef.current = null; }
+    };
+    // Garde-fou : si le téléchargement ne produit aucun progrès pendant 60 s,
+    // on débloque l'écran au lieu de rester figé à 0 % pour toujours.
+    clearWatchdog();
+    updateWatchdogRef.current = setInterval(() => {
+      if (!updatingRef.current) { clearWatchdog(); return; }
+      if (Date.now() - updateLastProgressRef.current > 60000) {
+        clearWatchdog();
+        updatingRef.current = false;
+        setUpdating(false);
+        updateFailedRef.current = true;
+        setUpdateFailed(true);
+      }
+    }, 5000);
+
     try {
       const P = await nativeUpdater();
       if (!updateListenerRef.current) {
         updateListenerRef.current = true;
-        P.addListener('progress', (e) => setUpdatePct(Math.max(0, Math.min(100, Number(e.percent) || 0))));
+        P.addListener('progress', (e) => {
+          updateLastProgressRef.current = Date.now();
+          setUpdatePct(Math.max(0, Math.min(100, Number(e.percent) || 0)));
+          const done = Number(e.done) || 0;
+          const total = Number(e.total) || 0;
+          if (done > 0) {
+            const mo = (n) => (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
+            setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
+          }
+        });
       }
       const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
-      // On essaie l'URL principale puis le miroir : si GitHub est bloqué ou
-      // lent sur le réseau de l'utilisateur, l'autre source prend le relais.
-      const urls = [info.url, info.mirror].filter(Boolean);
-      let lastErr = null;
-      let ok = false;
-      for (const u of urls) {
-        try {
-          await P.downloadAndInstall({ url: u, fileName });
-          ok = true;
-          break;
-        } catch (e) {
-          lastErr = e;
-        }
-      }
-      if (!ok) throw lastErr || new Error('Téléchargement impossible');
+      // Le natif essaie l'URL principale puis bascule seul sur le miroir :
+      // si une source est bloquée/lente, l'autre prend le relais sans rien
+      // demander à l'utilisateur.
+      await P.downloadAndInstall({ url: info.url, mirror: info.mirror || '', fileName });
       setUpdatePct(100);
     } catch (e) {
       // On n'ouvre plus les réglages Android ici : un échec réseau n'a rien à
@@ -2240,6 +2260,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       updateFailedRef.current = true;
       setUpdateFailed(true);
     } finally {
+      clearWatchdog();
       updatingRef.current = false;
       setUpdating(false);
     }
@@ -2839,7 +2860,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
               <>
                 <div className="ul-bar"><span style={{ width: (updating ? Math.max(6, updatePct) : 100) + '%' }} /></div>
                 <div className="ul-state">
-                  {updating ? `Téléchargement sécurisé · ${updatePct}%` : 'Ouverture de l’installation…'}
+                  {updating ? `Téléchargement sécurisé · ${updatePct}%${updateDetail ? ' · ' + updateDetail : ''}` : 'Ouverture de l’installation…'}
                 </div>
                 <button className="ul-btn" onClick={() => startUpdate()}>
                   <Icon n="download" size={16} /> {updating ? 'Téléchargement en cours…' : 'Relancer l’installation'}

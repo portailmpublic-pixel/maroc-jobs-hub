@@ -1,8 +1,8 @@
 {
-  "versionCode": 31,
-  "versionName": "1.9.4",
-  "url": "https:\/\/portailmpublic-pixel.github.io\/maroc-jobs-hub\/ASSOULI-AUTOX.apk",
-  "mirror": "https:\/\/github.com\/portailmpublic-pixel\/maroc-jobs-hub\/releases\/download\/v1.9.4\/ASSOULI-AUTOX.apk",
-  "notes": "Mise à jour obligatoire vers v1.9.4.",
-  "publishedAt": "2026-11-06T20:30:05Z"
+  "versionCode": 32,
+  "versionName": "1.9.5",
+  "url": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
+  "mirror": "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.5/ASSOULI-AUTOX.apk",
+  "notes": "Mise a jour obligatoire vers v1.9.5 : telechargement fiabilise avec bascule auto sur la source de secours, affichage des Mo telecharges et garde-fou anti-blocage.",
+  "publishedAt": "2026-11-06T21:00:00Z"
 }
