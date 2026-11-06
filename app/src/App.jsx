@@ -1427,7 +1427,7 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
 
         {mode === 'signup' && (
           <label className="auth-field"><span>Nom complet</span>
-            <input className="auth-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex : Soulaymane ASSOULI" autoComplete="name" />
+            <input className="auth-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex : Ahmed BENALI" autoComplete="name" />
           </label>
         )}
 

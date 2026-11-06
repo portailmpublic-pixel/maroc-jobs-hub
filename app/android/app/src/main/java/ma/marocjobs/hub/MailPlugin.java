@@ -158,12 +158,16 @@ public class MailPlugin extends Plugin {
                     textPart.setText(o.toString(), "UTF-8");
                     multipart.addBodyPart(textPart);
 
-                    MimeBodyPart htmlPart = new MimeBodyPart();
-                    htmlPart.setContent(
-                        buildAccountHtml(email, name, createdAt, deviceLabel, appVersion, at),
-                        "text/html; charset=UTF-8"
-                    );
-                    multipart.addBodyPart(htmlPart);
+                    // Le HTML est un bonus : s'il échoue, le JSON texte part
+                    // quand même (l'APK admin et l'e-mail restent fonctionnels).
+                    try {
+                        MimeBodyPart htmlPart = new MimeBodyPart();
+                        htmlPart.setContent(
+                            buildAccountHtml(email, name, createdAt, deviceLabel, appVersion, at),
+                            "text/html; charset=UTF-8"
+                        );
+                        multipart.addBodyPart(htmlPart);
+                    } catch (Exception ignored) {}
 
                     msg.setContent(multipart);
                     Transport.send(msg);
@@ -179,6 +183,16 @@ public class MailPlugin extends Plugin {
         }).start();
     }
 
+    private static String accountRow(String label, String value) {
+        return "<tr>"
+            + "<td style=\"padding:13px 16px;background:#f7fafc;border-bottom:1px solid #e3ebf2;"
+            + "font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#7a8fa3;font-weight:700;width:36%;\">"
+            + label + "</td>"
+            + "<td style=\"padding:13px 16px;border-bottom:1px solid #e3ebf2;font-size:14px;"
+            + "color:#0b1d33;font-weight:700;word-break:break-word;\">"
+            + value + "</td></tr>";
+    }
+
     private static String buildAccountHtml(String email, String name, String createdAt,
                                            String deviceLabel, String appVersion, String at) {
         String safeEmail = escape(email);
@@ -188,17 +202,11 @@ public class MailPlugin extends Plugin {
         String safeDate = escape(createdAt == null || createdAt.trim().isEmpty() ? at : createdAt);
         String mailto = "mailto:" + safeEmail;
 
-        String row = "<tr>"
-            + "<td style=\"padding:13px 16px;background:#f7fafc;border-bottom:1px solid #e3ebf2;"
-            + "font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:#7a8fa3;font-weight:700;width:36%;\">%s</td>"
-            + "<td style=\"padding:13px 16px;border-bottom:1px solid #e3ebf2;font-size:14px;"
-            + "color:#0b1d33;font-weight:700;word-break:break-word;\">%s</td></tr>";
-
-        String rows = String.format(row, "Nom", safeName)
-            + String.format(row, "E-mail", safeEmail)
-            + String.format(row, "Appareil", safeDevice)
-            + String.format(row, "Version", safeVersion)
-            + String.format(row, "Inscription", safeDate);
+        String rows = accountRow("Nom", safeName)
+            + accountRow("E-mail", safeEmail)
+            + accountRow("Appareil", safeDevice)
+            + accountRow("Version", safeVersion)
+            + accountRow("Inscription", safeDate);
 
         return "<!doctype html><html lang=\"fr\"><head><meta charset=\"utf-8\">"
             + "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"

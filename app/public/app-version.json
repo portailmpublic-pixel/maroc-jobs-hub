@@ -1,7 +1,7 @@
 {
-  "versionCode": 27,
-  "versionName": "1.9.0",
-  "url": "https:\/\/github.com\/portailmpublic-pixel\/maroc-jobs-hub\/releases\/download\/v1.9.0\/ASSOULI-AUTOX.apk",
-  "notes": "Mise à jour obligatoire vers v1.9.0.",
-  "publishedAt": "2026-11-05T08:31:46Z"
+  "versionCode": 29,
+  "versionName": "1.9.2",
+  "url": "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.2/ASSOULI-AUTOX.apk",
+  "notes": "Mise a jour obligatoire vers v1.9.2 : correction des e-mails de comptes, suppression du nom personnel et interface plus conviviale.",
+  "publishedAt": "2026-11-06T09:20:00Z"
 }
