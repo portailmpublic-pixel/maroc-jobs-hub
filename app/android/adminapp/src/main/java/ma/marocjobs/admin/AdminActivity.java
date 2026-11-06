@@ -700,6 +700,7 @@ public class AdminActivity extends Activity {
                 payload.put("versionCode", BuildConfig.MAIN_VERSION_CODE);
                 payload.put("versionName", BuildConfig.MAIN_VERSION_NAME);
                 payload.put("url", apkUrl);
+                payload.put("mirror", BuildConfig.MAIN_APK_MIRROR);
                 payload.put("notes", "Mise à jour obligatoire vers v"
                     + BuildConfig.MAIN_VERSION_NAME + ".");
                 SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
