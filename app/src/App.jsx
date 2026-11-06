@@ -1632,10 +1632,12 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [confirmBox, setConfirmBox] = useState(null);
   const [updating, setUpdating] = useState(false);
   const [updatePct, setUpdatePct] = useState(0);
+  const [updateFailed, setUpdateFailed] = useState(false);
   const [appVer, setAppVer] = useState('');
   const updateInfoRef = useRef(null);
   const updateAutoRef = useRef('');
   const updatingRef = useRef(false);
+  const updateFailedRef = useRef(false);
   const updateListenerRef = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('home');
@@ -2206,30 +2208,56 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       return;
     }
     updatingRef.current = true;
-    setUpdating(true); setUpdatePct(0);
+    updateFailedRef.current = false;
+    setUpdating(true); setUpdatePct(0); setUpdateFailed(false);
     try {
       const P = await nativeUpdater();
       if (!updateListenerRef.current) {
         updateListenerRef.current = true;
         P.addListener('progress', (e) => setUpdatePct(Math.max(0, Math.min(100, Number(e.percent) || 0))));
       }
-      await P.downloadAndInstall({ url: info.url, fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' });
+      const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
+      // On essaie l'URL principale puis le miroir : si GitHub est bloqué ou
+      // lent sur le réseau de l'utilisateur, l'autre source prend le relais.
+      const urls = [info.url, info.mirror].filter(Boolean);
+      let lastErr = null;
+      let ok = false;
+      for (const u of urls) {
+        try {
+          await P.downloadAndInstall({ url: u, fileName });
+          ok = true;
+          break;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      if (!ok) throw lastErr || new Error('Téléchargement impossible');
       setUpdatePct(100);
     } catch (e) {
-      // Autorisation « installer des applis inconnues » manquante : on ouvre
-      // les réglages Android. Au retour, l'installation est relancée seule.
-      try { const P = await nativeUpdater(); await P.openInstallSettings(); } catch {}
+      // On n'ouvre plus les réglages Android ici : un échec réseau n'a rien à
+      // voir avec l'autorisation d'installation. On affiche un écran clair
+      // avec « Réessayer » et « Télécharger manuellement ».
+      updateFailedRef.current = true;
+      setUpdateFailed(true);
     } finally {
       updatingRef.current = false;
       setUpdating(false);
     }
   }
 
+  // Téléchargement hors application (navigateur / gestionnaire Android) :
+  // solution de secours si le téléchargement intégré est bloqué.
+  function openManualUpdate() {
+    const info = updateInfoRef.current || updateInfo;
+    if (!info) return;
+    openLink(info.url || info.mirror);
+  }
+
   // Si l'utilisateur refuse/annule l'écran système puis revient dans l'app,
   // on réaffiche l'installateur automatiquement (aucun bouton à toucher).
   async function retryInstall() {
     const info = updateInfoRef.current || updateInfo;
-    if (!info || updatingRef.current) return;
+    if (!info || updatingRef.current || updateFailedRef.current) return;
     const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
     try {
       const P = await nativeUpdater();
@@ -2790,14 +2818,35 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             <span className="ul-kicker">Mise à jour obligatoire</span>
             <h2>Version {updateInfo.versionName}</h2>
             <p>{updateInfo.notes || 'Une nouvelle version doit être installée pour continuer.'}</p>
-            <div className="ul-bar"><span style={{ width: (updating ? Math.max(6, updatePct) : 100) + '%' }} /></div>
-            <div className="ul-state">
-              {updating ? `Téléchargement sécurisé · ${updatePct}%` : 'Ouverture de l’installation…'}
-            </div>
-            <button className="ul-btn" onClick={() => startUpdate()}>
-              <Icon n="download" size={16} /> {updating ? 'Téléchargement en cours…' : 'Relancer l’installation'}
-            </button>
-            <small className="ul-note">L’application reste bloquée jusqu’à la fin de l’installation.</small>
+            {updateFailed ? (
+              <>
+                <div className="ul-state" style={{ color: '#fca5a5' }}>
+                  Téléchargement impossible. Vérifiez votre connexion.
+                </div>
+                <button className="ul-btn" onClick={() => startUpdate()}>
+                  <Icon n="refresh" size={16} /> Réessayer
+                </button>
+                <button
+                  className="ul-btn"
+                  style={{ marginTop: 10, background: 'rgba(255,255,255,.10)', color: '#e8f6ff' }}
+                  onClick={openManualUpdate}
+                >
+                  <Icon n="download" size={16} /> Télécharger manuellement
+                </button>
+                <small className="ul-note">Le téléchargement s’ouvrira dans votre navigateur.</small>
+              </>
+            ) : (
+              <>
+                <div className="ul-bar"><span style={{ width: (updating ? Math.max(6, updatePct) : 100) + '%' }} /></div>
+                <div className="ul-state">
+                  {updating ? `Téléchargement sécurisé · ${updatePct}%` : 'Ouverture de l’installation…'}
+                </div>
+                <button className="ul-btn" onClick={() => startUpdate()}>
+                  <Icon n="download" size={16} /> {updating ? 'Téléchargement en cours…' : 'Relancer l’installation'}
+                </button>
+                <small className="ul-note">L’application reste bloquée jusqu’à la fin de l’installation.</small>
+              </>
+            )}
           </div>
         </div>
       )}
