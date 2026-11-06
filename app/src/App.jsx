@@ -563,7 +563,7 @@ const HOME_CATS = [
   { tab: 'jobs', title: 'JOBS', sub: 'CDI / CDD', desc: 'Trouvez l’emploi qui vous correspond', icon: 'briefcase', tone: 'orange' },
   { tab: 'stages', title: 'STAGES', desc: 'Mise en pratique, lancement de carrière', icon: 'cap', tone: 'blue' },
   { tab: 'concours', title: 'CONCOURS', desc: 'Accédez aux concours et réussissez', icon: 'file', tone: 'green' },
-  { tab: 'exams', title: 'EXAMS', desc: 'Toutes les dates et informations', icon: 'clipboard', tone: 'purple' },
+  { tab: 'exams', title: 'CONCOURS EXAMS', desc: 'Toutes les dates et informations', icon: 'clipboard', tone: 'purple' },
   { tab: 'marches', title: 'MARCHÉS PUBLICS', desc: 'Appels d’offres et opportunités', icon: 'landmark', tone: 'red' },
   { tab: 'new', title: 'NEW OFFERS', desc: 'Les nouvelles offres en avant-première', icon: 'star', tone: 'teal' },
 ];
