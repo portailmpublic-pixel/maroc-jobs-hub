@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-07T11:31:36.748Z",
+  "updatedAt": "2026-11-07T20:40:57.183Z",
   "phone": "212663369080",
-  "total": 1645,
+  "total": 1649,
   "alerts": [
+    {
+      "id": "n1794084057182",
+      "at": "2026-11-07T20:40:57.182Z",
+      "title": "+4 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 4 nouveauté(s) (cloud)\n💼 infirmière réanimation néonatale Mohammedia — AKDITAL (1) ⏰2027-01-07\n💼 Comptable (F) Sidi maarouf —  (Casablanca)\n💼 COMPTABLE CONFIRMEE : SIDI MAAROUF —  (Casablanca)\n💼 Stage (H/F) – Assistant(e) commercial(e) & marketing | Casablanca — GMH All In One (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Supply Chain Engineer (H/F) (2026-11-07)\n- Conseillers Commerciaux en Assurance – Émission d’Appels (2026-11-07)\n- Concours — Maitre de conférences Faculté de Médecine et Pharmacie - Tanger (2026-11-07)\n- Concours — محاسب مسؤول عن مراقبة الإيرادات والمقبوضات النقدية (2026-11-07)\n- Concours — Chargé communication, image de marque et partenariats (2026-11-07)\n📊 Total suivi : 1649 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 4,
+        "concours": 0,
+        "total": 1649
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794051096747",
       "at": "2026-11-07T11:31:36.747Z",
