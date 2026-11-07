@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-06T21:56:56.103Z",
+  "updatedAt": "2026-11-07T11:31:36.748Z",
   "phone": "212663369080",
-  "total": 1628,
+  "total": 1645,
   "alerts": [
+    {
+      "id": "n1794051096747",
+      "at": "2026-11-07T11:31:36.747Z",
+      "title": "+17 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 17 nouveauté(s) (cloud)\n💼 Délégué Régional (H/F) —  (Casablanca) ⏰2027-01-03\n🏛️ Concours — Maitre de conférence à la FMP Laâyoune Immunologie — Université Ibn Zohr - Agadir (Agadir) ⏰2026-11-08\n💼 Soudeur a l argon —  (Casablanca)\n💼 Hôtesse d'accueil —  (Marrakech)\n💼 Agent d'exploitation —  (Tanger)\n💼 Coursier Administratif —  (Rabat)\n💼 Commercial(e) vendeur(se) —  (Casablanca)\n💼 Aide-comptable (H/F) – Casablanca, Hay Hassani —  (Casablanca)\n🏛️ dont 1 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Supply Chain Engineer (H/F) (2026-11-07)\n- Conseillers Commerciaux en Assurance – Émission d’Appels (2026-11-07)\n- Concours — Maitre de conférences Faculté de Médecine et Pharmacie - Tanger (2026-11-07)\n- Concours — محاسب مسؤول عن مراقبة الإيرادات والمقبوضات النقدية (2026-11-07)\n- Concours — Chargé communication, image de marque et partenariats (2026-11-07)\n📊 Total suivi : 1645 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 17,
+        "concours": 1,
+        "total": 1645
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794002216103",
       "at": "2026-11-06T21:56:56.103Z",
