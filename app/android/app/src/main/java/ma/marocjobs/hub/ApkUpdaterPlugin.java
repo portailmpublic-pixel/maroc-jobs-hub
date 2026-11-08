@@ -318,6 +318,13 @@ public class ApkUpdaterPlugin extends Plugin {
                 call.reject("APK absent");
                 return;
             }
+            // Fichier partiel d'une tentative précédente : on le supprime pour
+            // forcer un nouveau téléchargement au lieu d'ouvrir un APK cassé.
+            if (apkVersionCode(apk) <= 0) {
+                try { apk.delete(); } catch (Exception ignored) {}
+                call.reject("APK invalide");
+                return;
+            }
             installApk(apk);
             JSObject ret = new JSObject();
             ret.put("path", apk.getAbsolutePath());
@@ -325,6 +332,66 @@ public class ApkUpdaterPlugin extends Plugin {
             call.resolve(ret);
         } catch (Exception e) {
             call.reject(e.getMessage() == null ? "Installation impossible" : e.getMessage());
+        }
+    }
+
+    /**
+     * Ouvre l'installateur pour l'APK le plus récent déjà présent dans le
+     * dossier updates, à condition qu'il soit plus récent que la version
+     * installée. Sert de secours quand le téléchargement a abouti mais que
+     * l'écran de mise à jour n'a pas réussi à ouvrir l'installateur.
+     */
+    @PluginMethod
+    public void installLatest(PluginCall call) {
+        try {
+            File dir = getContext().getExternalFilesDir(UPDATE_DIR);
+            if (dir == null) dir = getContext().getCacheDir();
+            int current = installedVersionCode();
+            File best = null;
+            int bestCode = current;
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (f == null || !f.isFile() || f.length() < MIN_APK_SIZE) continue;
+                    if (!f.getName().toLowerCase().endsWith(".apk")) continue;
+                    int code = apkVersionCode(f);
+                    if (code > bestCode) {
+                        best = f;
+                        bestCode = code;
+                    }
+                }
+            }
+            if (best == null) {
+                call.reject("APK absent");
+                return;
+            }
+            installApk(best);
+            JSObject ret = new JSObject();
+            ret.put("path", best.getAbsolutePath());
+            ret.put("size", best.length());
+            ret.put("versionCode", bestCode);
+            call.resolve(ret);
+        } catch (Exception e) {
+            call.reject(e.getMessage() == null ? "Installation impossible" : e.getMessage());
+        }
+    }
+
+    private int installedVersionCode() {
+        try {
+            PackageInfo pi = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+            return Build.VERSION.SDK_INT >= 28 ? (int) pi.getLongVersionCode() : pi.versionCode;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private int apkVersionCode(File apk) {
+        try {
+            PackageInfo pi = getContext().getPackageManager().getPackageArchiveInfo(apk.getAbsolutePath(), 0);
+            if (pi == null) return 0;
+            return Build.VERSION.SDK_INT >= 28 ? (int) pi.getLongVersionCode() : pi.versionCode;
+        } catch (Exception e) {
+            return 0;
         }
     }
 
@@ -348,27 +415,39 @@ public class ApkUpdaterPlugin extends Plugin {
         Runnable task = () -> {
             try {
                 if (Build.VERSION.SDK_INT >= 26 && !getContext().getPackageManager().canRequestPackageInstalls()) {
-                    Intent settings = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-                    settings.setData(Uri.parse("package:" + getContext().getPackageName()));
-                    settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    getContext().startActivity(settings);
+                    openUnknownSources();
                     return;
                 }
                 Uri uri = FileProvider.getUriForFile(getContext(), getContext().getPackageName() + ".fileprovider", apk);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "application/vnd.android.package-archive");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-                getContext().startActivity(intent);
-            } catch (Exception e) {
+                // ACTION_INSTALL_PACKAGE est le chemin le plus direct vers
+                // l'installateur ; certains appareils ne répondent pas à
+                // ACTION_VIEW, d'où les deux tentatives.
                 try {
-                    Intent settings = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
-                    settings.setData(Uri.parse("package:" + getContext().getPackageName()));
-                    settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    getContext().startActivity(settings);
-                } catch (Exception ignored) {}
+                    Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                    intent.setData(uri);
+                    intent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(intent);
+                } catch (Exception e) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(uri, "application/vnd.android.package-archive");
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(intent);
+                }
+            } catch (Exception e) {
+                openUnknownSources();
             }
         };
         if (activity != null) activity.runOnUiThread(task);
         else task.run();
+    }
+
+    private void openUnknownSources() {
+        try {
+            Intent settings = new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES);
+            settings.setData(Uri.parse("package:" + getContext().getPackageName()));
+            settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(settings);
+        } catch (Exception ignored) {}
     }
 }

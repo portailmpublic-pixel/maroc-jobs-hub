@@ -2443,6 +2443,15 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         });
       }
       const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
+      // Si l'APK de cette version est déjà présent (tentative précédente
+      // interrompue), on ouvre l'installateur TOUT DE SUITE : la page de mise
+      // à jour ne reste pas bloquée, elle passe directement à l'installation.
+      try {
+        await P.installDownloaded({ fileName });
+        setUpdatePct(100);
+        setUpdateDetail('Ouverture de l’installateur…');
+        return;
+      } catch {}
       // Moteur 1 (prioritaire) : pile réseau du WebView. C'est celle qui vient
       // de lire le manifeste, donc la source est forcément joignable. Progrès
       // réels (octets/Mo) affichés dans la fenêtre.
@@ -2475,6 +2484,15 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       }
       setUpdatePct(100);
     } catch (e) {
+      // Dernier secours : un APK plus récent est peut-être déjà dans le
+      // dossier updates. On l'installe sans rien redemander.
+      try {
+        const P2 = await nativeUpdater();
+        await P2.installLatest();
+        setUpdatePct(100);
+        setUpdateDetail('Ouverture de l’installateur…');
+        return;
+      } catch {}
       // Plus aucun bouton « manuel » : on programme une nouvelle tentative
       // automatique (5 s, 10 s, 20 s, 30 s max) jusqu'à l'installation.
       scheduleRetry();
@@ -2491,6 +2509,18 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     const t = setInterval(() => setRetryIn((s) => (s > 0 ? s - 1 : 0)), 1000);
     return () => clearInterval(t);
   }, [updateFailed]);
+
+  // Tant que l'écran de mise à jour est affiché et qu'aucun téléchargement
+  // n'est en cours, on s'assure que l'installateur est bien ouvert. S'il a
+  // été fermé ou refusé, il se rouvre tout seul : impossible de rester bloqué
+  // sur cette page.
+  useEffect(() => {
+    if (!updateInfo) return undefined;
+    const t = setInterval(() => {
+      if (!updatingRef.current && !updateFailedRef.current) retryInstall();
+    }, 4000);
+    return () => clearInterval(t);
+  }, [updateInfo]);
 
   // Si l'utilisateur refuse/annule l'écran système puis revient dans l'app,
   // on réaffiche l'installateur automatiquement (aucun bouton à toucher).
