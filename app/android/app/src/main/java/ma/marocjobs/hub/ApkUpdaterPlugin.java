@@ -143,11 +143,11 @@ public class ApkUpdaterPlugin extends Plugin {
                         }
 
                         long now = System.currentTimeMillis();
-                        if (lastBytes <= 0 && now - started > 45000) {
+                        if (lastBytes <= 0 && now - started > 15000) {
                             failure = "Réseau trop lent ou bloqué";
                             break;
                         }
-                        if (now - lastChange > 90000) {
+                        if (now - lastChange > 45000) {
                             failure = "Téléchargement interrompu";
                             break;
                         }
@@ -292,6 +292,19 @@ public class ApkUpdaterPlugin extends Plugin {
             if (apk.exists() && apk.length() < MIN_APK_SIZE) apk.delete();
             call.reject(lastError == null ? "Téléchargement impossible" : lastError);
         }).start();
+    }
+
+    @PluginMethod
+    public void keepScreenOn(PluginCall call) {
+        try {
+            final android.app.Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(() -> activity.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON));
+            }
+            call.resolve();
+        } catch (Exception e) {
+            call.reject("Indisponible");
+        }
     }
 
     @PluginMethod

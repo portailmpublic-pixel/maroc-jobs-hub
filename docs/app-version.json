@@ -1,8 +1,8 @@
 {
-  "versionCode": 36,
-  "versionName": "1.9.9",
+  "versionCode": 37,
+  "versionName": "1.9.10",
   "url": "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
   "mirror": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
-  "notes": "Mise a jour obligatoire vers v1.9.9 : trois moteurs de telechargement integres (systeme, direct et WebView) pour que la mise a jour aboutisse meme sur les reseaux qui bloquent GitHub.",
-  "publishedAt": "2026-11-08T17:00:00Z"
+  "notes": "Mise a jour obligatoire vers v1.9.10 : telechargement 100% automatique dans la fenetre de mise a jour, avec progression en Mo, nouvelle tentative automatique en cas de coupure et aucune action manuelle.",
+  "publishedAt": "2026-11-08T19:00:00Z"
 }

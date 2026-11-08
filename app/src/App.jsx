@@ -1658,6 +1658,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [updatePct, setUpdatePct] = useState(0);
   const [updateDetail, setUpdateDetail] = useState('');
   const [updateFailed, setUpdateFailed] = useState(false);
+  const [retryIn, setRetryIn] = useState(0);
   const [appVer, setAppVer] = useState('');
   // Photo de profil locale, propre à chaque compte (clé = e-mail).
   const [avatar, setAvatar] = useState(() => loadAvatar(session.email));
@@ -1669,6 +1670,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const updateListenerRef = useRef(false);
   const updateLastProgressRef = useRef(0);
   const updateWatchdogRef = useRef(null);
+  const autoRetryRef = useRef(null);
+  const retryCountRef = useRef(0);
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('home');
   // Favoris enregistrés sur l'appareil (onglet Favoris du poster).
@@ -2232,71 +2235,87 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     });
   }
 
-  // Dernier recours : téléchargement avec la pile réseau du WebView (Chromium).
-  // Elle est indépendante du DNS/HTTP Java d'Android, donc elle fonctionne là
-  // où DownloadManager et HttpURLConnection échouent. Écriture de l'APK dans
-  // le dossier updates de l'application, puis ouverture de l'installateur.
+  // Téléchargement avec la pile réseau du WebView (Chromium). C'est exactement
+  // la pile qui vient de lire le manifeste : si l'écran de mise à jour s'affiche,
+  // alors la source est joignable. Écriture incrémentale (un morceau à la fois)
+  // dans le dossier updates de l'application, puis ouverture de l'installateur.
   async function jsDownloadApk(info, fileName) {
-    const sources = [
-      info.url,
-      info.mirror,
-      'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk',
-    ].filter(Boolean);
+    const { Capacitor } = await import('@capacitor/core');
+    if (!Capacitor.isNativePlatform()) throw new Error('Natif requis');
+    const { Filesystem, Directory } = await import('@capacitor/filesystem');
+    const path = 'updates/' + fileName;
+    const mo = (n) => (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
+    const pages = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk';
+    const raw = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk';
+    const sources = [info.url, info.mirror, pages, raw].filter((u, i, a) => u && a.indexOf(u) === i);
     let lastErr = null;
-    for (const src of sources) {
+
+    for (let si = 0; si < sources.length; si++) {
+      const src = sources[si];
+      let stall = null;
+      let ctrl = null;
       try {
+        try { await Filesystem.deleteFile({ path, directory: Directory.External }); } catch {}
+        setUpdatePct(0);
+        setUpdateDetail(`Source ${si + 1}/${sources.length} · connexion…`);
+        ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const arm = () => {
+          if (stall) clearTimeout(stall);
+          stall = setTimeout(() => { try { if (ctrl) ctrl.abort(); } catch {} }, 30000);
+        };
+        arm();
         const url = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now();
-        const res = await fetch(url, { cache: 'no-store' });
+        const res = await fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const total = Number(res.headers.get('content-length') || 0);
-        const chunks = [];
         let done = 0;
-        if (res.body && res.body.getReader) {
-          const reader = res.body.getReader();
-          for (;;) {
-            const r = await reader.read();
-            if (r.done) break;
-            chunks.push(r.value);
-            done += r.value.length;
-            updateLastProgressRef.current = Date.now();
-            const pct = total > 0
-              ? Math.min(99, Math.round(done * 100 / total))
-              : Math.min(95, Math.round(done / 167772));
-            setUpdatePct(pct);
-            const mo = (n) => (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
-            setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
-          }
-        } else {
-          const buf = new Uint8Array(await res.arrayBuffer());
-          chunks.push(buf);
-          done = buf.length;
-        }
-        if (done < 1000000) throw new Error('Fichier incomplet');
-
-        const { Capacitor } = await import('@capacitor/core');
-        if (!Capacitor.isNativePlatform()) throw new Error('Natif requis');
-        const { Filesystem, Directory } = await import('@capacitor/filesystem');
-        const path = 'updates/' + fileName;
-        try { await Filesystem.deleteFile({ path, directory: Directory.External }); } catch {}
         let first = true;
-        for (const chunk of chunks) {
-          const b64 = await blobToBase64(new Blob([chunk]));
+        const push = async (u8) => {
+          const b64 = await blobToBase64(new Blob([u8]));
           if (first) {
             await Filesystem.writeFile({ path, data: b64, directory: Directory.External, recursive: true });
             first = false;
           } else {
             await Filesystem.appendFile({ path, data: b64, directory: Directory.External });
           }
-          updateLastProgressRef.current = Date.now();
+        };
+        if (res.body && res.body.getReader) {
+          const reader = res.body.getReader();
+          for (;;) {
+            const r = await reader.read();
+            if (r.done) break;
+            arm();
+            await push(r.value);
+            done += r.value.length;
+            updateLastProgressRef.current = Date.now();
+            const pct = total > 0
+              ? Math.min(99, Math.round(done * 100 / total))
+              : Math.min(95, Math.round(done / 167772));
+            setUpdatePct(pct);
+            setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
+          }
+        } else {
+          const buf = new Uint8Array(await res.arrayBuffer());
+          await push(buf);
+          done = buf.length;
         }
+        if (stall) { clearTimeout(stall); stall = null; }
+        if (done < 1000000) throw new Error('Fichier incomplet');
+        if (total > 0 && Math.abs(done - total) > 2048) throw new Error('Taille incorrecte');
+        const st = await Filesystem.stat({ path, directory: Directory.External });
+        if (!st || Number(st.size) < 1000000) throw new Error('Écriture incomplète');
         setUpdatePct(100);
+        setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
         const P = await nativeUpdater();
         await P.installDownloaded({ fileName });
         return true;
       } catch (e) {
         lastErr = e;
+      } finally {
+        if (stall) { clearTimeout(stall); stall = null; }
       }
     }
+    try { await Filesystem.deleteFile({ path, directory: Directory.External }); } catch {}
     throw lastErr || new Error('Téléchargement impossible');
   }
 
@@ -2361,10 +2380,9 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     openLink(PLAY_URL);
   }
 
-  async function startUpdate(infoOverride, opts) {
+  async function startUpdate(infoOverride) {
     const info = infoOverride || updateInfoRef.current || updateInfo;
     if (!info) return;
-    const forceDirect = !!(opts && opts.forceDirect);
     if (updatingRef.current) {
       // Téléchargement déjà en cours : on relance juste l'écran d'installation.
       try { const P = await nativeUpdater(); await P.installDownloaded({ fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' }); } catch {}
@@ -2373,22 +2391,37 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     updatingRef.current = true;
     updateFailedRef.current = false;
     updateLastProgressRef.current = Date.now();
-    setUpdating(true); setUpdatePct(0); setUpdateDetail(''); setUpdateFailed(false);
+    setUpdating(true); setUpdatePct(0); setUpdateDetail(''); setUpdateFailed(false); setRetryIn(0);
+    if (autoRetryRef.current) { clearTimeout(autoRetryRef.current); autoRetryRef.current = null; }
 
     const clearWatchdog = () => {
       if (updateWatchdogRef.current) { clearInterval(updateWatchdogRef.current); updateWatchdogRef.current = null; }
     };
+    // Échec = nouvelle tentative AUTOMATIQUE. Aucun bouton, aucune action :
+    // l'écran reste bloqué et le téléchargement redémarre tout seul.
+    const scheduleRetry = () => {
+      clearWatchdog();
+      updatingRef.current = false;
+      setUpdating(false);
+      updateFailedRef.current = true;
+      setUpdateFailed(true);
+      const delay = Math.min(30000, 5000 * Math.pow(2, Math.min(retryCountRef.current, 3)));
+      retryCountRef.current += 1;
+      setRetryIn(Math.ceil(delay / 1000));
+      if (autoRetryRef.current) clearTimeout(autoRetryRef.current);
+      autoRetryRef.current = setTimeout(() => {
+        autoRetryRef.current = null;
+        if (!updateInfoRef.current) return;
+        startUpdate();
+      }, delay);
+    };
     // Garde-fou : si le téléchargement ne produit aucun progrès pendant 60 s,
-    // on débloque l'écran au lieu de rester figé à 0 % pour toujours.
+    // on enchaîne sur une nouvelle tentative automatique.
     clearWatchdog();
     updateWatchdogRef.current = setInterval(() => {
       if (!updatingRef.current) { clearWatchdog(); return; }
       if (Date.now() - updateLastProgressRef.current > 60000) {
-        clearWatchdog();
-        updatingRef.current = false;
-        setUpdating(false);
-        updateFailedRef.current = true;
-        setUpdateFailed(true);
+        scheduleRetry();
       }
     }, 5000);
 
@@ -2402,49 +2435,49 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           const done = Number(e.done) || 0;
           const total = Number(e.total) || 0;
           if (done > 0) {
+            retryCountRef.current = 0;
+            setRetryIn(0);
             const mo = (n) => (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
             setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
           }
         });
       }
       const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
-      // Trois moteurs, dans cet ordre :
-      //  1) DownloadManager Android (robuste, notifications système)
-      //  2) téléchargement natif direct (HttpURLConnection, 2 essais/source)
-      //  3) téléchargement via le WebView (pile réseau Chromium) + installateur
-      // Tout se passe DANS la fenêtre de mise à jour, sans navigateur.
-      const run = (direct) => P.downloadAndInstall({
-        url: info.url,
-        mirror: direct ? '' : (info.mirror || ''),
-        fileName,
-        forceDirect: direct,
-      });
+      // Moteur 1 (prioritaire) : pile réseau du WebView. C'est celle qui vient
+      // de lire le manifeste, donc la source est forcément joignable. Progrès
+      // réels (octets/Mo) affichés dans la fenêtre.
+      // Moteur 2 : gestionnaire de téléchargement Android.
+      // Moteur 3 : téléchargement natif direct (HttpURLConnection).
+      // Tout se passe DANS la fenêtre, sans navigateur et sans lien externe.
+      try { await P.keepScreenOn(); } catch {}
       try {
-        await run(forceDirect);
-      } catch (e) {
+        await jsDownloadApk(info, fileName);
+        retryCountRef.current = 0;
+        setRetryIn(0);
+      } catch (e1) {
         updateLastProgressRef.current = Date.now();
         setUpdatePct(0);
         setUpdateDetail('');
-        if (forceDirect) {
-          await jsDownloadApk(info, fileName);
-        } else {
-          try {
-            await run(true);
-          } catch (e2) {
-            updateLastProgressRef.current = Date.now();
-            setUpdatePct(0);
-            setUpdateDetail('');
-            await jsDownloadApk(info, fileName);
-          }
+        const run = (direct) => P.downloadAndInstall({
+          url: info.url,
+          mirror: direct ? '' : (info.mirror || ''),
+          fileName,
+          forceDirect: direct,
+        });
+        try {
+          await run(false);
+        } catch (e2) {
+          updateLastProgressRef.current = Date.now();
+          setUpdatePct(0);
+          setUpdateDetail('');
+          await run(true);
         }
       }
       setUpdatePct(100);
     } catch (e) {
-      // On n'ouvre plus les réglages Android ici : un échec réseau n'a rien à
-      // voir avec l'autorisation d'installation. On affiche un écran clair
-      // avec « Réessayer » et « Télécharger manuellement ».
-      updateFailedRef.current = true;
-      setUpdateFailed(true);
+      // Plus aucun bouton « manuel » : on programme une nouvelle tentative
+      // automatique (5 s, 10 s, 20 s, 30 s max) jusqu'à l'installation.
+      scheduleRetry();
     } finally {
       clearWatchdog();
       updatingRef.current = false;
@@ -2452,11 +2485,12 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     }
   }
 
-  // Le secours est un téléchargement DIRECT dans l'application : on n'ouvre
-  // plus le navigateur et on n'envoie jamais l'utilisateur sur GitHub.
-  function directUpdate() {
-    startUpdate(null, { forceDirect: true });
-  }
+  // Compte à rebours affiché pendant l'attente avant la tentative automatique.
+  useEffect(() => {
+    if (!updateFailed) return undefined;
+    const t = setInterval(() => setRetryIn((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [updateFailed]);
 
   // Si l'utilisateur refuse/annule l'écran système puis revient dans l'app,
   // on réaffiche l'installateur automatiquement (aucun bouton à toucher).
@@ -3026,20 +3060,14 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             {appVer ? <small className="ul-note" style={{ display: 'block', marginBottom: 10 }}>Version installée : {appVer}</small> : null}
             {updateFailed ? (
               <>
+                <div className="ul-bar"><span style={{ width: '100%', opacity: 0.45 }} /></div>
                 <div className="ul-state" style={{ color: '#fca5a5' }}>
-                  Téléchargement interrompu. Relancez le téléchargement direct.
+                  Connexion interrompue · nouvelle tentative automatique dans {retryIn > 0 ? retryIn : 1} s…
                 </div>
-                <button className="ul-btn" onClick={directUpdate}>
-                  <Icon n="download" size={16} /> Télécharger directement
-                </button>
-                <button
-                  className="ul-btn"
-                  style={{ marginTop: 10, background: 'rgba(255,255,255,.10)', color: '#e8f6ff' }}
-                  onClick={() => startUpdate()}
-                >
-                  <Icon n="refresh" size={16} /> Réessayer
-                </button>
-                <small className="ul-note">Le fichier se télécharge dans l’application, sans navigateur ni lien externe.</small>
+                <div className="ul-auto">
+                  <Icon n="refresh" size={15} /> Aucune action requise — le téléchargement redémarre tout seul.
+                </div>
+                <small className="ul-note">Ne fermez pas l’application : l’installation s’ouvrira automatiquement.</small>
               </>
             ) : (
               <>
@@ -3047,9 +3075,9 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
                 <div className="ul-state">
                   {updating ? `Téléchargement sécurisé · ${updatePct}%${updateDetail ? ' · ' + updateDetail : ''}` : 'Ouverture de l’installation…'}
                 </div>
-                <button className="ul-btn" onClick={() => startUpdate()}>
-                  <Icon n="download" size={16} /> {updating ? 'Téléchargement en cours…' : 'Relancer l’installation'}
-                </button>
+                <div className="ul-auto">
+                  <Icon n="download" size={15} /> Téléchargement automatique — aucune action requise.
+                </div>
                 <small className="ul-note">L’application reste bloquée jusqu’à la fin de l’installation.</small>
               </>
             )}
@@ -3720,9 +3748,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
           </div>
           {updateInfo && (
             <div className="panel">
-              <div className="row">
-                <button className="apply" onClick={() => startUpdate()} disabled={updating}><Icon n="download" size={16} /> {updating ? `Téléchargement ${updatePct}%` : `Installer la mise à jour ${updateInfo.versionName}`}</button>
-              </div>
+              <div className="section-header"><h3>Mise à jour</h3></div>
+              <p className="setup-note">Version {updateInfo.versionName} : téléchargement automatique en cours. Aucune action n’est nécessaire.</p>
             </div>
           )}
           <div className="panel">

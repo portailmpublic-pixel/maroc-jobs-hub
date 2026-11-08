@@ -2515,6 +2515,7 @@ body { padding-bottom:0; }
 .ul-bar { margin-top:22px; width:min(64vw,220px); height:4px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; }
 .ul-bar span { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--brand),var(--brand-2)); box-shadow:0 0 14px rgba(20,224,180,.6); transition:width .3s ease; }
 .ul-state { margin-top:10px; font-size:11px; color:#b8fff0; font-weight:600; }
+.ul-auto { margin-top:12px; display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; font-size:10.5px; font-weight:700; color:#b8fff0; background:rgba(20,224,180,.10); border:1px solid rgba(20,224,180,.22); }
 .ul-btn { margin-top:20px; display:inline-flex; align-items:center; gap:8px; padding:13px 22px; border:0; border-radius:14px; font-size:13.5px; font-weight:800; color:var(--brand-ink); background:var(--grad); box-shadow:0 16px 34px -18px rgba(20,224,180,.9); }
 .ul-btn:active { transform:scale(.98); }
 .ul-note { margin-top:14px; font-size:10px; color:#5f748c; line-height:1.5; max-width:280px; }
