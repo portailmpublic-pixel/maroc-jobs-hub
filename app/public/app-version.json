@@ -1,8 +1,8 @@
 {
   "versionCode": 38,
   "versionName": "1.9.11",
-  "url": "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
-  "mirror": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
-  "notes": "Mise a jour obligatoire vers v1.9.11 : l'installateur Android s'ouvre automatiquement des que l'APK est pret, avec verification du fichier, nouvelles tentatives automatiques et aucun bouton manuel.",
-  "publishedAt": "2026-11-08T21:00:00Z"
+  "url": "https:\/\/raw.githubusercontent.com\/portailmpublic-pixel\/maroc-jobs-hub\/master\/docs\/ASSOULI-AUTOX.apk",
+  "mirror": "https:\/\/portailmpublic-pixel.github.io\/maroc-jobs-hub\/ASSOULI-AUTOX.apk",
+  "notes": "Mise à jour obligatoire vers v1.9.11.",
+  "publishedAt": "2026-11-08T17:21:25Z"
 }
