@@ -54,8 +54,15 @@ public class ApkUpdaterPlugin extends Plugin {
         final String url = call.getString("url");
         final String mirror = call.getString("mirror");
         final String fileName = call.getString("fileName", "ASSOULI-AUTOX.apk");
+        // forceDirect : téléchargement intégré (HttpURLConnection) sans passer
+        // par le gestionnaire système ni par un navigateur.
+        final boolean forceDirect = call.getBoolean("forceDirect", false);
         if (url == null || url.trim().isEmpty()) {
             call.reject("URL manquante");
+            return;
+        }
+        if (forceDirect) {
+            downloadDirect(call, url, mirror, fileName);
             return;
         }
 
@@ -195,74 +202,95 @@ public class ApkUpdaterPlugin extends Plugin {
         }
     }
 
-    /** Secours si le gestionnaire de téléchargement système est indisponible. */
+    /**
+     * Téléchargement DIRECT dans l'application : aucune redirection vers un
+     * navigateur, aucun lien GitHub demandé à l'utilisateur. Deux tentatives
+     * par source, puis bascule silencieuse sur la source de secours.
+     */
     private void downloadDirect(final PluginCall call, final String url, final String nextUrl, final String fileName) {
         new Thread(() -> {
-            FileOutputStream out = null;
-            HttpURLConnection con = null;
-            try {
-                File dir = getContext().getExternalFilesDir(UPDATE_DIR);
-                if (dir == null) dir = getContext().getCacheDir();
-                if (!dir.exists()) dir.mkdirs();
-                File apk = new File(dir, fileName);
-                if (apk.exists()) apk.delete();
+            File dir = getContext().getExternalFilesDir(UPDATE_DIR);
+            if (dir == null) dir = getContext().getCacheDir();
+            if (!dir.exists()) dir.mkdirs();
+            final File apk = new File(dir, fileName);
+            String lastError = null;
 
-                con = (HttpURLConnection) new URL(url).openConnection();
-                con.setInstanceFollowRedirects(true);
-                con.setConnectTimeout(20000);
-                con.setReadTimeout(30000);
-                con.setRequestProperty("User-Agent", "ASSOULI-AUTOX-Updater");
-                con.setRequestProperty("Accept", "application/octet-stream");
-                int code = con.getResponseCode();
-                if (code < 200 || code >= 300) throw new Exception("HTTP " + code);
+            String[] sources = (nextUrl != null && !nextUrl.trim().isEmpty())
+                ? new String[]{url, nextUrl}
+                : new String[]{url};
 
-                long total = con.getContentLengthLong();
-                InputStream in = con.getInputStream();
-                out = new FileOutputStream(apk);
-                byte[] buf = new byte[65536];
-                long done = 0;
-                long started = System.currentTimeMillis();
-                long lastByteAt = started;
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    out.write(buf, 0, n);
-                    done += n;
-                    lastByteAt = System.currentTimeMillis();
-                    if (System.currentTimeMillis() - started > 10 * 60 * 1000) {
-                        throw new Exception("Téléchargement trop lent");
+            for (String src : sources) {
+                for (int attempt = 1; attempt <= 2; attempt++) {
+                    HttpURLConnection con = null;
+                    InputStream in = null;
+                    FileOutputStream out = null;
+                    try {
+                        if (apk.exists()) apk.delete();
+
+                        con = (HttpURLConnection) new URL(src).openConnection();
+                        con.setInstanceFollowRedirects(true);
+                        con.setConnectTimeout(20000);
+                        con.setReadTimeout(30000);
+                        con.setUseCaches(false);
+                        con.setRequestProperty("User-Agent", "ASSOULI-AUTOX-Updater");
+                        con.setRequestProperty("Cache-Control", "no-cache");
+                        con.setRequestProperty("Accept-Encoding", "identity");
+                        int code = con.getResponseCode();
+                        if (code < 200 || code >= 300) throw new Exception("HTTP " + code);
+
+                        long total = con.getContentLengthLong();
+                        in = con.getInputStream();
+                        out = new FileOutputStream(apk);
+                        byte[] buf = new byte[65536];
+                        long done = 0;
+                        long started = System.currentTimeMillis();
+                        long lastTick = 0;
+                        int n;
+                        while ((n = in.read(buf)) > 0) {
+                            out.write(buf, 0, n);
+                            done += n;
+                            long now = System.currentTimeMillis();
+                            if (now - started > 10 * 60 * 1000) throw new Exception("Téléchargement trop lent");
+                            // On émet au maximum toutes les 250 ms : le garde-fou
+                            // JavaScript voit toujours un progrès réel.
+                            if (now - lastTick > 250) {
+                                lastTick = now;
+                                int pct = total > 0
+                                    ? (int) Math.min(100, done * 100 / total)
+                                    : (int) Math.min(95, done * 100 / 16777216L);
+                                JSObject p = new JSObject();
+                                p.put("percent", pct);
+                                p.put("done", done);
+                                p.put("total", total > 0 ? total : 0);
+                                notifyListeners("progress", p, true);
+                            }
+                        }
+                        out.flush();
+                        out.close();
+                        out = null;
+                        in.close();
+                        in = null;
+
+                        if (apk.length() < MIN_APK_SIZE) throw new Exception("Fichier incomplet");
+
+                        JSObject ret = new JSObject();
+                        ret.put("path", apk.getAbsolutePath());
+                        ret.put("size", apk.length());
+                        installApk(apk);
+                        call.resolve(ret);
+                        return;
+                    } catch (Exception e) {
+                        lastError = e.getMessage() == null ? "Téléchargement impossible" : e.getMessage();
+                        try { if (out != null) out.close(); } catch (Exception ignored) {}
+                        try { if (in != null) in.close(); } catch (Exception ignored) {}
+                        if (con != null) con.disconnect();
+                        try { Thread.sleep(1200); } catch (Exception ignored) {}
                     }
-                    if (System.currentTimeMillis() - lastByteAt > 45000) {
-                        throw new Exception("Téléchargement interrompu");
-                    }
-                    int pct = total > 0 ? (int) (done * 100 / total) : Math.min(95, (int) (done / 200000));
-                    JSObject p = new JSObject();
-                    p.put("percent", pct);
-                    p.put("done", done);
-                    p.put("total", total);
-                    notifyListeners("progress", p, true);
                 }
-                out.flush();
-                out.close();
-                out = null;
-                in.close();
-
-                if (apk.length() < MIN_APK_SIZE) throw new Exception("Fichier incomplet");
-
-                JSObject ret = new JSObject();
-                ret.put("path", apk.getAbsolutePath());
-                ret.put("size", apk.length());
-                installApk(apk);
-                call.resolve(ret);
-            } catch (Exception e) {
-                if (nextUrl != null && !nextUrl.trim().isEmpty()) {
-                    downloadDirect(call, nextUrl, null, fileName);
-                    return;
-                }
-                call.reject(e.getMessage() == null ? "Téléchargement impossible" : e.getMessage());
-            } finally {
-                try { if (out != null) out.close(); } catch (Exception ignored) {}
-                if (con != null) con.disconnect();
             }
+
+            if (apk.exists() && apk.length() < MIN_APK_SIZE) apk.delete();
+            call.reject(lastError == null ? "Téléchargement impossible" : lastError);
         }).start();
     }
 

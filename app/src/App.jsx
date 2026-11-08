@@ -2268,9 +2268,10 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     openLink(PLAY_URL);
   }
 
-  async function startUpdate(infoOverride) {
+  async function startUpdate(infoOverride, opts) {
     const info = infoOverride || updateInfoRef.current || updateInfo;
     if (!info) return;
+    const forceDirect = !!(opts && opts.forceDirect);
     if (updatingRef.current) {
       // Téléchargement déjà en cours : on relance juste l'écran d'installation.
       try { const P = await nativeUpdater(); await P.installDownloaded({ fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' }); } catch {}
@@ -2314,10 +2315,24 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         });
       }
       const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
-      // Le natif essaie l'URL principale puis bascule seul sur le miroir :
-      // si une source est bloquée/lente, l'autre prend le relais sans rien
-      // demander à l'utilisateur.
-      await P.downloadAndInstall({ url: info.url, mirror: info.mirror || '', fileName });
+      // 1) Gestionnaire de téléchargement Android (le plus fiable).
+      // 2) Si ça échoue : téléchargement DIRECT intégré, dans la même fenêtre,
+      //    sans navigateur et sans jamais envoyer l'utilisateur sur GitHub.
+      const run = (direct) => P.downloadAndInstall({
+        url: info.url,
+        mirror: direct ? '' : (info.mirror || ''),
+        fileName,
+        forceDirect: direct,
+      });
+      try {
+        await run(forceDirect);
+      } catch (e) {
+        if (forceDirect) throw e;
+        updateLastProgressRef.current = Date.now();
+        setUpdatePct(0);
+        setUpdateDetail('');
+        await run(true);
+      }
       setUpdatePct(100);
     } catch (e) {
       // On n'ouvre plus les réglages Android ici : un échec réseau n'a rien à
@@ -2332,12 +2347,10 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     }
   }
 
-  // Téléchargement hors application (navigateur / gestionnaire Android) :
-  // solution de secours si le téléchargement intégré est bloqué.
-  function openManualUpdate() {
-    const info = updateInfoRef.current || updateInfo;
-    if (!info) return;
-    openLink(info.url || info.mirror);
+  // Le secours est un téléchargement DIRECT dans l'application : on n'ouvre
+  // plus le navigateur et on n'envoie jamais l'utilisateur sur GitHub.
+  function directUpdate() {
+    startUpdate(null, { forceDirect: true });
   }
 
   // Si l'utilisateur refuse/annule l'écran système puis revient dans l'app,
@@ -2908,19 +2921,19 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             {updateFailed ? (
               <>
                 <div className="ul-state" style={{ color: '#fca5a5' }}>
-                  Téléchargement impossible. Vérifiez votre connexion.
+                  Téléchargement interrompu. Relancez le téléchargement direct.
                 </div>
-                <button className="ul-btn" onClick={() => startUpdate()}>
-                  <Icon n="refresh" size={16} /> Réessayer
+                <button className="ul-btn" onClick={directUpdate}>
+                  <Icon n="download" size={16} /> Télécharger directement
                 </button>
                 <button
                   className="ul-btn"
                   style={{ marginTop: 10, background: 'rgba(255,255,255,.10)', color: '#e8f6ff' }}
-                  onClick={openManualUpdate}
+                  onClick={() => startUpdate()}
                 >
-                  <Icon n="download" size={16} /> Télécharger manuellement
+                  <Icon n="refresh" size={16} /> Réessayer
                 </button>
-                <small className="ul-note">Le téléchargement s’ouvrira dans votre navigateur.</small>
+                <small className="ul-note">Le fichier se télécharge dans l’application, sans navigateur ni lien externe.</small>
               </>
             ) : (
               <>
