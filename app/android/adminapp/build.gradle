@@ -27,8 +27,8 @@ if (mainGradle.exists()) {
     def mn = (text =~ /versionName\s+"([^"]+)"/)
     if (mn.find()) mainVersionName = mn.group(1)
 }
-def mainApkUrl = "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk"
-def mainApkMirror = "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v${mainVersionName}/ASSOULI-AUTOX.apk"
+def mainApkUrl = "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk"
+def mainApkMirror = "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk"
 
 android {
     namespace "ma.marocjobs.admin"
@@ -38,8 +38,8 @@ android {
         applicationId "ma.marocjobs.hub.admin"
         minSdk 22
         targetSdk 34
-        versionCode 30
-        versionName "1.6.14"
+        versionCode 31
+        versionName "1.6.15"
         buildConfigField "String", "GITHUB_TOKEN", "\"${adminToken}\""
         buildConfigField "String", "IMAP_PASSWORD", "\"${imapPassword}\""
         buildConfigField "int", "MAIN_VERSION_CODE", "${mainVersionCode}"
