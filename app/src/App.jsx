@@ -364,6 +364,7 @@ const ICONS = {
   moon: <path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z" />,
   auto: <><circle cx="12" cy="12" r="9" /><path d="M12 3v18" /><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none" /></>,
   trash: <><path d="M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6" /></>,
+  camera: <><path d="M4 8h3l1.6-2.4A1.5 1.5 0 0 1 9.9 5h4.2a1.5 1.5 0 0 1 1.3.6L17 8h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 19H4a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 4 8z" /><circle cx="12" cy="13" r="3.4" /></>,
   play: <><path d="M8 5v14l11-7z" /></>,
 };
 
@@ -1220,6 +1221,23 @@ function isStageJob(j) {
 // ============================================================
 const LS_ACCOUNTS = 'mjh_accounts_v1';
 const LS_SESSION = 'mjh_session_v1';
+// Photos de profil : une image JPEG redimensionnée par compte (e-mail).
+const LS_AVATARS = 'mjh_avatars_v1';
+function avatarKey(email) { return String(email || '').trim().toLowerCase(); }
+function loadAvatars() {
+  try { const o = JSON.parse(localStorage.getItem(LS_AVATARS) || '{}'); return o && typeof o === 'object' ? o : {}; } catch { return {}; }
+}
+function loadAvatar(email) {
+  const k = avatarKey(email);
+  return k ? (loadAvatars()[k] || '') : '';
+}
+function saveAvatar(email, dataUrl) {
+  const k = avatarKey(email);
+  if (!k) return;
+  const all = loadAvatars();
+  if (dataUrl) all[k] = dataUrl; else delete all[k];
+  try { localStorage.setItem(LS_AVATARS, JSON.stringify(all)); } catch {}
+}
 
 function loadAccounts() {
   try { const a = JSON.parse(localStorage.getItem(LS_ACCOUNTS) || '[]'); return Array.isArray(a) ? a : []; } catch { return []; }
@@ -1635,6 +1653,9 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const [updateDetail, setUpdateDetail] = useState('');
   const [updateFailed, setUpdateFailed] = useState(false);
   const [appVer, setAppVer] = useState('');
+  // Photo de profil locale, propre à chaque compte (clé = e-mail).
+  const [avatar, setAvatar] = useState(() => loadAvatar(session.email));
+  const avatarInputRef = useRef(null);
   const updateInfoRef = useRef(null);
   const updateAutoRef = useRef('');
   const updatingRef = useRef(false);
@@ -1916,6 +1937,51 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     : { icon: './app-icon.png', ico: 'sliders', label: 'Configuration' };
 
   function showToast(t) { setToast(t); setTimeout(() => setToast(''), 2600); }
+
+  // ---- Photo de profil ----
+  function pickAvatar() {
+    if (avatarInputRef.current) avatarInputRef.current.click();
+  }
+  function onAvatarFile(e) {
+    const file = e && e.target && e.target.files ? e.target.files[0] : null;
+    if (e && e.target) e.target.value = '';
+    if (!file) return;
+    if (!/^image\//.test(file.type || '')) { showToast('Choisissez une image'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          // On recadre dans un carré et on réduit à 512 px : l'image reste
+          // légère (quelques dizaines de Ko) et nette sur l'écran.
+          const MAX = 512;
+          const side = Math.min(img.width || MAX, img.height || MAX);
+          const sx = Math.max(0, ((img.width || side) - side) / 2);
+          const sy = Math.max(0, ((img.height || side) - side) / 2);
+          const canvas = document.createElement('canvas');
+          canvas.width = MAX; canvas.height = MAX;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+          ctx.drawImage(img, sx, sy, side, side, 0, 0, MAX, MAX);
+          const url = canvas.toDataURL('image/jpeg', 0.82);
+          saveAvatar(session.email, url);
+          setAvatar(url);
+          showToast('Photo de profil mise à jour');
+        } catch {
+          showToast('Image illisible');
+        }
+      };
+      img.onerror = () => showToast('Image illisible');
+      img.src = String(reader.result || '');
+    };
+    reader.onerror = () => showToast('Lecture impossible');
+    reader.readAsDataURL(file);
+  }
+  function removeAvatar() {
+    saveAvatar(session.email, '');
+    setAvatar('');
+    showToast('Photo de profil retirée');
+  }
 
   // ---- Favoris ----
   useEffect(() => {
@@ -3004,12 +3070,22 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       {tab === 'profile' && (
         <main className="screen profile-screen">
           <section className="profile-hero">
-            <div className="profile-avatar">{(session.name || session.email || '?').trim().charAt(0).toUpperCase()}</div>
+            <button type="button" className="profile-avatar" onClick={pickAvatar} aria-label="Changer la photo de profil">
+              {avatar
+                ? <img src={avatar} alt="Photo de profil" />
+                : <span>{(session.name || session.email || '?').trim().charAt(0).toUpperCase()}</span>}
+              <span className="profile-avatar-cam"><Icon n="camera" size={13} /></span>
+            </button>
             <div className="profile-id">
               <h2>{session.name || 'Mon compte'}</h2>
               <p>{session.email}</p>
               <span className="profile-badge"><Icon n="check" size={12} /> Compte vérifié</span>
+              <div className="profile-avatar-actions">
+                <button type="button" onClick={pickAvatar}><Icon n="camera" size={12} /> {avatar ? 'Changer la photo' : 'Ajouter une photo'}</button>
+                {avatar ? <button type="button" onClick={removeAvatar}><Icon n="trash" size={12} /> Retirer</button> : null}
+              </div>
             </div>
+            <input ref={avatarInputRef} className="profile-file" type="file" accept="image/*" onChange={onAvatarFile} />
           </section>
           <div className="profile-stats">
             <div><b>{fmtNum(stats.total)}</b><span>offres</span></div>

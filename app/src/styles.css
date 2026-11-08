@@ -2347,7 +2347,30 @@ html[data-theme="dark"] body {
   background:#fff; color:var(--poster-navy);
   font-size:26px; font-weight:800;
   box-shadow:0 10px 24px -14px rgba(0,0,0,.7);
+  position:relative; padding:0; border:0; overflow:visible; cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
 }
+.profile-avatar img {
+  width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;
+}
+.profile-avatar:active { transform:scale(.96); }
+.profile-avatar-cam {
+  position:absolute; right:-3px; bottom:-3px;
+  width:24px; height:24px; border-radius:50%;
+  display:grid; place-items:center;
+  background:#fff; color:var(--poster-navy);
+  border:2px solid #0B2A5B;
+  box-shadow:0 6px 12px -8px rgba(0,0,0,.8);
+}
+.profile-avatar-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:8px; }
+.profile-avatar-actions button {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:5px 10px; border-radius:99px;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);
+  color:#fff; font-size:10px; font-weight:700; cursor:pointer;
+}
+.profile-avatar-actions button:active { transform:scale(.96); }
+.profile-file { display:none; }
 .profile-id { min-width:0; }
 .profile-id h2 { margin:0; font-size:18px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .profile-id p { margin:3px 0 6px; font-size:11.5px; color:rgba(255,255,255,.72); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
