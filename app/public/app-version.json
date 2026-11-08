@@ -1,8 +1,8 @@
 {
-  "versionCode": 39,
-  "versionName": "1.9.12",
+  "versionCode": 40,
+  "versionName": "1.9.13",
   "url": "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
   "mirror": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
-  "notes": "Mise a jour obligatoire vers v1.9.12 : alertes intelligentes par ville, type de travail et contrat, avec une icone violette distincte des notifications generales. Le telechargement et l'ouverture de l'installateur restent automatiques.",
-  "publishedAt": "2026-11-08T22:00:00Z"
+  "notes": "Mise a jour obligatoire vers v1.9.13 : alertes intelligentes par ville, type de travail et contrat, avec une icone violette distincte. La rubrique Confidentialite a ete retiree de Configuration. Telechargement et installateur automatiques.",
+  "publishedAt": "2026-11-08T22:45:00Z"
 }

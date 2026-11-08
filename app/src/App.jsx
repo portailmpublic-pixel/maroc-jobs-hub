@@ -2353,10 +2353,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     refresh(true);
   }
 
-  function openPrivacy() {
-    openLink(PRIVACY_URL);
-  }
-
   function contactSupport() {
     const subject = encodeURIComponent('ASSOULI AUTOX — Aide');
     const body = encodeURIComponent(`Bonjour,\n\nJ'ai besoin d'aide dans l'application ASSOULI AUTOX.\nCompte : ${session.email}\n\nMerci.`);
@@ -4084,13 +4080,12 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             </div>
           )}
           <div className="panel">
-            <div className="section-header"><h3>Compte & confidentialité</h3><span className="theme-current">{appVer ? `v${appVer}` : ''}</span></div>
+            <div className="section-header"><h3>Compte & aide</h3><span className="theme-current">{appVer ? `v${appVer}` : ''}</span></div>
             <div className="tool-grid">
-              <button className="tool-btn" onClick={openPrivacy}><span className="tool-ic"><Icon n="shield" size={22} /></span><span>Confidentialité</span><small>Politique de données</small></button>
               <button className="tool-btn" onClick={contactSupport}><span className="tool-ic"><Icon n="mail" size={22} /></span><span>Aide & contact</span><small>Écrire à l’équipe</small></button>
               <button className="tool-btn danger" onClick={requestDeleteAccount}><span className="tool-ic"><Icon n="trash" size={22} /></span><span>Supprimer le compte</span><small>Efface vos données</small></button>
             </div>
-            <p className="setup-note">ASSOULI AUTOX respecte votre vie privée : vos favoris et préférences restent sur votre téléphone. Consultez la politique de confidentialité à tout moment.</p>
+            <p className="setup-note">ASSOULI AUTOX respecte votre vie privée : vos favoris et préférences restent sur votre téléphone.</p>
           </div>
         </main>
       )}
