@@ -1,6 +1,7 @@
 package ma.marocjobs.hub;
 
 import android.app.DownloadManager;
+import android.os.Environment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -143,22 +144,22 @@ public class ApkUpdaterPlugin extends Plugin {
                         }
 
                         long now = System.currentTimeMillis();
-                        if (lastBytes <= 0 && now - started > 15000) {
+                        if (lastBytes <= 0 && now - started > 60000) {
                             failure = "Réseau trop lent ou bloqué";
                             break;
                         }
-                        if (now - lastChange > 45000) {
+                        if (now - lastChange > 180000) {
                             failure = "Téléchargement interrompu";
                             break;
                         }
-                        if (now - started > 10 * 60 * 1000) {
+                        if (now - started > 30 * 60 * 1000) {
                             failure = "Téléchargement trop lent";
                             break;
                         }
                         Thread.sleep(500);
                     }
 
-                    try { dm.remove(id); } catch (Exception ignored) {}
+                    // Ne surtout PAS dm.remove() : sur Android il efface le fichier telecharge.
 
                     if (failure != null) {
                         // Source principale bloquée/lente : on bascule
@@ -229,8 +230,8 @@ public class ApkUpdaterPlugin extends Plugin {
 
                         con = (HttpURLConnection) new URL(src).openConnection();
                         con.setInstanceFollowRedirects(true);
-                        con.setConnectTimeout(20000);
-                        con.setReadTimeout(30000);
+                        con.setConnectTimeout(30000);
+                        con.setReadTimeout(60000);
                         con.setUseCaches(false);
                         con.setRequestProperty("User-Agent", "ASSOULI-AUTOX-Updater");
                         con.setRequestProperty("Cache-Control", "no-cache");
@@ -250,7 +251,7 @@ public class ApkUpdaterPlugin extends Plugin {
                             out.write(buf, 0, n);
                             done += n;
                             long now = System.currentTimeMillis();
-                            if (now - started > 10 * 60 * 1000) throw new Exception("Téléchargement trop lent");
+                            if (now - started > 30 * 60 * 1000) throw new Exception("Téléchargement trop lent");
                             // On émet au maximum toutes les 250 ms : le garde-fou
                             // JavaScript voit toujours un progrès réel.
                             if (now - lastTick > 250) {
@@ -311,10 +312,8 @@ public class ApkUpdaterPlugin extends Plugin {
     public void installDownloaded(PluginCall call) {
         try {
             String fileName = call.getString("fileName", "ASSOULI-AUTOX.apk");
-            File dir = getContext().getExternalFilesDir(UPDATE_DIR);
-            if (dir == null) dir = getContext().getCacheDir();
-            File apk = new File(dir, fileName);
-            if (!apk.exists() || apk.length() < MIN_APK_SIZE) {
+            File apk = findApkFile(fileName);
+            if (apk == null || !apk.exists() || apk.length() < MIN_APK_SIZE) {
                 call.reject("APK absent");
                 return;
             }
@@ -344,11 +343,10 @@ public class ApkUpdaterPlugin extends Plugin {
     @PluginMethod
     public void installLatest(PluginCall call) {
         try {
-            File dir = getContext().getExternalFilesDir(UPDATE_DIR);
-            if (dir == null) dir = getContext().getCacheDir();
             int current = installedVersionCode();
             File best = null;
             int bestCode = current;
+            for (File dir : updateDirs()) {
             File[] files = dir.listFiles();
             if (files != null) {
                 for (File f : files) {
@@ -360,6 +358,7 @@ public class ApkUpdaterPlugin extends Plugin {
                         bestCode = code;
                     }
                 }
+            }
             }
             if (best == null) {
                 call.reject("APK absent");
@@ -374,6 +373,29 @@ public class ApkUpdaterPlugin extends Plugin {
         } catch (Exception e) {
             call.reject(e.getMessage() == null ? "Installation impossible" : e.getMessage());
         }
+    }
+
+    private java.util.List<File> updateDirs() {
+        java.util.List<File> dirs = new java.util.ArrayList<>();
+        try {
+            File d = getContext().getExternalFilesDir(UPDATE_DIR);
+            if (d != null) dirs.add(d);
+        } catch (Exception ignored) {}
+        try {
+            File ext = new File(Environment.getExternalStorageDirectory(), UPDATE_DIR);
+            if (!dirs.contains(ext)) dirs.add(ext);
+        } catch (Exception ignored) {}
+        return dirs;
+    }
+
+    private File findApkFile(String fileName) {
+        for (File dir : updateDirs()) {
+            File f = new File(dir, fileName);
+            if (f.exists() && f.length() >= MIN_APK_SIZE) return f;
+        }
+        File d = getContext().getExternalFilesDir(UPDATE_DIR);
+        if (d == null) d = getContext().getCacheDir();
+        return new File(d, fileName);
     }
 
     private int installedVersionCode() {

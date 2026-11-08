@@ -2440,7 +2440,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
         const arm = () => {
           if (stall) clearTimeout(stall);
-          stall = setTimeout(() => { try { if (ctrl) ctrl.abort(); } catch {} }, 30000);
+          stall = setTimeout(() => { try { if (ctrl) ctrl.abort(); } catch {} }, 90000);
         };
         arm();
         const url = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now();
@@ -2594,12 +2594,12 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         startUpdate();
       }, delay);
     };
-    // Garde-fou : si le téléchargement ne produit aucun progrès pendant 60 s,
+    // Garde-fou : si le téléchargement ne produit aucun progrès pendant 180 s (LTE lent),
     // on enchaîne sur une nouvelle tentative automatique.
     clearWatchdog();
     updateWatchdogRef.current = setInterval(() => {
       if (!updatingRef.current) { clearWatchdog(); return; }
-      if (Date.now() - updateLastProgressRef.current > 60000) {
+      if (Date.now() - updateLastProgressRef.current > 180000) {
         scheduleRetry();
       }
     }, 5000);
@@ -2631,34 +2631,39 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         setUpdateDetail('Ouverture de l’installateur…');
         return;
       } catch {}
-      // Moteur 1 (prioritaire) : pile réseau du WebView. C'est celle qui vient
-      // de lire le manifeste, donc la source est forcément joignable. Progrès
-      // réels (octets/Mo) affichés dans la fenêtre.
-      // Moteur 2 : gestionnaire de téléchargement Android.
-      // Moteur 3 : téléchargement natif direct (HttpURLConnection).
+      // Moteur 1 (prioritaire) : gestionnaire de téléchargement Android
+      // (Pages d'abord, plus rapide et avec reprise) — fait pour les gros APK.
+      // Moteur 2 : pile réseau du WebView (jsDownloadApk).
+      // Moteur 3 : téléchargement natif direct (HttpURLConnection) avec miroir.
       // Tout se passe DANS la fenêtre, sans navigateur et sans lien externe.
       try { await P.keepScreenOn(); } catch {}
       try {
-        await jsDownloadApk(info, fileName);
+        await P.downloadAndInstall({
+          url: info.mirror || info.url,
+          mirror: info.url,
+          fileName,
+          forceDirect: false,
+        });
         retryCountRef.current = 0;
         setRetryIn(0);
       } catch (e1) {
         updateLastProgressRef.current = Date.now();
         setUpdatePct(0);
         setUpdateDetail('');
-        const run = (direct) => P.downloadAndInstall({
-          url: info.url,
-          mirror: direct ? '' : (info.mirror || ''),
-          fileName,
-          forceDirect: direct,
-        });
         try {
-          await run(false);
+          await jsDownloadApk(info, fileName);
+          retryCountRef.current = 0;
+          setRetryIn(0);
         } catch (e2) {
           updateLastProgressRef.current = Date.now();
           setUpdatePct(0);
           setUpdateDetail('');
-          await run(true);
+          await P.downloadAndInstall({
+            url: info.url,
+            mirror: info.mirror || '',
+            fileName,
+            forceDirect: true,
+          });
         }
       }
       setUpdatePct(100);
