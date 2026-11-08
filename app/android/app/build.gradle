@@ -22,8 +22,8 @@ android {
         applicationId "ma.marocjobs.hub"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 40
-        versionName "1.9.13"
+        versionCode 41
+        versionName "1.9.14"
         buildConfigField "String", "SMTP_PASSWORD", "\"${smtpPassword}\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
@@ -36,6 +36,15 @@ android {
         buildConfig true
     }
     signingConfigs {
+        debug {
+            // Signature unique des APK distribues en sideload (debug.keystore de l Atelier,
+            // SHA-256 360083a3...7b8). Ne jamais changer ce certificat, sinon les mises
+            // a jour en place echouent. Fichier local non commit, sauvegarde hors repo.
+            storeFile file(System.getProperty("user.home") + "/.android/debug.keystore")
+            storePassword secrets.getProperty("DEBUG_STORE_PASSWORD", "android")
+            keyAlias secrets.getProperty("DEBUG_KEY_ALIAS", "androiddebugkey")
+            keyPassword secrets.getProperty("DEBUG_KEY_PASSWORD", "android")
+        }
         release {
             if (keystorePropsFile.exists()) {
                 storeFile rootProject.file(keystoreProps.getProperty("storeFile", "upload-keystore.jks"))
@@ -60,9 +69,15 @@ android {
         }
     }
     buildTypes {
+        debug {
+            debuggable false
+            signingConfig signingConfigs.debug
+        }
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (keystorePropsFile.exists()) signingConfig signingConfigs.release
         }
     }

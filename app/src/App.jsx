@@ -1802,6 +1802,11 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const updateWatchdogRef = useRef(null);
   const autoRetryRef = useRef(null);
   const retryCountRef = useRef(0);
+  const updateRunIdRef = useRef(0);
+  const failedCyclesRef = useRef(0);
+  const [updateManual, setUpdateManual] = useState(false);
+  const [updateDiag, setUpdateDiag] = useState('');
+  const [updateError, setUpdateError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState('home');
   // Favoris enregistrés sur l'appareil (onglet Favoris du poster).
@@ -2418,84 +2423,18 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   // la pile qui vient de lire le manifeste : si l'écran de mise à jour s'affiche,
   // alors la source est joignable. Écriture incrémentale (un morceau à la fois)
   // dans le dossier updates de l'application, puis ouverture de l'installateur.
-  async function jsDownloadApk(info, fileName) {
-    const { Capacitor } = await import('@capacitor/core');
-    if (!Capacitor.isNativePlatform()) throw new Error('Natif requis');
-    const { Filesystem, Directory } = await import('@capacitor/filesystem');
-    const path = 'updates/' + fileName;
-    const mo = (n) => (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
-    const pages = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk';
-    const raw = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk';
-    const sources = [info.url, info.mirror, pages, raw].filter((u, i, a) => u && a.indexOf(u) === i);
-    let lastErr = null;
-
-    for (let si = 0; si < sources.length; si++) {
-      const src = sources[si];
-      let stall = null;
-      let ctrl = null;
-      try {
-        try { await Filesystem.deleteFile({ path, directory: Directory.External }); } catch {}
-        setUpdatePct(0);
-        setUpdateDetail(`Source ${si + 1}/${sources.length} · connexion…`);
-        ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
-        const arm = () => {
-          if (stall) clearTimeout(stall);
-          stall = setTimeout(() => { try { if (ctrl) ctrl.abort(); } catch {} }, 90000);
-        };
-        arm();
-        const url = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now();
-        const res = await fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const total = Number(res.headers.get('content-length') || 0);
-        let done = 0;
-        let first = true;
-        const push = async (u8) => {
-          const b64 = await blobToBase64(new Blob([u8]));
-          if (first) {
-            await Filesystem.writeFile({ path, data: b64, directory: Directory.External, recursive: true });
-            first = false;
-          } else {
-            await Filesystem.appendFile({ path, data: b64, directory: Directory.External });
-          }
-        };
-        if (res.body && res.body.getReader) {
-          const reader = res.body.getReader();
-          for (;;) {
-            const r = await reader.read();
-            if (r.done) break;
-            arm();
-            await push(r.value);
-            done += r.value.length;
-            updateLastProgressRef.current = Date.now();
-            const pct = total > 0
-              ? Math.min(99, Math.round(done * 100 / total))
-              : Math.min(95, Math.round(done / 167772));
-            setUpdatePct(pct);
-            setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
-          }
-        } else {
-          const buf = new Uint8Array(await res.arrayBuffer());
-          await push(buf);
-          done = buf.length;
-        }
-        if (stall) { clearTimeout(stall); stall = null; }
-        if (done < 1000000) throw new Error('Fichier incomplet');
-        if (total > 0 && Math.abs(done - total) > 2048) throw new Error('Taille incorrecte');
-        const st = await Filesystem.stat({ path, directory: Directory.External });
-        if (!st || Number(st.size) < 1000000) throw new Error('Écriture incomplète');
-        setUpdatePct(100);
-        setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
-        const P = await nativeUpdater();
-        await P.installDownloaded({ fileName });
-        return true;
-      } catch (e) {
-        lastErr = e;
-      } finally {
-        if (stall) { clearTimeout(stall); stall = null; }
-      }
-    }
-    try { await Filesystem.deleteFile({ path, directory: Directory.External }); } catch {}
-    throw lastErr || new Error('Téléchargement impossible');
+  // Telechargement 100 % NATIF (ApkUpdaterPlugin) : le WebView ne telecharge plus
+  // rien. Le JS n appelle que le plugin natif et affiche ses evenements.
+  async function openInBrowser(url) {
+    try {
+      const { Browser } = await import('@capacitor/browser');
+      if (Browser && Browser.open) { await Browser.open({ url }); return; }
+    } catch {}
+    try { window.open(url, '_blank'); } catch {}
+  }
+  async function copyLink(url) {
+    try { await navigator.clipboard.writeText(url); showToast('Lien copie'); }
+    catch { showToast('Copie impossible'); }
   }
 
   // Mise à jour FORCÉE (version sideload) : dès qu'une version supérieure est
@@ -2562,15 +2501,13 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   async function startUpdate(infoOverride) {
     const info = infoOverride || updateInfoRef.current || updateInfo;
     if (!info) return;
-    if (updatingRef.current) {
-      // Téléchargement déjà en cours : on relance juste l'écran d'installation.
-      try { const P = await nativeUpdater(); await P.installDownloaded({ fileName: 'ASSOULI-AUTOX-' + info.versionName + '.apk' }); } catch {}
-      return;
-    }
+    // Single-flight : on ne cree jamais un second telechargement en parallele.
+    if (updatingRef.current) return;
+    const runId = ++updateRunIdRef.current;
     updatingRef.current = true;
     updateFailedRef.current = false;
     updateLastProgressRef.current = Date.now();
-    setUpdating(true); setUpdatePct(0); setUpdateDetail(''); setUpdateFailed(false); setRetryIn(0);
+    setUpdating(true); setUpdatePct(0); setUpdateDetail(''); setUpdateFailed(false); setRetryIn(0); setUpdateError('');
     if (autoRetryRef.current) { clearTimeout(autoRetryRef.current); autoRetryRef.current = null; }
 
     const clearWatchdog = () => {
@@ -2579,16 +2516,20 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     // Échec = nouvelle tentative AUTOMATIQUE. Aucun bouton, aucune action :
     // l'écran reste bloqué et le téléchargement redémarre tout seul.
     const scheduleRetry = () => {
+      if (runId !== updateRunIdRef.current) return;
       clearWatchdog();
       updatingRef.current = false;
       setUpdating(false);
       updateFailedRef.current = true;
       setUpdateFailed(true);
+      failedCyclesRef.current += 1;
+      if (failedCyclesRef.current >= 2) setUpdateManual(true);
       const delay = Math.min(30000, 5000 * Math.pow(2, Math.min(retryCountRef.current, 3)));
       retryCountRef.current += 1;
       setRetryIn(Math.ceil(delay / 1000));
       if (autoRetryRef.current) clearTimeout(autoRetryRef.current);
       autoRetryRef.current = setTimeout(() => {
+        if (runId !== updateRunIdRef.current) return;
         autoRetryRef.current = null;
         if (!updateInfoRef.current) return;
         startUpdate();
@@ -2597,11 +2538,23 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     // Garde-fou : si le téléchargement ne produit aucun progrès pendant 180 s (LTE lent),
     // on enchaîne sur une nouvelle tentative automatique.
     clearWatchdog();
-    updateWatchdogRef.current = setInterval(() => {
+    // Garde-fou OBSERVATEUR uniquement : il lit l etat natif, il ne lance
+    // jamais un second telechargement. Le natif reprend tout seul.
+    updateWatchdogRef.current = setInterval(async () => {
       if (!updatingRef.current) { clearWatchdog(); return; }
-      if (Date.now() - updateLastProgressRef.current > 180000) {
-        scheduleRetry();
-      }
+      if (runId !== updateRunIdRef.current) { clearWatchdog(); return; }
+      try {
+        const P = await nativeUpdater();
+        const st = await P.getDownloadState();
+        if (st && Number(st.done) > 0) updateLastProgressRef.current = Number(st.lastByteAt) || updateLastProgressRef.current;
+        if (st && st.running && Number(st.lastByteAt) > 0 && Date.now() - Number(st.lastByteAt) > 30000) {
+          // Le natif detecte deja le stall et reprend (3 essais). On attend.
+          setUpdateDetail((d) => d || 'Reprise automatique en cours…');
+        } else if (st && !st.running && Date.now() - updateLastProgressRef.current > 45000) {
+          // Le natif est arrete mais le promise est encore en vol : on annule pour defbloquer.
+          try { await P.cancelDownload(); } catch {}
+        }
+      } catch {}
     }, 5000);
 
     try {
@@ -2609,7 +2562,9 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       if (!updateListenerRef.current) {
         updateListenerRef.current = true;
         P.addListener('progress', (e) => {
+          if (runId !== updateRunIdRef.current) return;
           updateLastProgressRef.current = Date.now();
+          if (Number(e && e.done) > 0 && updateFailedRef.current) { updateFailedRef.current = false; setUpdateFailed(false); }
           setUpdatePct(Math.max(0, Math.min(100, Number(e.percent) || 0)));
           const done = Number(e.done) || 0;
           const total = Number(e.total) || 0;
@@ -2622,68 +2577,80 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         });
       }
       const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
-      // Si l'APK de cette version est déjà présent (tentative précédente
-      // interrompue), on ouvre l'installateur TOUT DE SUITE : la page de mise
-      // à jour ne reste pas bloquée, elle passe directement à l'installation.
+      // Si l APK de cette version est deja present (reprise apres retour des
+      // reglages unknown-sources), on ouvre l installateur sans re-telecharger.
       try {
         await P.installDownloaded({ fileName });
+        if (runId !== updateRunIdRef.current) return;
         setUpdatePct(100);
         setUpdateDetail('Ouverture de l’installateur…');
         return;
       } catch {}
-      // Moteur 1 (prioritaire) : gestionnaire de téléchargement Android
-      // (Pages d'abord, plus rapide et avec reprise) — fait pour les gros APK.
-      // Moteur 2 : pile réseau du WebView (jsDownloadApk).
-      // Moteur 3 : téléchargement natif direct (HttpURLConnection) avec miroir.
-      // Tout se passe DANS la fenêtre, sans navigateur et sans lien externe.
+      if (runId !== updateRunIdRef.current) return;
       try { await P.keepScreenOn(); } catch {}
-      try {
-        await P.downloadAndInstall({
-          url: info.mirror || info.url,
-          mirror: info.url,
-          fileName,
-          forceDirect: false,
-        });
-        retryCountRef.current = 0;
-        setRetryIn(0);
-      } catch (e1) {
-        updateLastProgressRef.current = Date.now();
-        setUpdatePct(0);
-        setUpdateDetail('');
+      // Telechargement NATIF unique : miroirs Pages d abord, reprise Range,
+      // validation taille/sha256/signature cote natif. Tout se passe DANS l app.
+      const mo = (n) => (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
+      const pages = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk';
+      const raw = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk';
+      const mirrors = [];
+      const pushM = (u) => { if (u && !mirrors.includes(u)) mirrors.push(u); };
+      if (Array.isArray(info.mirrors)) info.mirrors.forEach(pushM);
+      pushM(info.mirror); pushM(info.url); pushM(pages); pushM(raw);
+      if (!P.addStateListenerAttached) {
         try {
-          await jsDownloadApk(info, fileName);
-          retryCountRef.current = 0;
-          setRetryIn(0);
-        } catch (e2) {
-          updateLastProgressRef.current = Date.now();
-          setUpdatePct(0);
-          setUpdateDetail('');
-          await P.downloadAndInstall({
-            url: info.url,
-            mirror: info.mirror || '',
-            fileName,
-            forceDirect: true,
+          P.addListener('state', (e) => {
+            if (runId !== updateRunIdRef.current) return;
+            if (e && e.phase === 'connecting') setUpdateDetail('Source ' + (e.mirrorIndex || 1) + '/' + mirrors.length + ' · connexion…');
+            else if (e && e.phase === 'downloading') setUpdateDetail('Source ' + (e.mirrorIndex || 1) + '/' + mirrors.length + (e.total > 0 ? ' · ' + mo(Number(e.done) || 0) + ' / ' + mo(Number(e.total) || 0) : ''));
+            else if (e && e.phase === 'verifying') setUpdateDetail('Vérification sécurisée…');
+            else if (e && e.phase === 'installing') setUpdateDetail('Ouverture de l’installateur…');
+            else if (e && e.phase === 'failed') setUpdateDetail('Échec : ' + (e.message || (e.httpCode > 0 ? 'HTTP ' + e.httpCode : '')));
+            if (e && e.httpCode > 0) setUpdateError('HTTP ' + e.httpCode);
+            else if (e && e.errorCode) setUpdateError(e.errorCode);
+            else if (e && e.message) setUpdateError(e.message);
           });
-        }
+          P.addStateListenerAttached = true;
+        } catch {}
       }
+      // Progress listener deja enregistre ci-dessus (mise a jour des octets reels).
+      await P.downloadAndInstall({
+        mirrors,
+        url: mirrors[0] || info.url,
+        mirror: mirrors[1] || '',
+        size: Number(info.size) || 0,
+        sha256: info.sha256 || '',
+        fileName,
+        forceDirect: true,
+      });
+      if (runId !== updateRunIdRef.current) return;
+      retryCountRef.current = 0;
+      failedCyclesRef.current = 0;
+      setUpdateManual(false);
+      setRetryIn(0);
       setUpdatePct(100);
     } catch (e) {
-      // Dernier secours : un APK plus récent est peut-être déjà dans le
-      // dossier updates. On l'installe sans rien redemander.
+      if (runId !== updateRunIdRef.current) return;
+      const msg = e && e.message ? String(e.message) : 'Téléchargement impossible';
+      setUpdateError(msg);
+      setUpdateDetail('Échec : ' + msg);
+      // Secours : un APK plus recent est peut-etre deja dans le dossier updates.
       try {
         const P2 = await nativeUpdater();
         await P2.installLatest();
+        if (runId !== updateRunIdRef.current) return;
         setUpdatePct(100);
         setUpdateDetail('Ouverture de l’installateur…');
         return;
       } catch {}
-      // Plus aucun bouton « manuel » : on programme une nouvelle tentative
-      // automatique (5 s, 10 s, 20 s, 30 s max) jusqu'à l'installation.
+      // Erreur reelle affichee (plus de catch silencieux). Nouvelle tentative auto.
       scheduleRetry();
     } finally {
-      clearWatchdog();
-      updatingRef.current = false;
-      setUpdating(false);
+      if (runId === updateRunIdRef.current) {
+        clearWatchdog();
+        updatingRef.current = false;
+        setUpdating(false);
+      }
     }
   }
 
@@ -2694,30 +2661,30 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     return () => clearInterval(t);
   }, [updateFailed]);
 
-  // Tant que l'écran de mise à jour est affiché et qu'aucun téléchargement
-  // n'est en cours, on s'assure que l'installateur est bien ouvert. S'il a
-  // été fermé ou refusé, il se rouvre tout seul : impossible de rester bloqué
-  // sur cette page.
+  // Retour utilisateur depuis les reglages unknown-sources : on retente
+  // l install SANS re-telecharger (un seul check garde sur reprise visible).
   useEffect(() => {
     if (!updateInfo) return undefined;
-    const t = setInterval(() => {
-      if (!updatingRef.current && !updateFailedRef.current) retryInstall();
-    }, 4000);
-    return () => clearInterval(t);
+    const onVis = () => {
+      try { if (document.visibilityState === 'visible' && updateInfoRef.current && !updatingRef.current && !updateFailedRef.current) retryInstall(); } catch {}
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
   }, [updateInfo]);
 
   // Si l'utilisateur refuse/annule l'écran système puis revient dans l'app,
   // on réaffiche l'installateur automatiquement (aucun bouton à toucher).
   async function retryInstall() {
     const info = updateInfoRef.current || updateInfo;
-    if (!info || updatingRef.current || updateFailedRef.current) return;
+    if (!info || updatingRef.current) return;
     const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
     try {
       const P = await nativeUpdater();
       await P.installDownloaded({ fileName });
     } catch {
-      // APK absent (téléchargement interrompu) : on relance tout seul.
-      updateAutoRef.current = '';
+      // APK absent : on ne relance le telechargement que si on n est pas deja
+      // en echec (sinon le retry programme suffit). Jamais de second run en //
+      if (updateFailedRef.current) return;
       startUpdate(info);
     }
   }
@@ -3342,22 +3309,41 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       )}
       {updateInfo && (
         <div className="update-lock" role="alertdialog" aria-modal="true" aria-label="Mise à jour obligatoire">
-          <div className="ul-card">
+          <div
+            className="ul-card"
+            onContextMenu={async (e) => { e.preventDefault(); try { const P = await nativeUpdater(); const r = await P.getLogs(); try { const arr = JSON.parse(r.logs || '[]'); setUpdateDiag(arr.slice(-20).join('\n') || 'Aucun log'); } catch { setUpdateDiag(String(r.logs || '')); } } catch {} }}
+          >
             <div className="ul-ic"><Icon n="download" size={30} /></div>
             <span className="ul-kicker">Mise à jour obligatoire</span>
             <h2>Version {updateInfo.versionName}</h2>
             <p>{updateInfo.notes || 'Une nouvelle version doit être installée pour continuer.'}</p>
             {appVer ? <small className="ul-note" style={{ display: 'block', marginBottom: 10 }}>Version installée : {appVer}</small> : null}
+            {updateFailed && updateError ? (
+              <div className="ul-state" style={{ color: '#fca5a5' }}>Échec : {updateError}</div>
+            ) : null}
             {updateFailed ? (
               <>
                 <div className="ul-bar"><span style={{ width: '100%', opacity: 0.45 }} /></div>
-                <div className="ul-state" style={{ color: '#fca5a5' }}>
-                  Connexion interrompue · nouvelle tentative automatique dans {retryIn > 0 ? retryIn : 1} s…
+                <div className="ul-state">
+                  Nouvelle tentative automatique dans {retryIn > 0 ? retryIn : 1} s…{updateDetail && !updateDetail.startsWith('Échec') ? ' · ' + updateDetail : ''}
                 </div>
-                <div className="ul-auto">
-                  <Icon n="refresh" size={15} /> Aucune action requise — le téléchargement redémarre tout seul.
-                </div>
-                <small className="ul-note">Ne fermez pas l’application : l’installation s’ouvrira automatiquement.</small>
+                {!updateManual ? (
+                  <>
+                    <div className="ul-auto">
+                      <Icon n="refresh" size={15} /> Le téléchargement redémarre tout seul.
+                    </div>
+                    <small className="ul-note">Ne fermez pas l’application : l’installation s’ouvrira automatiquement.</small>
+                  </>
+                ) : (
+                  <>
+                    <div className="ul-auto" style={{ flexWrap: 'wrap', gap: 8 }}>
+                      <button type="button" onClick={() => { failedCyclesRef.current = 0; setUpdateManual(false); setUpdateFailed(false); updateFailedRef.current = false; retryCountRef.current = 0; startUpdate(); }}>Réessayer maintenant</button>
+                      <button type="button" onClick={() => openInBrowser(updateInfo.mirror || updateInfo.url)}>Ouvrir dans le navigateur</button>
+                      <button type="button" onClick={() => copyLink(updateInfo.mirror || updateInfo.url)}>Copier le lien</button>
+                    </div>
+                    <small className="ul-note">Ne fermez pas l’application : l’installation s’ouvrira automatiquement.</small>
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -3371,6 +3357,10 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
                 <small className="ul-note">L’application reste bloquée jusqu’à la fin de l’installation.</small>
               </>
             )}
+            {updateDiag ? (
+              <pre className="ul-diag" style={{ textAlign: 'left', fontSize: 11, maxHeight: 160, overflow: 'auto' }}>{updateDiag}</pre>
+            ) : null}
+            <small className="ul-note">Appui long : diagnostics</small>
           </div>
         </div>
       )}

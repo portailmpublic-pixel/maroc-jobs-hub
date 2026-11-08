@@ -13,10 +13,16 @@ $root = "C:\Users\hp\Documents\JOB\MarocJobs-APK"
 $app = Join-Path $root "app"
 $android = Join-Path $app "android"
 $gradleFile = Join-Path $android "app\build.gradle"
-$manifest = Join-Path $app "public\app-version.json"
+$manifestPub = Join-Path $app "public\app-version.json"
+$manifestDocs = Join-Path $root "docs\app-version.json"
 $npm = "C:\Program Files\nodejs\npm.cmd"
 $npx = "C:\Program Files\nodejs\npx.cmd"
 $env:JAVA_HOME = Join-Path $root ".sdk\jdk-17.0.11+9"
+
+# Pre-check : le certificat de signature ne doit jamais changer (mises a jour en place).
+$expectedCert = "360083a3747a7f536d2b9557465abffb81ea08ac2c12b34f1906c6c6801bf7b8"
+$keystore = Join-Path $env:USERPROFILE ".android\debug.keystore"
+if (-not (Test-Path $keystore)) { throw "debug.keystore introuvable (signature sideload)" }
 
 # 1. Bump versionCode / versionName
 $g = [System.IO.File]::ReadAllText($gradleFile)
@@ -27,40 +33,56 @@ $g = $g -replace 'versionName\s+"[^"]*"', "versionName `"$Version`""
 [System.IO.File]::WriteAllText($gradleFile, $g)
 Write-Host "Version $Version (code $newCode)"
 
-# 2. Update the remote manifest BEFORE packaging so the APK ships current info
-$tag = "v$Version"
-$url = "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/$tag/ASSOULI-AUTOX.apk"
-$published = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-$json = [ordered]@{
-  versionCode = $newCode
-  versionName = $Version
-  url = $url
-  notes = $Notes
-  publishedAt = $published
-} | ConvertTo-Json
-[System.IO.File]::WriteAllText($manifest, $json)
-
-# 3. Build web, sync, APK principal + APK admin
+# 2. Build web, sync, APK principal + APK admin (sideload assigne)
 Push-Location $app
 & $npm run build
 & $npx cap sync android
 Pop-Location
 
 Push-Location $android
-& .\gradlew.bat :app:assembleDebug :adminapp:assembleDebug --no-daemon
+& .\gradlew.bat :app:bundlePlayRelease :app:assembleSideloadDebug :adminapp:assembleDebug --console=plain
 Pop-Location
 
-Copy-Item (Join-Path $android "app\build\outputs\apk\debug\app-debug.apk") (Join-Path $root "ASSOULI-AUTOX.apk") -Force
+Copy-Item (Join-Path $android "app\build\outputs\apk\sideload\debug\app-sideload-debug.apk") (Join-Path $root "ASSOULI-AUTOX.apk") -Force
+Copy-Item (Join-Path $root "ASSOULI-AUTOX.apk") (Join-Path $root "docs\ASSOULI-AUTOX.apk") -Force
+Copy-Item (Join-Path $root "app\build\outputs\bundle\playRelease\app-play-release.aab") (Join-Path $root "ASSOULI-AUTOX-play.aab") -Force
 Copy-Item (Join-Path $android "adminapp\build\outputs\apk\debug\adminapp-debug.apk") (Join-Path $root "ASSOULI-ADMIN.apk") -Force
 
-# 4. Commit locally
-Push-Location $root
-git add -A
-git commit -m "Release ASSOULI AUTOX $Version"
+# 3. Verification de signature AVANT publication
+& (Join-Path $root ".sdk\android\build-tools\36.0.0\apksigner.bat") verify --print-certs (Join-Path $root "ASSOULI-AUTOX.apk") 2>&1 | Select-String "SHA-256" | ForEach-Object { Write-Host $_ }
+$certLine = & (Join-Path $root ".sdk\android\build-tools\36.0.0\apksigner.bat") verify --print-certs (Join-Path $root "ASSOULI-AUTOX.apk") 2>&1 | Select-String "SHA-256"
+if ($certLine -notmatch $expectedCert) { throw "Certificat DIFFERENT : mises a jour en place impossibles. STOP." }
 
-# 5. Publish release; only push the manifest if the upload succeeded
-# Notes are passed through a UTF-8 file: Windows PowerShell mangles accents
-# when they travel as native command-line arguments.
+# 4. Manifeste : backward compatible (url/mirror pour 1.9.11) + mirrors/size/sha256.
+# L APK et le JSON sont publies ensemble (commit + push) pour ne jamais diverger.
+$tag = "v$Version"
+$size = (Get-Item (Join-Path $root "ASSOULI-AUTOX.apk")).Length
+$sha = (Get-FileHash (Join-Path $root "ASSOULI-AUTOX.apk") -Algorithm SHA256).Hash.ToLower()
+$published = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
+$json = [ordered]@{
+  versionCode = $newCode
+  versionName = $Version
+  url = "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk"
+  mirror = "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk"
+  mirrors = @(
+    "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@master/docs/ASSOULI-AUTOX.apk",
+    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
+    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
+    "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/$tag/ASSOULI-AUTOX.apk"
+  )
+  size = $size
+  sha256 = $sha
+  notes = $Notes
+  publishedAt = $published
+} | ConvertTo-Json -Depth 5
+[System.IO.File]::WriteAllText($manifestPub, $json)
+[System.IO.File]::WriteAllText($manifestDocs, $json)
+Write-Host "Manifeste size=$size sha256=$sha"
+
+# 5. Commit + release + push (APK et JSON ensembles)
+Push-Location $root
+git add app/android/app/build.gradle app/public/app-version.json docs/app-version.json docs/ASSOULI-AUTOX.apk
+git commit -m "Release ASSOULI AUTOX $Version (size $size)"
 $notesFile = Join-Path ([System.IO.Path]::GetTempPath()) "assouli-release-notes-$Version.md"
 [System.IO.File]::WriteAllText($notesFile, $Notes, (New-Object System.Text.UTF8Encoding($false)))
 gh release create $tag (Join-Path $root "ASSOULI-AUTOX.apk") --title "ASSOULI AUTOX $Version" --notes-file $notesFile
@@ -68,6 +90,4 @@ git pull --rebase
 git push
 Pop-Location
 
-Write-Host ""
-Write-Host "Publie : $url"
-Write-Host "Tous les telephones recevront la mise a jour a la prochaine ouverture."
+Write-Host "Publie v$Version (code $newCode) size $size."

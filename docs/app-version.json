@@ -1,8 +1,16 @@
 {
-  "versionCode": 40,
-  "versionName": "1.9.13",
+  "versionCode": 41,
+  "versionName": "1.9.14",
   "url": "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
   "mirror": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
-  "notes": "Mise a jour obligatoire vers v1.9.13 : correction du blocage Connexion interrompue (telechargement natif Android prioritaire, délais allonges pour LTE lente, APK trouve dans les deux dossiers). Alertes intelligentes par ville, type et contrat avec icone violette. Confidentialite retiree de Configuration.",
-  "publishedAt": "2026-11-08T22:50:00Z"
+  "mirrors": [
+    "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@master/docs/ASSOULI-AUTOX.apk",
+    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
+    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
+    "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.14/ASSOULI-AUTOX.apk"
+  ],
+  "size": 14036654,
+  "sha256": "f1297cb87f25eda0a13038820b93eb378fee30944dc92f5b7798bbc9e8c55304",
+  "notes": "Mise a jour obligatoire vers v1.9.14 : correction complete du blocage Connexion interrompue. Telechargement 100 % natif, reprise automatique apres coupure, verification taille et signature, bouton Reessayer et lien navigateur apres 2 echecs. Alertes intelligentes par ville, type et contrat avec icone violette. Confidentialite retiree de Configuration.",
+  "publishedAt": "2026-11-08T23:10:00Z"
 }

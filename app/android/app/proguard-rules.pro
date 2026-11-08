@@ -1,0 +1,11 @@
+# ASSOULI AUTOX – garder les plugins Capacitor et les callbacks JS
+-keepattributes Signature,InnerClasses,EnclosingMethod
+-keepattributes *Annotation*
+-keep class ma.marocjobs.hub.UpdaterLog { *; }
+-keep class ma.marocjobs.hub.ApkUpdaterPlugin { *; }
+-keep class com.getcapacitor.** { *; }
+-keep class androidx.work.** { *; }
+-keep class com.sun.mail.** { *; }
+-keepattributes SourceFile,LineNumberTable
+-dontwarn com.getcapacitor.**
+-dontwarn com.sun.mail.**
