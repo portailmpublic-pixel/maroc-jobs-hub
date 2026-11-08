@@ -2220,6 +2220,86 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     return registerPlugin('ApkUpdater');
   }
 
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => {
+        const s = String(fr.result || '');
+        resolve(s.slice(s.indexOf(',') + 1));
+      };
+      fr.onerror = () => reject(new Error('Lecture impossible'));
+      fr.readAsDataURL(blob);
+    });
+  }
+
+  // Dernier recours : téléchargement avec la pile réseau du WebView (Chromium).
+  // Elle est indépendante du DNS/HTTP Java d'Android, donc elle fonctionne là
+  // où DownloadManager et HttpURLConnection échouent. Écriture de l'APK dans
+  // le dossier updates de l'application, puis ouverture de l'installateur.
+  async function jsDownloadApk(info, fileName) {
+    const sources = [
+      info.url,
+      info.mirror,
+      'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk',
+    ].filter(Boolean);
+    let lastErr = null;
+    for (const src of sources) {
+      try {
+        const url = src + (src.includes('?') ? '&' : '?') + 't=' + Date.now();
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const total = Number(res.headers.get('content-length') || 0);
+        const chunks = [];
+        let done = 0;
+        if (res.body && res.body.getReader) {
+          const reader = res.body.getReader();
+          for (;;) {
+            const r = await reader.read();
+            if (r.done) break;
+            chunks.push(r.value);
+            done += r.value.length;
+            updateLastProgressRef.current = Date.now();
+            const pct = total > 0
+              ? Math.min(99, Math.round(done * 100 / total))
+              : Math.min(95, Math.round(done / 167772));
+            setUpdatePct(pct);
+            const mo = (n) => (n / 1048576).toFixed(1).replace('.', ',') + ' Mo';
+            setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
+          }
+        } else {
+          const buf = new Uint8Array(await res.arrayBuffer());
+          chunks.push(buf);
+          done = buf.length;
+        }
+        if (done < 1000000) throw new Error('Fichier incomplet');
+
+        const { Capacitor } = await import('@capacitor/core');
+        if (!Capacitor.isNativePlatform()) throw new Error('Natif requis');
+        const { Filesystem, Directory } = await import('@capacitor/filesystem');
+        const path = 'updates/' + fileName;
+        try { await Filesystem.deleteFile({ path, directory: Directory.External }); } catch {}
+        let first = true;
+        for (const chunk of chunks) {
+          const b64 = await blobToBase64(new Blob([chunk]));
+          if (first) {
+            await Filesystem.writeFile({ path, data: b64, directory: Directory.External, recursive: true });
+            first = false;
+          } else {
+            await Filesystem.appendFile({ path, data: b64, directory: Directory.External });
+          }
+          updateLastProgressRef.current = Date.now();
+        }
+        setUpdatePct(100);
+        const P = await nativeUpdater();
+        await P.installDownloaded({ fileName });
+        return true;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error('Téléchargement impossible');
+  }
+
   // Mise à jour FORCÉE (version sideload) : dès qu'une version supérieure est
   // publiée, l'app télécharge et ouvre l'installateur Android immédiatement.
   // Version Play Store : jamais d'APK auto-installé — Google Play gère tout.
@@ -2328,9 +2408,11 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
         });
       }
       const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
-      // 1) Gestionnaire de téléchargement Android (le plus fiable).
-      // 2) Si ça échoue : téléchargement DIRECT intégré, dans la même fenêtre,
-      //    sans navigateur et sans jamais envoyer l'utilisateur sur GitHub.
+      // Trois moteurs, dans cet ordre :
+      //  1) DownloadManager Android (robuste, notifications système)
+      //  2) téléchargement natif direct (HttpURLConnection, 2 essais/source)
+      //  3) téléchargement via le WebView (pile réseau Chromium) + installateur
+      // Tout se passe DANS la fenêtre de mise à jour, sans navigateur.
       const run = (direct) => P.downloadAndInstall({
         url: info.url,
         mirror: direct ? '' : (info.mirror || ''),
@@ -2340,11 +2422,21 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       try {
         await run(forceDirect);
       } catch (e) {
-        if (forceDirect) throw e;
         updateLastProgressRef.current = Date.now();
         setUpdatePct(0);
         setUpdateDetail('');
-        await run(true);
+        if (forceDirect) {
+          await jsDownloadApk(info, fileName);
+        } else {
+          try {
+            await run(true);
+          } catch (e2) {
+            updateLastProgressRef.current = Date.now();
+            setUpdatePct(0);
+            setUpdateDetail('');
+            await jsDownloadApk(info, fileName);
+          }
+        }
       }
       setUpdatePct(100);
     } catch (e) {
