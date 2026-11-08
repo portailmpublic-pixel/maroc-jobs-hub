@@ -22,8 +22,8 @@ android {
         applicationId "ma.marocjobs.hub"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 38
-        versionName "1.9.11"
+        versionCode 39
+        versionName "1.9.12"
         buildConfigField "String", "SMTP_PASSWORD", "\"${smtpPassword}\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {

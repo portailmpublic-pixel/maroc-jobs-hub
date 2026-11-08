@@ -38,7 +38,7 @@ $remotes = git -C $ApkApp remote 2>$null
 if (-not $remotes) {
   Log '  SKIP push: no git remote configured (see Setup-Remote.ps1 or paste URL in APK Setup tab)'
 } else {
-  git -C $ApkApp add public/jobs.json public/alerts.json public/exams-index.json 2>&1 | ForEach-Object { Log "  git: $_" }
+  git -C $ApkApp add public/jobs.json public/jobs-smart.json public/alerts.json public/exams-index.json 2>&1 | ForEach-Object { Log "  git: $_" }
   git -C $ApkApp commit -m "jobs: auto refresh $(Get-Date -Format 'yyyy-MM-dd HH:mm')" 2>&1 | ForEach-Object { Log "  git: $_" }
   git -C $ApkApp push 2>&1 | ForEach-Object { Log "  git: $_" }
 }

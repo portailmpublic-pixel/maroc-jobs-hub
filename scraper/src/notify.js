@@ -281,6 +281,22 @@ function exportApk() {
   };
   fs.writeFileSync(path.join(APK_PUBLIC, 'jobs.json'), JSON.stringify(payload, null, 2), 'utf8');
   fs.writeFileSync(path.join(APK_PUBLIC, 'alerts.json'), JSON.stringify(alerts, null, 2), 'utf8');
+  // Fichier compact pour les alertes intelligentes Android : le worker ne
+  // télécharge que les champs utiles au filtrage (villes / types / contrats),
+  // pas le catalogue complet de ~1,8 Mo.
+  const smartPayload = {
+    updatedAt: payload.updatedAt,
+    total: payload.total,
+    jobs: payload.jobs.map((j) => ({
+      id: j.id,
+      title: j.title || '',
+      city: j.city || '',
+      contract: j.contract || '',
+      kind: j.kind || '',
+      category: j.category || '',
+    })),
+  };
+  fs.writeFileSync(path.join(APK_PUBLIC, 'jobs-smart.json'), JSON.stringify(smartPayload), 'utf8');
   const ex = exportExams();
   return { ok: true, dir: APK_PUBLIC, jobs: payload.total, alerts: alerts.alerts.length, exams: ex.ok ? { offers: ex.offers, files: ex.files } : { error: ex.error } };
 }

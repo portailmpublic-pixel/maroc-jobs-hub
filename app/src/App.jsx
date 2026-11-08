@@ -11,6 +11,8 @@ const LS_ACCESS_AT = 'mjh_access_checked_v1';
 const LS_MARCHES_SESSION = 'mjh_marches_session_v1';
 const LS_THEME = 'mjh_theme_v1';
 const LS_FAVORITES = 'mjh_favorites_v1';
+// Alertes intelligentes : préférences locales par compte (villes, types, contrats).
+const LS_SMART = 'mjh_smart_alerts_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
 const ACCESS_API_URL = 'https://api.github.com/repos/portailmpublic-pixel/maroc-jobs-hub/contents/app/public/access.json?ref=master';
 const UPDATE_URLS = [
@@ -1183,25 +1185,54 @@ async function setupNotifications() {
         lightColor: '#14E0B4',
       });
     } catch {}
+    try {
+      await LocalNotifications.createChannel({
+        id: 'smart',
+        name: 'Alertes intelligentes',
+        description: 'Offres filtrées selon vos villes, types de travail et contrats',
+        importance: 5,
+        visibility: 1,
+        vibration: true,
+        lights: true,
+        lightColor: '#7C5CFF',
+      });
+    } catch {}
   } catch {}
 }
 
-async function notifyPhone(title, body) {
+async function notifyPhone(title, body, opts = {}) {
   try {
     const cap = await import('@capacitor/core').catch(() => null);
     if (!cap || !cap.Capacitor || !cap.Capacitor.isNativePlatform()) return false;
     const { LocalNotifications } = await import('@capacitor/local-notifications');
     const perm = await LocalNotifications.checkPermissions();
     if (perm.display !== 'granted') return false;
+    const smart = !!opts.smart;
+    // Canal dédié : l'utilisateur peut couper les alertes intelligentes sans
+    // couper les notifications générales, et l'icône est différente.
+    if (smart) {
+      try {
+        await LocalNotifications.createChannel({
+          id: 'smart',
+          name: 'Alertes intelligentes',
+          description: 'Offres filtrées selon vos villes, types de travail et contrats',
+          importance: 5,
+          visibility: 1,
+          vibration: true,
+          lights: true,
+          lightColor: '#7C5CFF',
+        });
+      } catch {}
+    }
     await LocalNotifications.schedule({
       notifications: [{
         id: Math.floor(Math.random() * 2000000000),
         title: String(title || 'ASSOULI AUTOX').slice(0, 64),
         body: String(body || 'Nouvelles offres disponibles').slice(0, 240),
-        channelId: 'updates',
-        smallIcon: 'ic_stat_autox',
-        largeIcon: 'ic_notif_large',
-        iconColor: '#14E0B4',
+        channelId: smart ? 'smart' : 'updates',
+        smallIcon: smart ? 'ic_stat_smart' : 'ic_stat_autox',
+        largeIcon: smart ? 'ic_notif_smart_large' : 'ic_notif_large',
+        iconColor: smart ? '#7C5CFF' : '#14E0B4',
         schedule: { at: new Date(Date.now() + 400) },
         autoCancel: true,
       }],
@@ -1254,6 +1285,99 @@ function loadFavorites() {
     const a = JSON.parse(localStorage.getItem(LS_FAVORITES) || '[]');
     return Array.isArray(a) ? a.filter((f) => f && f.id && f.type) : [];
   } catch { return []; }
+}
+
+// ---- Alertes intelligentes -------------------------------------------------
+// Stockage local par compte. Le worker Android reçoit une copie des filtres
+// (sans l'historique des identifiants vus) pour notifier en arrière-plan.
+const SMART_TYPES = [
+  ['emploi', 'Emploi'],
+  ['stage', 'Stage'],
+  ['concours', 'Concours'],
+];
+
+function normTxt(v) {
+  return String(v || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+function loadSmartStore() {
+  try {
+    const o = JSON.parse(localStorage.getItem(LS_SMART) || '{}');
+    return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+  } catch { return {}; }
+}
+
+function loadSmartPrefs(email) {
+  const k = avatarKey(email);
+  const p = (k && loadSmartStore()[k]) || {};
+  return {
+    enabled: !!p.enabled,
+    cities: Array.isArray(p.cities) ? p.cities.filter(Boolean) : [],
+    types: Array.isArray(p.types) ? p.types.filter((t) => SMART_TYPES.some(([v]) => v === t)) : [],
+    contracts: Array.isArray(p.contracts) ? p.contracts.filter(Boolean) : [],
+    seen: Array.isArray(p.seen) ? p.seen.map(String) : [],
+    seeded: !!p.seeded,
+  };
+}
+
+function storeSmartPrefs(email, prefs) {
+  const k = avatarKey(email);
+  if (!k) return;
+  const all = loadSmartStore();
+  all[k] = prefs;
+  try { localStorage.setItem(LS_SMART, JSON.stringify(all)); } catch {}
+}
+
+function smartTypeKey(j) {
+  const t = jobTypeOf(j);
+  return t === 'job' ? 'emploi' : t;
+}
+
+function smartMatches(j, p) {
+  if (!j) return false;
+  const type = smartTypeKey(j);
+  const types = Array.isArray(p.types) ? p.types : [];
+  if (types.length && !types.includes(type)) return false;
+  const cities = (p.cities || []).map(normTxt).filter(Boolean);
+  if (cities.length) {
+    const c = normTxt(j.city);
+    if (!c || !cities.some((x) => c === x || c.includes(x) || x.includes(c))) return false;
+  }
+  const contracts = (p.contracts || []).map(normTxt).filter(Boolean);
+  if (contracts.length) {
+    const c = normTxt(j.contract);
+    if (!c || !contracts.some((x) => c === x || c.includes(x) || x.includes(c))) return false;
+  }
+  return true;
+}
+
+async function nativeSmartCall(method, data) {
+  try {
+    const { Capacitor, registerPlugin } = await import('@capacitor/core');
+    if (!Capacitor.isNativePlatform()) return null;
+    const P = registerPlugin('AppControl');
+    if (typeof P[method] !== 'function') return null;
+    return await P[method](data || {});
+  } catch { return null; }
+}
+
+function syncNativeSmartPrefs(prefs) {
+  // On n'envoie que les filtres : le worker garde son propre historique "vu".
+  return nativeSmartCall('saveSmartPrefs', {
+    prefs: JSON.stringify({
+      enabled: !!prefs.enabled,
+      cities: prefs.cities || [],
+      types: prefs.types || [],
+      contracts: prefs.contracts || [],
+    }),
+  });
+}
+
+function pushSmartSeenNative(ids) {
+  if (!Array.isArray(ids) || !ids.length) return;
+  return nativeSmartCall('mergeSmartSeen', { ids: JSON.stringify(ids.map(String)) });
 }
 
 function jobTypeOf(j) {
@@ -1663,6 +1787,12 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   // Photo de profil locale, propre à chaque compte (clé = e-mail).
   const [avatar, setAvatar] = useState(() => loadAvatar(session.email));
   const avatarInputRef = useRef(null);
+  // Alertes intelligentes : filtres propres au compte connecté.
+  const [smart, setSmart] = useState(() => loadSmartPrefs(session.email));
+  const [smartReady, setSmartReady] = useState(false);
+  const smartRef = useRef(smart);
+  const smartJobsRef = useRef(null);
+  const smartLastSeenRef = useRef('');
   const updateInfoRef = useRef(null);
   const updateAutoRef = useRef('');
   const updatingRef = useRef(false);
@@ -2140,6 +2270,59 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     await setupNotifications();
     const ok = await notifyPhone('ASSOULI AUTOX', 'Notification de test — les alertes fonctionnent.');
     showToast(ok ? 'Notification de test envoyée' : 'Autorisez les notifications dans Android');
+  }
+
+  // ---- Alertes intelligentes : activation, filtres, test ----
+  function persistSmart(next) {
+    smartRef.current = next;
+    setSmart(next);
+    storeSmartPrefs(session.email, next);
+  }
+
+  function toggleSmartEnabled() {
+    const cur = smartRef.current;
+    const next = { ...cur, enabled: !cur.enabled };
+    if (next.enabled) {
+      // À l'activation, tout l'existant est marqué comme déjà vu : seules les
+      // offres publiées ensuite déclencheront une alerte intelligente.
+      const ids = jobs.map((j) => String(j.id || '')).filter(Boolean);
+      next.seen = Array.from(new Set([...next.seen, ...ids])).slice(-6000);
+      next.seeded = true;
+      pushSmartSeenNative(next.seen);
+      showToast('Alertes intelligentes activées');
+    } else {
+      showToast('Alertes intelligentes désactivées');
+    }
+    persistSmart(next);
+    syncNativeSmartPrefs(next);
+  }
+
+  function toggleSmartValue(field, value) {
+    const cur = smartRef.current;
+    const arr = Array.isArray(cur[field]) ? cur[field] : [];
+    const nextArr = arr.includes(value) ? arr.filter((v) => v !== value) : [...arr, value];
+    const next = { ...cur, [field]: nextArr };
+    persistSmart(next);
+    syncNativeSmartPrefs(next);
+  }
+
+  function clearSmartFilters() {
+    const next = { ...smartRef.current, cities: [], types: [], contracts: [] };
+    persistSmart(next);
+    syncNativeSmartPrefs(next);
+    showToast('Filtres intelligents réinitialisés');
+  }
+
+  async function testSmartNotification() {
+    const native = await nativeSmartCall('smartTest');
+    if (native && native.ok) { showToast('Alerte intelligente envoyée'); return; }
+    await setupNotifications();
+    const ok = await notifyPhone(
+      'Alerte intelligente',
+      'Exemple : Développeur — Casablanca (CDI). Cette alerte utilise une icône différente des notifications générales.',
+      { smart: true }
+    );
+    showToast(ok ? 'Alerte intelligente envoyée' : 'Autorisez les notifications dans Android');
   }
 
   async function openNotificationSettings() {
@@ -2639,6 +2822,68 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   }
 
   useEffect(() => { setupNotifications(); refresh(false); checkUpdate(); checkAccessNow(); trackServer('ping', session); }, []);
+
+  // Fusionne l'historique « déjà vu » du worker Android avec celui du WebView :
+  // une offre notifiée en arrière-plan ne sera pas renotifiée à l'ouverture.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const res = await nativeSmartCall('getSmartSeen');
+      if (!alive) return;
+      let ids = [];
+      try { ids = JSON.parse((res && res.ids) || '[]'); } catch {}
+      if (Array.isArray(ids) && ids.length) {
+        const p = loadSmartPrefs(session.email);
+        const merged = Array.from(new Set([...p.seen, ...ids.map(String)])).slice(-6000);
+        const next = { ...p, seen: merged, seeded: true };
+        smartRef.current = next;
+        setSmart(next);
+        storeSmartPrefs(session.email, next);
+      }
+      setSmartReady(true);
+    })();
+    return () => { alive = false; };
+  }, [session.email]);
+
+  const smartFilterKey = `${smart.enabled}|${smart.cities.join(',')}|${smart.types.join(',')}|${smart.contracts.join(',')}`;
+  useEffect(() => {
+    if (!smartReady) return;
+    syncNativeSmartPrefs(smartRef.current);
+  }, [smartFilterKey, smartReady]);
+
+  // Détection des nouvelles offres correspondant aux filtres. Le premier
+  // passage (ou l'activation) amorce l'historique sans notifier.
+  useEffect(() => {
+    if (!smartReady || !jobs.length) return;
+    if (smartJobsRef.current === jobs) return;
+    smartJobsRef.current = jobs;
+    const p = smartRef.current;
+    const ids = jobs.map((j) => String(j.id || '')).filter(Boolean);
+    if (!ids.length) return;
+    const seenSet = new Set(p.seen);
+    const fresh = jobs.filter((j) => j && j.id && !seenSet.has(String(j.id)));
+    const seedOnly = !p.seeded;
+    const merged = Array.from(new Set([...p.seen, ...ids])).slice(-6000);
+    const next = { ...p, seen: merged, seeded: true };
+    persistSmart(next);
+    const seenKey = `${merged.length}:${merged[merged.length - 1] || ''}`;
+    if (smartLastSeenRef.current !== seenKey) {
+      smartLastSeenRef.current = seenKey;
+      pushSmartSeenNative(merged);
+    }
+    if (seedOnly || !p.enabled || !fresh.length) return;
+    const matched = fresh.filter((j) => smartMatches(j, p));
+    if (!matched.length) return;
+    const top = matched.slice(0, 3)
+      .map((j) => `${j.title || 'Offre'}${j.city ? ' — ' + j.city : ''}`)
+      .join(' • ');
+    const extra = matched.length > 3 ? ` • +${matched.length - 3}` : '';
+    notifyPhone(
+      `Alerte intelligente • ${matched.length} nouvelle${matched.length > 1 ? 's' : ''}`,
+      (top + extra).slice(0, 240),
+      { smart: true }
+    );
+  }, [jobs, smartReady, session.email]);
   // Registre central : envoie la fiche du compte à la boîte Gmail (admin).
   useEffect(() => { registerAccountRecord(session, appVer); }, [appVer]);
   useEffect(() => {
@@ -2822,6 +3067,20 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     jobs.forEach((j) => { if (j.contract && j.contract !== '—') m[j.contract] = (m[j.contract] || 0) + 1; });
     return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 8);
   }, [jobs]);
+
+  const smartSummary = useMemo(() => {
+    if (!smart.enabled) return 'Désactivées';
+    const cityLabel = smart.cities.length
+      ? smart.cities.slice(0, 3).join(', ') + (smart.cities.length > 3 ? ` +${smart.cities.length - 3}` : '')
+      : 'Toutes les villes';
+    const typeLabel = smart.types.length
+      ? smart.types.map((t) => (t === 'emploi' ? 'Emploi' : t === 'stage' ? 'Stage' : 'Concours')).join(' / ')
+      : 'Tous les types';
+    const contractLabel = smart.contracts.length
+      ? smart.contracts.slice(0, 3).join(', ') + (smart.contracts.length > 3 ? ` +${smart.contracts.length - 3}` : '')
+      : 'Tous les contrats';
+    return `${cityLabel} • ${typeLabel} • ${contractLabel}`;
+  }, [smart]);
 
   const kinds = useMemo(() => {
     let emploi = 0, concours = 0, stages = 0;
@@ -3762,6 +4021,48 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
                 <Icon n="auto" size={19} /><b>Auto</b><small>Réglage Android</small>
               </button>
             </div>
+          </div>
+          <div className="panel smart-panel">
+            <div className="section-header">
+              <h3><Icon n="bell" size={18} /> Alertes intelligentes</h3>
+              <button className={`smart-switch ${smart.enabled ? 'on' : ''}`} onClick={toggleSmartEnabled} role="switch" aria-checked={smart.enabled} aria-label="Activer les alertes intelligentes"><span /></button>
+            </div>
+            <p className="setup-note smart-note">Recevez seulement les nouveautés qui vous correspondent. Ces alertes arrivent avec une <b>icône violette</b>, différente des notifications générales.</p>
+            {smart.enabled ? (
+              <>
+                <div className="smart-group">
+                  <div className="smart-head"><b>Villes</b><span>{smart.cities.length ? `${smart.cities.length} choisie${smart.cities.length > 1 ? 's' : ''}` : 'Toutes les villes'}</span></div>
+                  <div className="smart-chips">
+                    {cities.map(([c, n]) => (
+                      <button key={c} className={smart.cities.includes(c) ? 'on' : ''} onClick={() => toggleSmartValue('cities', c)}>{c}<small>{n}</small></button>
+                    ))}
+                  </div>
+                </div>
+                <div className="smart-group">
+                  <div className="smart-head"><b>Type de travail</b><span>{smart.types.length ? `${smart.types.length} choisi${smart.types.length > 1 ? 's' : ''}` : 'Tous les types'}</span></div>
+                  <div className="smart-chips">
+                    {SMART_TYPES.map(([v, l]) => (
+                      <button key={v} className={smart.types.includes(v) ? 'on' : ''} onClick={() => toggleSmartValue('types', v)}>{l}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="smart-group">
+                  <div className="smart-head"><b>Contrat</b><span>{smart.contracts.length ? `${smart.contracts.length} choisi${smart.contracts.length > 1 ? 's' : ''}` : 'Tous les contrats'}</span></div>
+                  <div className="smart-chips">
+                    {contracts.map(([c, n]) => (
+                      <button key={c} className={smart.contracts.includes(c) ? 'on' : ''} onClick={() => toggleSmartValue('contracts', c)}>{c}<small>{n}</small></button>
+                    ))}
+                  </div>
+                </div>
+                <div className="smart-summary"><Icon n="target" size={14} /><span>{smartSummary}</span></div>
+                <div className="smart-actions">
+                  <button className="smart-test" onClick={testSmartNotification}><Icon n="bell" size={16} />Tester l’icône intelligente</button>
+                  <button className="smart-reset" onClick={clearSmartFilters}><Icon n="refresh" size={14} />Réinitialiser</button>
+                </div>
+              </>
+            ) : (
+              <p className="smart-off">Activez l’interrupteur pour choisir vos villes, types de travail et contrats. Vous ne recevrez que les offres correspondantes.</p>
+            )}
           </div>
           <div className="panel">
             <div className="section-header"><h3>Outils</h3></div>
