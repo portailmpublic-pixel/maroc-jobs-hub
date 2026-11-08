@@ -13,7 +13,13 @@ const LS_THEME = 'mjh_theme_v1';
 const LS_FAVORITES = 'mjh_favorites_v1';
 const ACCESS_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/access.json';
 const ACCESS_API_URL = 'https://api.github.com/repos/portailmpublic-pixel/maroc-jobs-hub/contents/app/public/access.json?ref=master';
-const UPDATE_URL = 'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json';
+const UPDATE_URLS = [
+  // Pages : même hébergement que l'APK, jamais bloqué par le cache de raw.
+  'https://portailmpublic-pixel.github.io/maroc-jobs-hub/app-version.json',
+  // Secours : dépôt brut.
+  'https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/app/public/app-version.json',
+];
+const UPDATE_URL = UPDATE_URLS[0];
 // Politique de confidentialité : version en ligne (Play Store) + copie embarquée hors-ligne.
 const PRIVACY_URL = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/privacy.html';
 const PLAY_PACKAGE = 'ma.marocjobs.hub';
@@ -2219,7 +2225,14 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   // Version Play Store : jamais d'APK auto-installé — Google Play gère tout.
   async function checkUpdate(notify = false) {
     try {
-      const info = await fetchJSON(UPDATE_URL + '?t=' + Date.now(), 8000, { cache: 'no-store' });
+      // Deux sources pour le manifeste : Pages (même hôte que l'APK) puis raw.
+      let info = null;
+      for (const base of UPDATE_URLS) {
+        try {
+          const got = await fetchJSON(base + '?t=' + Date.now(), 8000, { cache: 'no-store' });
+          if (got && Number(got.versionCode) > 0) { info = got; break; }
+        } catch {}
+      }
       const v = await getNativeVersion();
       if (v) {
         setAppVer(`${v.versionName} (${v.versionCode})`);
@@ -2918,6 +2931,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             <span className="ul-kicker">Mise à jour obligatoire</span>
             <h2>Version {updateInfo.versionName}</h2>
             <p>{updateInfo.notes || 'Une nouvelle version doit être installée pour continuer.'}</p>
+            {appVer ? <small className="ul-note" style={{ display: 'block', marginBottom: 10 }}>Version installée : {appVer}</small> : null}
             {updateFailed ? (
               <>
                 <div className="ul-state" style={{ color: '#fca5a5' }}>
