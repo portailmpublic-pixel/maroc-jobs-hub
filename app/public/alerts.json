@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-08T20:58:35.756Z",
+  "updatedAt": "2026-11-09T13:39:24.245Z",
   "phone": "212663369080",
-  "total": 1671,
+  "total": 1700,
   "alerts": [
+    {
+      "id": "n1794231564244",
+      "at": "2026-11-09T13:39:24.244Z",
+      "title": "+33 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 33 nouveauté(s) (cloud)\n💼 Responsable HSE (H/F) — Sothema (Casablanca) ⏰2027-01-09\n💼 Approvisionneur Italophone — ALTEN Maroc (Rabat) ⏰2027-01-09\n💼 ASSISTANTE SAV FILLE POUR UN SALAIRE DE 3500 NET — Mogesse Banking Solutions - MBS (Casablanca) ⏰2027-01-04\n💼 Chargé(e) d’administration du personnel (RH) — Groupe VILAVI (Tanger) ⏰2026-12-12\n💼 Responsable Restaurant —  (Marrakech) ⏰2027-01-09\n💼 Développeur Back-End Java / Data Kafka, RabbitMQ – Sénior (Lead Developer) — ALTEN Maroc (Rabat) ⏰2027-01-09\n💼 Tech Lead Sénior Java / Vue.js — ALTEN Maroc (Rabat) ⏰2027-01-09\n💼 Ingénieur IA Sénior (AI Engineering) — ALTEN Maroc (Rabat) ⏰2027-01-09\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Agent Réseau 24/7 (F/H) (2026-11-09)\n- Manager (F/H) Germanophone (2026-11-09)\n- Remote Desktop Management (Anglophone Francophone) (2026-11-09)\n- Concours — Maitres de conférences à la FMP Laâyoune (2026-11-09)\n- Concours — (Cadres administratifs (RH 129/2026 (2026-11-09)\n📊 Total suivi : 1700 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 33,
+        "concours": 4,
+        "total": 1700
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794171515755",
       "at": "2026-11-08T20:58:35.755Z",
