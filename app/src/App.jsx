@@ -27,9 +27,6 @@ const PRIVACY_URL = 'https://portailmpublic-pixel.github.io/maroc-jobs-hub/priva
 const PLAY_PACKAGE = 'ma.marocjobs.hub';
 const PLAY_URL = 'https://play.google.com/store/apps/details?id=' + PLAY_PACKAGE;
 const SUPPORT_EMAIL = 'portailm.public@gmail.com';
-// Compte de démonstration pour la revue Google Play : code fixe, accès normal.
-const DEMO_EMAIL = 'demo@assouli.app';
-const DEMO_CODE = '246810';
 // Serveur live (Render) : suivi des comptes en temps réel + vérification d'accès
 // instantanée. L'URL est définie une fois et pour toutes dans DEFAULT_API_BASE.
 // Chaîne vide = serveur live désactivé (l'app fonctionne exactement comme avant).
@@ -180,8 +177,6 @@ function emailMatchesList(email, list) {
 }
 
 function isMarchesAllowed(email, access) {
-  // Le compte de démonstration Play Store voit toutes les sections.
-  if (String(email || '').trim().toLowerCase() === DEMO_EMAIL) return true;
   return emailMatchesList(email, accessMarchesList(access));
 }
 
@@ -191,7 +186,7 @@ function isEmailDisabled(email) {
 
 function blockedMessage() {
   const a = readAccess();
-  return a.message || 'Ce compte a été désactivé par l’administrateur.';
+  return a.message || "Ce compte a été désactivé par l'administrateur.";
 }
 
 async function refreshAccessList(opts = {}) {
@@ -237,8 +232,6 @@ async function refreshAccessList(opts = {}) {
 async function ensureEmailAllowed(email) {
   const target = String(email || '').trim().toLowerCase();
   if (!target) return true;
-  // Le compte de démonstration Play Store reste toujours accessible.
-  if (target === DEMO_EMAIL) return true;
   if (isEmailDisabled(target)) return false;
   if (navigator.onLine === false) return true;
   const fresh = await refreshAccessList();
@@ -1499,18 +1492,9 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
     setBusy(true);
     const allowed = await ensureEmailAllowed(target);
     if (!allowed) { setBusy(false); return setErr(blockedMessage()); }
-    // Compte de démonstration Google Play : connexion immédiate, sans e-mail.
-    if (target === DEMO_EMAIL) {
-      setBusy(false);
-      setCodeInfo({ code: DEMO_CODE, exp: Date.now() + 30 * 60 * 1000, email: target, demo: true });
-      setIntent(kind);
-      setCodeInput('');
-      setMode('verify');
-      setInfo(`Compte de démonstration — code : ${DEMO_CODE}`);
-      return;
-    }
     const code = makeCode();
-    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: target });
+    // Le code n'est jamais conserve en clair : seul son SHA-256 reste en memoire.
+    setCodeInfo({ hash: sha256Hex(code), exp: Date.now() + 10 * 60 * 1000, email: target, attempts: 0, sentAt: Date.now() });
     const r = await sendVerificationEmail({ to: target, code, name: kind === 'signup' ? name.trim() : '' });
     setBusy(false);
     if (!r.ok) {
@@ -1526,7 +1510,16 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
     resetMsgs();
     if (!codeInfo) return setErr('Code expiré — renvoyez un code.');
     if (Date.now() > codeInfo.exp) return setErr('Code expiré. Renvoyez un nouveau code.');
-    if (codeInput.trim() !== codeInfo.code) return setErr('Code incorrect. Vérifiez votre e-mail.');
+    const attempts = Number(codeInfo.attempts || 0) + 1;
+    if (attempts > 5) {
+      setCodeInfo(null);
+      setMode(intent);
+      return setErr('Trop de tentatives. Demandez un nouveau code.');
+    }
+    if (sha256Hex(codeInput.trim()) !== codeInfo.hash) {
+      setCodeInfo({ ...codeInfo, attempts });
+      return setErr(`Code incorrect. Vérifiez votre e-mail. (${attempts}/5)`);
+    }
     const target = codeInfo.email;
     const accounts = loadAccounts();
     const existing = accounts.find((a) => a.email === target);
@@ -1551,9 +1544,13 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
   async function resend() {
     resetMsgs();
     if (!codeInfo) return setMode(intent);
+    const since = Date.now() - Number(codeInfo.sentAt || 0);
+    if (since < 60000) {
+      return setErr(`Patientez ${Math.ceil((60000 - since) / 1000)} s avant de renvoyer un code.`);
+    }
     setBusy(true);
     const code = makeCode();
-    setCodeInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: codeInfo.email });
+    setCodeInfo({ hash: sha256Hex(code), exp: Date.now() + 10 * 60 * 1000, email: codeInfo.email, attempts: 0, sentAt: Date.now() });
     const r = await sendVerificationEmail({ to: codeInfo.email, code, name: intent === 'signup' ? name.trim() : '' });
     setBusy(false);
     if (r.ok) setInfo('Nouveau code envoyé.');
@@ -1590,9 +1587,9 @@ function AuthScreen({ onAuthed, themePref, onThemeChange }) {
             <div className="auth-sent">
               <span className="auth-sent-ic"><Icon n="mail" size={18} /></span>
               <div className="auth-sent-body">
-                <b>{codeInfo && codeInfo.demo ? 'Accès démonstration' : 'Code envoyé'}</b>
+                <b>Code envoyé</b>
                 <span className="auth-sent-mail">{codeInfo ? codeInfo.email : email}</span>
-                <span className="auth-sent-from">{codeInfo && codeInfo.demo ? 'compte de démonstration · aucun e-mail requis' : 'depuis portailm.public@gmail.com · vérifiez aussi les spams'}</span>
+                <span className="auth-sent-from">depuis portailm.public@gmail.com · vérifiez aussi les spams</span>
               </div>
               <span className="auth-sent-ok"><Icon n="check" size={13} /></span>
             </div>
@@ -1797,7 +1794,6 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
   const updateAutoRef = useRef('');
   const updatingRef = useRef(false);
   const updateFailedRef = useRef(false);
-  const updateListenerRef = useRef(false);
   const updateLastProgressRef = useRef(0);
   const updateWatchdogRef = useRef(null);
   const autoRetryRef = useRef(null);
@@ -2224,7 +2220,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       return;
     }
     const code = makeCode();
-    setMGateInfo({ code, exp: Date.now() + 10 * 60 * 1000, email: target });
+    setMGateInfo({ hash: sha256Hex(code), exp: Date.now() + 10 * 60 * 1000, email: target, attempts: 0, sentAt: Date.now() });
     const r = await sendVerificationEmail({ to: target, code, name: session.name || '' });
     setMGateBusy(false);
     if (!r.ok) {
@@ -2241,7 +2237,18 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
     setMGateErr(''); setMGateMsg('');
     if (!mGateInfo) { setMGateErr('Code expiré — demandez un nouveau code.'); return; }
     if (Date.now() > mGateInfo.exp) { setMGateErr('Code expiré. Demandez un nouveau code.'); return; }
-    if (mGateCode.trim() !== mGateInfo.code) { setMGateErr('Code incorrect. Vérifiez votre e-mail.'); return; }
+    const mAttempts = Number(mGateInfo.attempts || 0) + 1;
+    if (mAttempts > 5) {
+      setMGateInfo(null);
+      setMGateStep('email');
+      setMGateErr('Trop de tentatives. Demandez un nouveau code.');
+      return;
+    }
+    if (sha256Hex(mGateCode.trim()) !== mGateInfo.hash) {
+      setMGateInfo({ ...mGateInfo, attempts: mAttempts });
+      setMGateErr(`Code incorrect. Vérifiez votre e-mail. (${mAttempts}/5)`);
+      return;
+    }
     setMGateBusy(true);
     const fresh = await refreshAccessList();
     setAccess(fresh);
@@ -2557,11 +2564,14 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       } catch {}
     }, 5000);
 
+    let progressHandle = null;
+    let stateHandle = null;
     try {
       const P = await nativeUpdater();
-      if (!updateListenerRef.current) {
-        updateListenerRef.current = true;
-        P.addListener('progress', (e) => {
+      // Listener propre a CE run (retire dans finally) : un retry ne peut
+      // jamais heriter d'un runId perime.
+      try {
+        progressHandle = await P.addListener('progress', (e) => {
           if (runId !== updateRunIdRef.current) return;
           updateLastProgressRef.current = Date.now();
           if (Number(e && e.done) > 0 && updateFailedRef.current) { updateFailedRef.current = false; setUpdateFailed(false); }
@@ -2575,7 +2585,7 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
             setUpdateDetail(total > 0 ? `${mo(done)} / ${mo(total)}` : mo(done));
           }
         });
-      }
+      } catch {}
       const fileName = 'ASSOULI-AUTOX-' + info.versionName + '.apk';
       // Si l APK de cette version est deja present (reprise apres retour des
       // reglages unknown-sources), on ouvre l installateur sans re-telecharger.
@@ -2597,22 +2607,19 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       const pushM = (u) => { if (u && !mirrors.includes(u)) mirrors.push(u); };
       if (Array.isArray(info.mirrors)) info.mirrors.forEach(pushM);
       pushM(info.mirror); pushM(info.url); pushM(pages); pushM(raw);
-      if (!P.addStateListenerAttached) {
-        try {
-          P.addListener('state', (e) => {
-            if (runId !== updateRunIdRef.current) return;
-            if (e && e.phase === 'connecting') setUpdateDetail('Source ' + (e.mirrorIndex || 1) + '/' + mirrors.length + ' · connexion…');
-            else if (e && e.phase === 'downloading') setUpdateDetail('Source ' + (e.mirrorIndex || 1) + '/' + mirrors.length + (e.total > 0 ? ' · ' + mo(Number(e.done) || 0) + ' / ' + mo(Number(e.total) || 0) : ''));
-            else if (e && e.phase === 'verifying') setUpdateDetail('Vérification sécurisée…');
-            else if (e && e.phase === 'installing') setUpdateDetail('Ouverture de l’installateur…');
-            else if (e && e.phase === 'failed') setUpdateDetail('Échec : ' + (e.message || (e.httpCode > 0 ? 'HTTP ' + e.httpCode : '')));
-            if (e && e.httpCode > 0) setUpdateError('HTTP ' + e.httpCode);
-            else if (e && e.errorCode) setUpdateError(e.errorCode);
-            else if (e && e.message) setUpdateError(e.message);
-          });
-          P.addStateListenerAttached = true;
-        } catch {}
-      }
+      try {
+        stateHandle = await P.addListener('state', (e) => {
+          if (runId !== updateRunIdRef.current) return;
+          if (e && e.phase === 'connecting') setUpdateDetail('Source ' + (e.mirrorIndex || 1) + '/' + mirrors.length + ' · connexion…');
+          else if (e && e.phase === 'downloading') setUpdateDetail('Source ' + (e.mirrorIndex || 1) + '/' + mirrors.length + (e.total > 0 ? ' · ' + mo(Number(e.done) || 0) + ' / ' + mo(Number(e.total) || 0) : ''));
+          else if (e && e.phase === 'verifying') setUpdateDetail('Vérification sécurisée…');
+          else if (e && e.phase === 'installing') setUpdateDetail('Ouverture de l’installateur…');
+          else if (e && e.phase === 'failed') setUpdateDetail('Échec : ' + (e.message || (e.httpCode > 0 ? 'HTTP ' + e.httpCode : '')));
+          if (e && e.httpCode > 0) setUpdateError('HTTP ' + e.httpCode);
+          else if (e && e.errorCode) setUpdateError(e.errorCode);
+          else if (e && e.message) setUpdateError(e.message);
+        });
+      } catch {}
       // Progress listener deja enregistre ci-dessus (mise a jour des octets reels).
       await P.downloadAndInstall({
         mirrors,
@@ -2646,6 +2653,8 @@ function MainApp({ session, onLogout, themePref, onThemeChange }) {
       // Erreur reelle affichee (plus de catch silencieux). Nouvelle tentative auto.
       scheduleRetry();
     } finally {
+      try { if (progressHandle) progressHandle.remove(); } catch {}
+      try { if (stateHandle) stateHandle.remove(); } catch {}
       if (runId === updateRunIdRef.current) {
         clearWatchdog();
         updatingRef.current = false;

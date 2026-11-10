@@ -1,16 +1,16 @@
 {
-  "versionCode": 41,
-  "versionName": "1.9.14",
+  "versionCode": 42,
+  "versionName": "1.9.15",
   "url": "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
   "mirror": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
   "mirrors": [
-    "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@master/docs/ASSOULI-AUTOX.apk",
+    "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@v1.9.15/docs/ASSOULI-AUTOX.apk",
     "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
     "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
-    "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.14/ASSOULI-AUTOX.apk"
+    "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.15/ASSOULI-AUTOX.apk"
   ],
-  "size": 14036654,
-  "sha256": "f1297cb87f25eda0a13038820b93eb378fee30944dc92f5b7798bbc9e8c55304",
-  "notes": "Mise a jour obligatoire vers v1.9.14 : correction complete du blocage Connexion interrompue. Telechargement 100 % natif, reprise automatique apres coupure, verification taille et signature, bouton Reessayer et lien navigateur apres 2 echecs. Alertes intelligentes par ville, type et contrat avec icone violette. Confidentialite retiree de Configuration.",
-  "publishedAt": "2026-11-08T23:10:00Z"
+  "size": 13993294,
+  "sha256": "b760c361998f327592fa5981e96b7bc02081938ab99a2d4ddc5b970719dab1cd",
+  "notes": "Mise à jour obligatoire vers v1.9.15 : mise à jour automatique fiabilisée (téléchargement 100 % natif avec reprise après coupure, bascule automatique entre miroirs, vérification taille/SHA-256/signature). Sécurité renforcée : codes de connexion hachés avec limite de 5 tentatives et délai de renvoi de 60 s, suppression du compte de démonstration, liste d'accès hachée, trafic HTTP en clair interdit, récepteur de démarrage non exporté. Boutons Réessayer / Ouvrir dans le navigateur / Copier le lien après 2 échecs. Appui long sur la carte de mise à jour : diagnostics.",
+  "publishedAt": "2026-11-10T19:42:16Z"
 }

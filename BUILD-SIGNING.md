@@ -1,7 +1,7 @@
 # ASSOULI AUTOX – Build & signature (sans secrets)
 
 ## Certificat (ne jamais changer)
-- Tous les APK sideload (1.9.11 → 1.9.14) sont signes avec le **meme certificat
+- Tous les APK sideload (1.9.11 → 1.9.15) sont signes avec le **meme certificat
   Android Debug**, SHA-256 :
   `36:00:83:A3:74:7A:7F:53:6D:2B:95:57:46:5A:BF:FB:81:EA:08:AC:2C:12:B3:4F:19:06:C6:C6:80:1B:F7:B8`
   (`360083a3747a7f536d2b9557465abffb81ea08ac2c12b34f1906c6c6801bf7b8`).
@@ -51,10 +51,11 @@ release GitHub et push. Les deux manifestes doivent toujours contenir
 
 ## Mirror non-GitHub
 `mirrors[0]` pointe vers `cdn.jsdelivr.net` (reseau different de
-`raw.githubusercontent.com` / `github.io`). Pour une independance totale,
-hebergez aussi l APK sur un domaine propre, Cloudflare R2 ou Firebase Hosting
-et placez cette URL en premiere position dans `mirrors` (armeede de
-`publish-update.ps1`).
+`raw.githubusercontent.com` / `github.io`). L URL est **versionnee**
+(`@v1.9.15`) : le CDN ne peut pas servir un APK perime apres publication.
+Pour une independance totale, hebergez aussi l APK sur un domaine propre,
+Cloudflare R2 ou Firebase Hosting et placez cette URL en premiere position
+dans `mirrors` (genere par `publish-update.ps1`).
 
 ## Verification apres publication
 ```powershell
@@ -63,5 +64,5 @@ curl.exe -s https://portailmpublic-pixel.github.io/maroc-jobs-hub/app-version.js
 curl.exe -s -L -o NUL -w "raw:%{http_code} %{size_download}\n" https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk
 curl.exe -s -L -o NUL -w "pages:%{http_code} %{size_download}\n" https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk
 ```
-Les deux manifestes doivent afficher `41 / 1.9.14` et les deux APK `size` ==
+Les deux manifestes doivent afficher `42 / 1.9.15` et les deux APK `size` ==
 `size` du JSON.

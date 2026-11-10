@@ -1,5 +1,43 @@
 # ASSOULI AUTOX – Changelog
 
+## 1.9.15 (42) – 2026-11-10
+### Mise à jour automatique
+- **Correctif de cycle de vie des listeners.** Les listeners `progress` / `state`
+  sont maintenant créés pour chaque tentative et retirés dans `finally`. Avant,
+  ils étaient attachés une seule fois avec le `runId` du premier essai : après un
+  retry, les événements natifs étaient ignorés (barre figée). Un retry affiche
+  désormais les octets réels et l'état de la source.
+- **Revalidation avant installation.** `installDownloaded` et `installLatest`
+  vérifient package `ma.marocjobs.hub`, `versionCode` supérieur à l'installé et
+  signature identique avant d'ouvrir l'installateur. Un APK douteux est supprimé
+  avec un message précis.
+- **Phase `verifying`** émise avant le contrôle taille/SHA-256/signature, et
+  progression forcée à 100 % après renommage réussi.
+- **jsDelivr versionné** : le miroir CDN utilise `@v1.9.15` (immuable) au lieu de
+  `@master`, pour ne jamais servir un APK périmé après publication.
+
+### Sécurité (revue appliquée)
+- **`access.json` haché** : les adresses des listes `marches` / `disabled` sont
+  stockées en SHA-256. Le client compare l'e-mail en clair ou son hash (compatible
+  avec les anciennes listes en clair).
+- **OTP durci** : le code n'est plus conservé en clair (seul son SHA-256 reste en
+  mémoire), **5 tentatives maximum**, **renvoi bloqué 60 s** (connexion et accès
+  Marchés).
+- **Compte de démonstration supprimé** : plus de `demo@assouli.app` ni de code
+  fixe `246810` dans le bundle.
+- **Trafic en clair interdit** : `network_security_config.xml`
+  (`cleartextTrafficPermitted=false`) + `usesCleartextTraffic=false` ;
+  `allowMixedContent` et `server.cleartext` retirés de `capacitor.config.json`.
+- **`BootReceiver` non exporté** (`exported=false`). `AccountsProvider` reste
+  exporté uniquement pour l'APK admin, protégé par la permission de niveau
+  signature `READ_ACCOUNTS` (lecture + écriture).
+
+### Risque résiduel documenté
+- Le mot de passe d'application Gmail reste embarqué (`BuildConfig.SMTP_PASSWORD`)
+  car l'envoi des codes se fait sans backend. **À faire** : révoquer ce mot de
+  passe, déployer un petit serveur d'envoi, puis supprimer `MailPlugin` du client.
+  Voir `TEST-REPORT.md`.
+
 ## 1.9.14 (41) – 2026-11-08
 ### Fix majeur : blocage « Connexion interrompue »
 - **Telechargement 100 % natif.** Le telechargement via `fetch()` + base64 + pont Capacitor

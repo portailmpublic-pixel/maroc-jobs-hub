@@ -9,6 +9,8 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="ASSOULI AUTOX"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="false"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -38,16 +40,19 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
+        <!-- Exporte uniquement pour l'APK admin, protege par une permission
+             de niveau signature : aucune autre application ne peut lire. -->
         <provider
             android:name=".AccountsProvider"
             android:authorities="ma.marocjobs.hub.accounts"
             android:exported="true"
-            android:readPermission="ma.marocjobs.hub.permission.READ_ACCOUNTS" />
+            android:readPermission="ma.marocjobs.hub.permission.READ_ACCOUNTS"
+            android:writePermission="ma.marocjobs.hub.permission.READ_ACCOUNTS" />
 
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />

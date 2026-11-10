@@ -1,83 +1,84 @@
-# ASSOULI AUTOX v1.9.14 – Test report
+# ASSOULI AUTOX v1.9.15 – Test report
 
-## Pre-checks (executed, 2026-11-08)
-- `apksigner verify --print-certs` on the new APK (41 / 1.9.14) :
+## Pre-checks (executed, 2026-11-10)
+- `apksigner verify --print-certs` on the new APK (42 / 1.9.15) :
   `SHA-256 360083a3747a7f536d2b9557465abffb81ea08ac2c12b34f1906c6c6801bf7b8`
   == `36:00:83:A3…7B8` expected. **PASS.**
-- Same fingerprint on `v1.9.11` release APK (15 128 384 o) and `v1.9.12`
-  release APK (15 291 582 o). **PASS** — in-place updates were always possible
-  signature-wise; the failure was the download loop, not the signature.
-- `aapt dump badging` : `ma.marocjobs.hub` `versionCode='41'` `versionName='1.9.14'`.
-- Keystore backed up to `%TEMP%\opencode\debug.keystore.bak` (hors repo).
-  `adb devices` : aucun appareil, binaire `emulator` absent du SDK
-  (`.sdk/android` ne contient que build-tools/platform-tools) → tests
-  emulateur **non executables dans cet environnement**.
+- Same fingerprint previously confirmed on `v1.9.11` (15 128 384 o) and
+  `v1.9.12` (15 291 582 o) release APKs. **PASS** — in-place updates remain
+  possible signature-wise.
+- `aapt dump badging` : `ma.marocjobs.hub` `versionCode='42'` `versionName='1.9.15'`.
+- Keystore backed up outside the repo (`%TEMP%\opencode\debug.keystore.bak`).
+- `adb devices` : no device; `emulator` binary absent from this SDK →
+  device/emulator tests **NOT RUN** in this environment.
 
-## Remote contract (executed)
-- Raw manifest : 41 / 1.9.14, `mirrors` 4, `size=14036654`,
-  `sha256=f1297cb8...5304` (16 octets lus au `Get-FileHash`).
-- Pages manifest : identique (41 / 1.9.14, meme size/sha256).
-- Raw APK : HTTP 200, 14 036 654 o. Pages APK : HTTP 200, 14 036 654 o.
-- jsDelivr CDN : HTTP 200, 14 036 654 o.
-- Release `v1.9.14` asset `724818604` : 14 036 654 o, HTTP 200.
-- APK et JSON publies ensemble (commit `a6b1f90` push, puis release) :
-  jamais de divergence.
+## Build artefacts
+| File | Size | Notes |
+|---|---|---|
+| `ASSOULI-AUTOX.apk` | 13 993 294 o | sideload, 42 / 1.9.15, debug keystore |
+| `ASSOULI-AUTOX-play.aab` | 12 878 784 o | Play bundle (`playRelease`) |
+| `ASSOULI-ADMIN.apk` | 620 262 o | admin 1.6.19, rebuilt against 42/1.9.15 |
+- SHA-256 APK : `b760c361998f327592fa5981e96b7bc02081938ab99a2d4ddc5b970719dab1cd`
 
-## Code review (manual, static)
-- `App.jsx` : aucun `jsDownloadApk` / `Filesystem.writeFile` de chemin d update,
-  aucun `Connexion interrompue`. `startUpdate` single-flight via `runId`,
-  watchdog observateur via `getDownloadState`, polling 4 s supprime, boutons
-  manuels apres 2 echecs, appui long = diagnostics.
-- `ApkUpdaterPlugin.java` : `LOCK` + `running`, `.part` + `Range`, 15 s/20 s,
-  3 reprises + failover `mirrors[]`, `size`/`sha256`/signature verifies,
-  `progress` throttled 200 ms + `state`, journal `ApkUpdater`, `installApk`
-  FileProvider + `canRequestPackageInstalls` conserve.
+## Security checks (executed)
+- `access.json` : 4 `marches` entries are 64-char SHA-256, `disabled` empty,
+  message UTF-8 corrected. Client `emailMatchesList` accepts plain or hash.
+- Bundle : no `DEMO_EMAIL`, no `DEMO_CODE`, no `demo@assouli.app`, no `246810`,
+  no `codeInfo.code` / `mGateInfo.code` plaintext comparison.
+- `App.jsx` : OTP stored as `sha256Hex(code)`, max 5 attempts, resend cooldown
+  60 s for login and Marchés gate.
+- Manifest (`aapt dump xmltree`) : `usesCleartextTraffic=0x0`,
+  `networkSecurityConfig=@0x7f100003`, `BootReceiver exported=0x0`,
+  `AccountsProvider exported=0x1` with `readPermission` + `writePermission`
+  `ma.marocjobs.hub.permission.READ_ACCOUNTS` (protectionLevel signature).
+- `capacitor.config.json` : no `allowMixedContent`, no `server.cleartext`.
+- Updater : JS fetch + base64 + Filesystem path removed; only
+  `ApkUpdater.downloadAndInstall` remains. Native `.part` + Range resume,
+  4 mirrors, SHA-256/size/package/version/signature validation.
+- Listener lifecycle : `progress` / `state` handles are created per run and
+  removed in `finally` (fixes stale `runId` after retry).
+- Install-time revalidation : `installDownloaded` / `installLatest` refuse
+  wrong package, version ≤ installed, or different signing certificate.
 
 ## Acceptance tests — NOT RUN (no device/emulator)
 | Test | Status |
 |---|---|
-| 1.9.11 -> 1.9.14 sous throttling LTE (`-netspeed lte`) | NOT RUN – emulator absent |
-| Airplane 20 s : reprise depuis `.part` (pas 0) | NOT RUN |
-| Bloquer miroir 1 (403) : failover | NOT RUN (code present, test manuel pending) |
-| 3 echecs consecutifs : erreur reelle + boutons | NOT RUN |
-| Un seul thread downloader (logs) | NOT RUN (thread named `ApkUpdater-download`, a verifier sur device) |
-| Fichier corrompu : rejet sha256/signature | NOT RUN |
-| Install-over-install : donnees + login conserves | NOT RUN |
+| 1.9.14/1.9.11 -> 1.9.15 over LTE throttling | NOT RUN – emulator absent |
+| Airplane 20 s : resume from `.part` (not 0) | NOT RUN |
+| Block mirror 1 (403) : failover to mirror 2 | NOT RUN |
+| 3 consecutive failures : real error + manual buttons | NOT RUN |
+| Single downloader thread (logs) | NOT RUN (thread `ApkUpdater-download`) |
+| Corrupted APK : SHA-256/signature rejection | NOT RUN |
+| Install-over-install keeps data/login | NOT RUN |
 
-Commands to run on a machine with emulator/device (see BUILD-SIGNING.md):
+Commands on a machine with a device/emulator:
 ```powershell
 adb devices
 emulator -avd <AVD> -netspeed lte -netdelay umts
 adb logcat -s ApkUpdater:D
-# Fresh install 1.9.11, wait update, airplane mid-download, check .part resume,
-# long-press update card for diagnostics.
+# Install 1.9.14, let it update; enable airplane mode mid-download and check
+# `updates/ASSOULI-AUTOX-1.9.15.apk.part` grows after reconnect.
+# Long-press the update card to show the last 20 updater log lines.
 ```
 
-## Deliverables
-- Code : `ApkUpdaterPlugin.java` (rewrite), `UpdaterLog.java` (new),
-  `App.jsx` (state machine), `build.gradle` (41/1.9.14, debug signing,
-  minify), `proguard-rules.pro`, `publish-update.ps1`.
-- Server : `app/public/app-version.json`, `docs/app-version.json` (41/1.9.14,
-  `mirrors`/`size`/`sha256`), APK `docs/ASSOULI-AUTOX.apk` (14 036 654 o).
-- Release : `https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/tag/v1.9.14`
-  asset `ASSOULI-AUTOX.apk` `724818604`.
+## Remote contract (to verify after publish)
+- Raw manifest : `42 / 1.9.15`, `size=13993294`, `sha256=b760c361…b1cd`.
+- Pages manifest : identical.
+- `mirrors[0]` : jsDelivr `@v1.9.15` (immutable tag), then Pages, raw, release.
+- APK + JSON published together (commit + push, then release `v1.9.15`).
 
-## Manual steps for users stuck on 1.9.11 (old updater cannot be fixed remotely)
-The 1.9.11 build's updater downloads 1.9.12/1.9.14 via its own broken JS loop,
-but the new `url`/`mirror` fields in `app-version.json` point to the fixed APK,
-so a manual install unblocks once. After that, future updates work automatically.
+## Residual risk
+- Gmail app password still embedded in `BuildConfig.SMTP_PASSWORD` because no
+  auth backend exists. **Rotate it now** (Google Account → Security → App
+  passwords → delete), then deploy a small server for code delivery and remove
+  `MailPlugin` from the client. Until then, anyone with the APK can extract it.
+- The admin APK embeds a local GitHub token (`adminapp/admin-token.txt`,
+  gitignored). Keep that APK private; rotate the token if it leaks.
 
-1. Go to the Pages link in the phone browser (or copy it via the update screen's
-   *Ouvrir dans le navigateur* once on 1.9.14+):
+## Manual steps for users stuck on 1.9.11/1.9.14 (old updater)
+1. Open in the phone browser:
    `https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk`
-2. Chrome downloads the 14 Mo APK (Resume supported).
-3. Tap the downloaded file (or `Downloads` → `ASSOULI-AUTOX.apk`).
-4. If asked, allow **Install unknown apps** for Chrome, then **Install**.
-5. Open ASSOULI AUTOX, log in again (data kept), confirm version `1.9.14 (41)`
-   in Configurations.
-Since the signature is identical, this is an update, not a fresh install.
-
-## Prestations
-- `ASSOULI-AUTOX.apk` 14 036 654 o (sideload, 41/1.9.14)
-- `ASSOULI-AUTOX-play.aab` 12 921 987 o (Play, build `playRelease`)
-- `ASSOULI-ADMIN.apk` 624 833 o (admin 1.6.19)
+2. Chrome downloads ~14 MB (resumable). Tap the file.
+3. Allow **Install unknown apps** for Chrome if asked, then **Install**.
+4. Reopen ASSOULI AUTOX; the same signing certificate means data/login are kept.
+   Future updates use the fixed native downloader automatically.

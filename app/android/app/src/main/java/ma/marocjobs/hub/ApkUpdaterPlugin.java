@@ -227,11 +227,6 @@ public class ApkUpdaterPlugin extends Plugin {
                 FileOutputStream out = null;
                 try {
                     long existing = part.exists() ? part.length() : 0;
-                    // Si un .apk valide existe deja, on passe directement a l install.
-                    if (apk.exists() && apk.length() >= MIN_APK_SIZE && apkVersionCode(apk) > installedVersionCode()) {
-                        // Verifier rapidement : si c est le bon fichier, on l utilise.
-                        // On laisse la validation complete apres telechargement suivre.
-                    }
                     con = (HttpURLConnection) new URL(src).openConnection();
                     con.setInstanceFollowRedirects(true);
                     con.setConnectTimeout(15000);
@@ -305,6 +300,8 @@ public class ApkUpdaterPlugin extends Plugin {
                     out.close(); out = null;
                     try { in.close(); } catch (Exception ignored) {} in = null;
 
+                    statePhase = "verifying";
+                    emitState("verifying", src, mi + 1, attempt, code, "", "Verification taille / sha256 / signature");
                     if (!validatePartFile(part, expectedSize, expectedSha)) {
                         String msg = "Validation echouee (taille/signature)";
                         lastError = msg;
@@ -385,6 +382,8 @@ public class ApkUpdaterPlugin extends Plugin {
             try { if (part.exists() && part.length() == apk.length()) part.delete(); } catch (Exception ignored) {}
         }
         Log.i(TAG, "rename ok apkLen=" + apk.length() + " src=" + src);
+        stateDone.set(apk.length());
+        stateTotal.set(apk.length());
         UpdaterLog.add("validated, install " + apk.length());
         statePhase = "installing";
         emitState("installing", src, 0, 0, 0, "", "Ouverture de l installateur");
@@ -405,20 +404,17 @@ public class ApkUpdaterPlugin extends Plugin {
             PackageInfo inst = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), signatureFlags());
             PackageInfo cand = getContext().getPackageManager().getPackageArchiveInfo(f.getAbsolutePath(), signatureFlags());
             if (inst == null || cand == null) return false;
-            String a = null, b = null;
-            try {
-                if (Build.VERSION.SDK_INT >= 28 && inst.signingInfo != null && cand.signingInfo != null) {
-                    a = android.util.Base64.encodeToString(inst.signingInfo.getApkContentsSigners()[0].toCharsString().getBytes(), 0);
-                    b = android.util.Base64.encodeToString(cand.signingInfo.getApkContentsSigners()[0].toCharsString().getBytes(), 0);
-                    // Comparaison simple via charsString.
-                    String ai = inst.signingInfo.hasMultipleSigners() ? "" : inst.signingInfo.getApkContentsSigners()[0].toCharsString();
-                    String bi = cand.signingInfo.hasMultipleSigners() ? "" : cand.signingInfo.getApkContentsSigners()[0].toCharsString();
-                    return ai.equals(bi);
-                }
-            } catch (Exception ignored) {}
-            if (inst.signatures != null && inst.signatures.length > 0) a = inst.signatures[0].toCharsString();
-            if (cand.signatures != null && cand.signatures.length > 0) b = cand.signatures[0].toCharsString();
-            return a != null && a.equals(b);
+            if (Build.VERSION.SDK_INT >= 28 && inst.signingInfo != null && cand.signingInfo != null) {
+                android.content.pm.Signature[] a = inst.signingInfo.getApkContentsSigners();
+                android.content.pm.Signature[] b = cand.signingInfo.getApkContentsSigners();
+                if (a == null || b == null || a.length == 0 || b.length == 0) return false;
+                return a[0].toCharsString().equals(b[0].toCharsString());
+            }
+            if (inst.signatures != null && cand.signatures != null
+                    && inst.signatures.length > 0 && cand.signatures.length > 0) {
+                return inst.signatures[0].toCharsString().equals(cand.signatures[0].toCharsString());
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -495,9 +491,14 @@ public class ApkUpdaterPlugin extends Plugin {
                 call.reject("APK absent");
                 return;
             }
-            if (apkVersionCode(apk) <= 0) {
+            // Ne jamais installer un fichier non verifie : package, version et
+            // signature doivent correspondre a l application installee.
+            String invalid = validateApkForInstall(apk);
+            if (invalid != null) {
+                Log.e(TAG, "installDownloaded refused: " + invalid);
+                UpdaterLog.add("install refused: " + invalid);
                 try { apk.delete(); } catch (Exception ignored) {}
-                call.reject("APK invalide");
+                call.reject("APK invalide : " + invalid);
                 return;
             }
             installApk(apk);
@@ -513,15 +514,19 @@ public class ApkUpdaterPlugin extends Plugin {
     @PluginMethod
     public void installLatest(PluginCall call) {
         try {
-            int current = installedVersionCode();
             File best = null;
-            int bestCode = current;
+            int bestCode = installedVersionCode();
             for (File dir : updateDirs()) {
                 File[] files = dir.listFiles();
                 if (files == null) continue;
                 for (File f : files) {
                     if (f == null || !f.isFile() || f.length() < MIN_APK_SIZE) continue;
                     if (!f.getName().toLowerCase().endsWith(".apk")) continue;
+                    String invalid = validateApkForInstall(f);
+                    if (invalid != null) {
+                        Log.w(TAG, "installLatest skip " + f.getName() + ": " + invalid);
+                        continue;
+                    }
                     int code = apkVersionCode(f);
                     if (code > bestCode) {
                         best = f;
@@ -541,6 +546,26 @@ public class ApkUpdaterPlugin extends Plugin {
             call.resolve(ret);
         } catch (Exception e) {
             call.reject(e.getMessage() == null ? "Installation impossible" : e.getMessage());
+        }
+    }
+
+    /**
+     * Validation commune avant toute installation (chemin telecharge ou reprise
+     * apres retour des reglages). Retourne null si OK, sinon le motif exact.
+     */
+    private String validateApkForInstall(File apk) {
+        try {
+            if (apk == null || !apk.exists()) return "fichier absent";
+            if (apk.length() < MIN_APK_SIZE) return "taille trop petite (" + apk.length() + ")";
+            PackageInfo pi = getContext().getPackageManager().getPackageArchiveInfo(apk.getAbsolutePath(), signatureFlags());
+            if (pi == null) return "archive illisible";
+            if (!EXPECTED_PKG.equals(pi.packageName)) return "package " + pi.packageName;
+            long vc = Build.VERSION.SDK_INT >= 28 ? pi.getLongVersionCode() : pi.versionCode;
+            if (vc <= installedVersionCode()) return "version " + vc + " <= " + installedVersionCode();
+            if (!signatureMatchesInstalled(apk)) return "signature differente";
+            return null;
+        } catch (Exception e) {
+            return "verification impossible";
         }
     }
 
