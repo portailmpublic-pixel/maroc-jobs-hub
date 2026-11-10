@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-09T13:39:24.245Z",
+  "updatedAt": "2026-11-10T00:33:31.826Z",
   "phone": "212663369080",
-  "total": 1700,
+  "total": 1718,
   "alerts": [
+    {
+      "id": "n1794270811825",
+      "at": "2026-11-10T00:33:31.825Z",
+      "title": "+24 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 24 nouveauté(s) (cloud)\n💼 Chargé(e) des Risques Sénior H/F — Université Internationale de Rabat (UIR) (Rabat) ⏰2026-12-13\n💼 Ingénieur d'études transport — Novec (Salé, Technopolis) ⏰2026-11-14\n💼 Professeurs d'Enseignement Supérieur Directeurs de Spécialité (PESD) H/F — Université Internationale de Rabat (UIR) (Rabat) ⏰2027-01-03\n💼 Brand Manager — Flormar (Casablanca) ⏰2027-01-09\n💼 Commercial terrain —  (Casablanca) ⏰2027-01-09\n💼 Devops Engineer (H/F) — Capgemini (Casablanca) ⏰2026-12-01\n💼 Chargé(e) de fabrication des jeux éducatifs — FMPS - Fondation Marocaine du Préscolaire (Rabat) ⏰2027-01-09\n💼 Téléconseiller(e) en immobilier (H/F) — ALH Holding (Casablanca) ⏰2027-01-09\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Formateur Germanophone (2026-11-10)\n- Gérant Station de Services (2026-11-10)\n- Chef de Projet Senior Innovation & Intelligence Artificielle (H/F) (2026-11-11)\n- Concours — Chargé(e) scolarité (2026-11-11)\n- Concours — maitre de conférence (2026-11-11)\n📊 Total suivi : 1718 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 24,
+        "concours": 4,
+        "total": 1718
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794231564244",
       "at": "2026-11-09T13:39:24.244Z",
