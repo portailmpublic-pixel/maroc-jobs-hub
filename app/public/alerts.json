@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-10T00:33:31.826Z",
+  "updatedAt": "2026-11-10T13:16:32.176Z",
   "phone": "212663369080",
-  "total": 1718,
+  "total": 1748,
   "alerts": [
+    {
+      "id": "n1794316592175",
+      "at": "2026-11-10T13:16:32.175Z",
+      "title": "+30 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 30 nouveauté(s) (cloud)\n💼 Directeur Groupe Achats — CRIT (Casablanca) ⏰2027-01-10\n💼 INGENIEUR EN AUTOMATISME ET INFORMATIQUE INDUSTRIELLE — Mogesse Banking Solutions - MBS (Casablanca) ⏰2027-01-10\n💼 Technicien Qualité (H/F) — Manpower Agences (Contrat Projet) ⏰2027-01-10\n💼 Responsable Enfouissement — Somagec (Rabat) ⏰2027-01-10\n💼 DIRECTEUR GROUPE ACHAT (H/F) — CRIT (Casablanca) ⏰2027-01-10\n💼 Chargé de portefeuille (H/F) — Fondation Arrawaj (Fnideq) ⏰2027-01-10\n💼 Chargé(e) Comptable — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-01\n💼 Attaché Commercial Auto - CDD — Manpower Agences (Casablanca) ⏰2026-12-20\n⏰ Deadlines ≤ 3j :\n- Formateur Germanophone (2026-11-10)\n- Gérant Station de Services (2026-11-10)\n- Chef de Projet Senior Innovation & Intelligence Artificielle (H/F) (2026-11-11)\n- Concours — Chargé(e) scolarité (2026-11-11)\n- Concours — maitre de conférence (2026-11-11)\n📊 Total suivi : 1748 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 30,
+        "concours": 0,
+        "total": 1748
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794270811825",
       "at": "2026-11-10T00:33:31.825Z",
