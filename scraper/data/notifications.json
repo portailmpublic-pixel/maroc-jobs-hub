@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1794348569634",
+    "at": "2026-11-10T22:09:29.634Z",
+    "kind": "nouvelles-offres",
+    "title": "+33 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 33 nouveauté(s) (cloud)\n💼 Ingénieur Qualité — Super Auto Group (Rabat) ⏰2027-01-10\n💼 Adjoint Responsable Service Après-Vente — Auto Nejma Maroc S.A. (Rabat) ⏰2027-01-10\n💼 Ingénieur Test & Validation Sénior — ALTEN Maroc (Rabat) ⏰2027-01-10\n💼 AGENT COMPTABLE — Atlas Online (Casablanca) ⏰2027-01-10\n💼 Project Management Officer (PMO) — Capgemini Engineering (Casablanca) ⏰2027-01-10\n💼 Intégrateur DevOps (F/H) — Sofrecom Maroc (Rabat) ⏰2027-01-10\n💼 Développeur UiPath /Architecte cloud AWS — DXC - CDG (Casablanca) ⏰2027-01-10\n💼 Conseiller clientèle bilingue (Francais/Anglais) — Atlas Online (Casablanca) ⏰2027-01-10\n⏰ Deadlines ≤ 3j :\n- Formateur Germanophone (2026-11-10)\n- Gérant Station de Services (2026-11-10)\n- Chef de Projet Senior Innovation & Intelligence Artificielle (H/F) (2026-11-11)\n- Concours — Chargé(e) scolarité (2026-11-11)\n- Concours — maitre de conférence (2026-11-11)\n📊 Total suivi : 1781 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 33,
+      "concours": 0,
+      "total": 1781
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1794316592175",
     "at": "2026-11-10T13:16:32.175Z",
     "kind": "nouvelles-offres",
