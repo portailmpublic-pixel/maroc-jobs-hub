@@ -66,8 +66,8 @@ $json = [ordered]@{
   mirror = "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk"
   mirrors = @(
     "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@$tag/docs/ASSOULI-AUTOX.apk",
-    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
-    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
+    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk?v=$newCode",
+    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk?v=$newCode",
     "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/$tag/ASSOULI-AUTOX.apk"
   )
   size = $size

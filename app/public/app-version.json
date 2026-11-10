@@ -5,8 +5,8 @@
   "mirror": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
   "mirrors": [
     "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@v1.9.15/docs/ASSOULI-AUTOX.apk",
-    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
-    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
+    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk?v=42",
+    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk?v=42",
     "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.15/ASSOULI-AUTOX.apk"
   ],
   "size": 13993294,
