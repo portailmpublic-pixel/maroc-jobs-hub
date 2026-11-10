@@ -61,11 +61,19 @@ adb logcat -s ApkUpdater:D
 # Long-press the update card to show the last 20 updater log lines.
 ```
 
-## Remote contract (to verify after publish)
-- Raw manifest : `42 / 1.9.15`, `size=13993294`, `sha256=b760c361…b1cd`.
-- Pages manifest : identical.
-- `mirrors[0]` : jsDelivr `@v1.9.15` (immutable tag), then Pages, raw, release.
-- APK + JSON published together (commit + push, then release `v1.9.15`).
+## Remote contract (verified 2026-11-10)
+- Raw manifest : `42 / 1.9.15`, `size=13993294`, `sha256=b760c361…b1cd`. **PASS**
+- Pages manifest (origin, cache-busted) : identical. **PASS**
+- Raw APK : HTTP 200, 13 993 294 o, downloaded SHA-256
+  `b760c361…b1cd`. **PASS**
+- jsDelivr `@v1.9.15` : HTTP 200, 13 993 294 o, same SHA-256. **PASS**
+- Pages APK `?v=42` : HTTP 200, 13 993 294 o. **PASS**
+- Release `v1.9.15` asset `732725068` : 13 993 294 o, state `uploaded`. **PASS**
+- Published APK re-checked after download : `versionCode=42`, `versionName=1.9.15`,
+  signer `360083a3…7b8`. **PASS**
+- APK + JSON published together (commit `10a78a9`, then release `v1.9.15`).
+- Note : GitHub Pages / Fastly cache the old manifest URL for up to ~10 min;
+  `mirrors` now use `?v=42` so the APK download itself is never stale.
 
 ## Residual risk
 - Gmail app password still embedded in `BuildConfig.SMTP_PASSWORD` because no
