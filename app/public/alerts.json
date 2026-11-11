@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-10T22:09:29.635Z",
+  "updatedAt": "2026-11-11T12:27:52.190Z",
   "phone": "212663369080",
-  "total": 1781,
+  "total": 1824,
   "alerts": [
+    {
+      "id": "n1794400072190",
+      "at": "2026-11-11T12:27:52.190Z",
+      "title": "+43 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 43 nouveauté(s) (cloud)\n💼 Chef de département organisation — Groupe Label'Vie - Carrefour (Casablanca) ⏰2027-01-11\n💼 Manager H/F — McDonald's Maroc (Agadir) ⏰2027-01-11\n💼 Quality Manager Software Quality Customer & Support — Maroc Climate and Security (MCS) - Carrier (Casablanca) ⏰2027-01-11\n💼 Vendeurse showroom — Ms Smart Electro (Casablanca) ⏰2027-01-11\n💼 E-COMMERCE SPECIALIST (H/F) — Flormar (Casablanca) ⏰2027-01-11\n💼 Manager H/F — McDonald's Maroc (Marrakech) ⏰2027-01-11\n💼 Responsable Admissions & Réception Clinique — AKDITAL (Marrakech) ⏰2027-01-11\n💼 Chargé de portefeuille (H/F) — Fondation Arrawaj (Fès) ⏰2027-01-11\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Chef de Projet Senior Innovation & Intelligence Artificielle (H/F) (2026-11-11)\n- Concours — Chargé(e) scolarité (2026-11-11)\n- Concours — maitre de conférence (2026-11-11)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-11-11)\n- Concours — Ingénieur d'Etat en Génie Informatique, Spécialité : Big Data ou Data Science ou intelligence Artificielle (2026-11-11)\n📊 Total suivi : 1824 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 43,
+        "concours": 4,
+        "total": 1824
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794348569634",
       "at": "2026-11-10T22:09:29.634Z",
