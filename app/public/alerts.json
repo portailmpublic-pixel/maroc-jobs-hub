@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-12T13:33:01.290Z",
+  "updatedAt": "2026-11-12T22:36:19.900Z",
   "phone": "212663369080",
-  "total": 1877,
+  "total": 1906,
   "alerts": [
+    {
+      "id": "n1794522979892",
+      "at": "2026-11-12T22:36:19.892Z",
+      "title": "+29 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 29 nouveauté(s) (cloud)\n💼 CHARGE(E) COORDINATION LOGISTIQUE — Groupe Label'Vie - Carrefour (Skhirat) ⏰2027-01-12\n💼 Vendeur - Développeur (H/F) — Centrale Danone (Ouarzazate) ⏰2026-11-24\n💼 Supply chain & CAPEX Controller (H/F) — Centrale Danone (Casablanca) ⏰2026-12-29\n💼 Responsable Technique (H/F) — Centrale Danone (Meknès) ⏰2026-11-18\n💼 Stagiaire Maintenance Informatique — Fondation Arrawaj (Rabat) ⏰2027-01-12\n💼 Technicien mécanicien — Domino HR Morocco (Casablanca) ⏰2027-01-12\n💼 Opérateur de Chargement —  (El Jadida / Jorf Lasfar) ⏰2027-01-12\n💼 Agent Gestion de Parc Automobile & Livraiso —  (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Concours — Contrôleur LBC-FT (2026-11-12)\n- Concours — Responsable Mobilisation des Ressources (2026-11-12)\n- Concours — Auditeur interne (2026-11-12)\n- Concours — Assistant(e) de Direction (2026-11-12)\n- Concours — (Chef de pôle Pédagogique-Casablanca - Laâyoune - Rabat (RH 132/2026 (2026-11-13)\n📊 Total suivi : 1906 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 29,
+        "concours": 0,
+        "total": 1906
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794490381289",
       "at": "2026-11-12T13:33:01.289Z",
