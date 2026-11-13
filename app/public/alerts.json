@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-13T12:53:00.914Z",
+  "updatedAt": "2026-11-13T22:24:30.413Z",
   "phone": "212663369080",
-  "total": 1933,
+  "total": 1954,
   "alerts": [
+    {
+      "id": "n1794608670412",
+      "at": "2026-11-13T22:24:30.412Z",
+      "title": "+21 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 21 nouveauté(s) (cloud)\n💼 Ingénieur Energie F/H — Safran Nacelles (Casablanca) ⏰2027-01-13\n💼 Chargé de Communication SAV, de l’Evénementiel, des Relations Publiques et du Sponsoring — Groupe Smeia (Casablanca) ⏰2027-01-13\n💼 CHARGE(E) COORDINATION LOGISTIQUE (SKHIRATE) — Groupe Label'Vie - Carrefour (Skhirat) ⏰2026-11-15\n💼 Comptable — GSM AL MAGHRIB (Casablanca) ⏰2027-01-13\n💼 Superviseur RH - Tanger — Groupe Label'Vie - Carrefour (Tanger) ⏰2027-01-13\n💼 Project Manager — Groupe Label'Vie - Carrefour (Casablanca) ⏰2027-01-13\n💼 Responsable prospection - Marrakech — Groupe Label'Vie - Carrefour (Marrakech) ⏰2027-01-13\n💼 Offre d’emploi – Technicien en Impression & Person —  (Marrakech)\n⏰ Deadlines ≤ 3j :\n- Concours — (Chef de pôle Pédagogique-Casablanca - Laâyoune - Rabat (RH 132/2026 (2026-11-13)\n- Concours — Technicien 3ème grade à l’EST LAAYOUNE spécialité Informatique (2026-11-13)\n- Concours — CADRE ENVIRONNEMENT (2026-11-13)\n- Concours — Administrateur Systèmes (2026-11-13)\n- Responsable prospection (2026-11-14)\n📊 Total suivi : 1954 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 21,
+        "concours": 0,
+        "total": 1954
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794574380913",
       "at": "2026-11-13T12:53:00.913Z",
