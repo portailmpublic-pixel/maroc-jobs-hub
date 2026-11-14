@@ -570,6 +570,52 @@ const HOME_CATS = [
   { tab: 'new', title: 'NEW OFFERS', desc: 'Les nouvelles offres en avant-première', icon: 'star', tone: 'teal' },
 ];
 
+// Noms de ministères en arabe (popular understanding) — affichés sur la page Concours.
+const AR_MINISTERIES = [
+  ['Ministère de l’Intérieur et de la Décentralisation', 'وزارة الداخلية والعمل'],
+  ['Ministère de la Santé et de la Protection Civile', 'وزارة الصحة'],
+  ['Ministère de l’Éducation nationale, de la Formation professionnelle et de l’Enseignement supérieur', 'وزارة التربية والتعليم'],
+  ['Ministère de la Famille, du Développement social et de l’Égalité', 'وزارة الأسرة والتعاون الاجتماعي'],
+  ['Ministère de la Transition numérique', 'وزارة التحول الرقمي'],
+  ['Ministère de l’Agriculture, de la Pêche et de l’Aquaculture', 'وزارة الزراعة'],
+  ['Ministère de la Justice', 'وزارة العدل'],
+  ['Ministère de l’Industrie', 'وزارة الصناعة'],
+  ['Ministère de la Mobilité', 'وزارة النقل'],
+  ['Ministère de la Culture', 'وزارة الثقافة'],
+  ['Ministère de la Jeunesse et de l’Enseignement supérieur', 'وزارة الشباب والجامعات'],
+  ['Ministère de l’Eau', 'وزارة الري'],
+];
+
+function arMinistryName(name) {
+  const s = String(name || '');
+  if (!s) return '';
+  for (const [fr, ar] of AR_MINISTERIES) if (s.includes(fr) || fr.includes(s)) return ar;
+  if (/minist/i.test(s)) {
+    const rest = s.replace(/minist[èe]r/i, '').trim();
+    const key = rest.split(/\s+/).slice(0, 3).join(' ').toLowerCase();
+    for (const [fr, ar] of AR_MINISTERIES) if (fr.toLowerCase().includes(key)) return ar;
+    const words = rest.split(/\s+/).filter(Boolean);
+    return words.length ? 'وزارة ' + words.slice(0, 2).join(' ') : 'وزارة';
+  }
+  return s;
+}
+
+// Organisation affichée pour une offre : en arabe sur la page Concours (ministères).
+function displayOrg(job, type) {
+  const n = String((job && job.company) || '');
+  if (type !== 'concours') return n;
+  if (!n) return n;
+  for (const [fr, ar] of AR_MINISTERIES) if (n.includes(fr)) return ar;
+  if (/minist/i.test(n)) {
+    const rest = n.replace(/minist[èe]r/i, '').trim();
+    const key = rest.split(/\s+/).slice(0, 3).join(' ').toLowerCase();
+    for (const [fr, ar] of AR_MINISTERIES) if (fr.toLowerCase().includes(key)) return ar;
+    const words = rest.split(/\s+/).filter(Boolean);
+    return words.length ? 'وزارة ' + words.slice(0, 2).join(' ') : 'وزارة';
+  }
+  return n;
+}
+
 function OfferCard({ job, type = 'job', onOpen, saved = false, onSave }) {
   if (!job) return null;
   const dl = deadlineInfo(job);
@@ -600,7 +646,7 @@ function OfferCard({ job, type = 'job', onOpen, saved = false, onSave }) {
             {fresh && <span className="offer-fresh">Nouveau</span>}
           </div>
           <h3>{job.title || 'Sans intitulé'}</h3>
-          <p className="offer-company"><Icon n="building" size={13} />{job.company || 'Organisme non précisé'}</p>
+          <p className="offer-company"><Icon n="building" size={13} />{displayOrg(job, type)}</p>
         </div>
         <div className="offer-tools">
           {onSave && (
@@ -782,7 +828,7 @@ function DetailPage({
           <div className="d-hero-copy">
             <span className="d-eyebrow">{isStage ? 'Stage & pré-embauche' : isConcours ? 'Concours État' : 'Offre d’emploi'}</span>
             <h1>{job.title}</h1>
-            <p className="d-sub"><Icon n="building" size={14} />{job.company || 'Organisme non précisé'}{job.city ? ` · ${job.city}` : ''}</p>
+            <p className="d-sub"><Icon n="building" size={14} />{displayOrg(job, type)}{job.city ? ` · ${job.city}` : ''}</p>
           </div>
         </div>
         <div className="d-chips">
