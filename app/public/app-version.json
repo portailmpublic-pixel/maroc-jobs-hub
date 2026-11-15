@@ -1,16 +1,16 @@
 {
-  "versionCode": 43,
-  "versionName": "v1.9.16",
+  "versionCode": 44,
+  "versionName": "1.9.17",
   "url": "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk",
   "mirror": "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk",
   "mirrors": [
-    "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@v1.9.16/docs/ASSOULI-AUTOX.apk",
-    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk?v=43",
-    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk?v=43",
-    "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.16/ASSOULI-AUTOX.apk"
+    "https://cdn.jsdelivr.net/gh/portailmpublic-pixel/maroc-jobs-hub@v1.9.17/docs/ASSOULI-AUTOX.apk",
+    "https://portailmpublic-pixel.github.io/maroc-jobs-hub/ASSOULI-AUTOX.apk?v=44",
+    "https://raw.githubusercontent.com/portailmpublic-pixel/maroc-jobs-hub/master/docs/ASSOULI-AUTOX.apk?v=44",
+    "https://github.com/portailmpublic-pixel/maroc-jobs-hub/releases/download/v1.9.17/ASSOULI-AUTOX.apk"
   ],
-  "size": 14313313,
-  "sha256": "40f6be770d4675105ff4f24b8486d564789a28f94c1a0efc84d203ed4d347009",
-  "notes": "Mise à jour obligatoire vers v1.9.16 : Concours public (ministères) inclus + noms arabes des ministères sur la page Concours. Marchés Publics actualisés quotidiennement.",
-  "publishedAt": "2026-11-14T19:34:32Z"
+  "size": 14310340,
+  "sha256": "1ea1a2bad5ace88e34d2ae0dfb550f266b177ea22fbb365718668a991a12bb3d",
+  "notes": "Mise à jour obligatoire vers v1.9.17 : Concours publics depuis Emploi Public (emploi-public.ma/fr/concours-liste) + noms arabes des ministères. Marchés Publics actualisés quotidiennement.",
+  "publishedAt": "2026-11-15T17:13:43Z"
 }
