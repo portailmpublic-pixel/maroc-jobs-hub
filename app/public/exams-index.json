@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-14T21:07:52.121Z",
+  "updatedAt": "2026-11-15T12:31:31.417Z",
   "years": [
     2022,
     2023,
@@ -190,374 +190,6 @@
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/dreamjob-sntl10-2026-corrige-v7.pdf",
           "size": 6508
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-715392a8-727f-491e-92de-7022b2483e27",
-      "title": "Concours — Chargé de Développement RH",
-      "company": "Caisse de Dépôt et de Gestion",
-      "specialty": "",
-      "fonction": "Chargé de Développement RH",
-      "city": "Maroc",
-      "url": "https://www.emploi-public.ma/fr/concours/details/715392a8-727f-491e-92de-7022b2483e27",
-      "familyLabel": "Informatique / Développement",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2022-sujet-v7.pdf",
-          "size": 9369
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2022-corrige-v7.pdf",
-          "size": 6903
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2023-sujet-v7.pdf",
-          "size": 9404
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2023-corrige-v7.pdf",
-          "size": 6911
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2024-sujet-v7.pdf",
-          "size": 9354
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2024-corrige-v7.pdf",
-          "size": 6829
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2025-sujet-v7.pdf",
-          "size": 9308
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2025-corrige-v7.pdf",
-          "size": 6772
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2026-sujet-v7.pdf",
-          "size": 9300
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-715392a8-727f-491e-92de-7022b2483e27-2026-corrige-v7.pdf",
-          "size": 6753
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d",
-      "title": "Concours — Maitre de conférences au profit de la Faculté de Médecine et de Pharmacie et de Médecine Dentaire Oujda.",
-      "company": "Université Mohammed Premier - Oujda",
-      "specialty": "; Traumatologie ; Orthopédie ; Pédiatrie ; Médecine Communautaire ; Dermatologie",
-      "fonction": "Maitre de conférences au profit de la Faculté de Médecine et de Pharmacie et de Médecine Dentaire Oujda.",
-      "city": "Oriental",
-      "url": "https://www.emploi-public.ma/fr/concours/details/cc57b231-8f95-4aba-892b-7f5a2f5e1a2d",
-      "familyLabel": "Éducation / Enseignement",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2022-sujet-v7.pdf",
-          "size": 9580
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2022-corrige-v7.pdf",
-          "size": 7094
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2023-sujet-v7.pdf",
-          "size": 9620
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2023-corrige-v7.pdf",
-          "size": 7094
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2024-sujet-v7.pdf",
-          "size": 9631
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2024-corrige-v7.pdf",
-          "size": 7087
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2025-sujet-v7.pdf",
-          "size": 9603
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2025-corrige-v7.pdf",
-          "size": 7084
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2026-sujet-v7.pdf",
-          "size": 9623
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-cc57b231-8f95-4aba-892b-7f5a2f5e1a2d-2026-corrige-v7.pdf",
-          "size": 7100
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481",
-      "title": "Concours — Maître de conférences grade A - echelle 11",
-      "company": "Université Sidi Mohamed Ben Abdellah -Fès-",
-      "specialty": "علم الوراثة ; علم الأنسجة والأجنة وعلم مولدات الخلايا ; الكيمياء التحليلية ; البروماتولوجيا ; الطب الفيزيائي وإعادة التأهيل الوظيفي ; الصيدلة السريرية ; علم أمراض الفم والجراحة الوجهية الفكية ; علم الجروح ; التجبير ; الت",
-      "fonction": "Maître de conférences grade A - echelle 11",
-      "city": "Fès",
-      "url": "https://www.emploi-public.ma/fr/concours/details/ef29d95b-43bb-4653-b7c3-6633e0471481",
-      "familyLabel": "Éducation / Enseignement",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2022-sujet-v7.pdf",
-          "size": 9700
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2022-corrige-v7.pdf",
-          "size": 7214
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2023-sujet-v7.pdf",
-          "size": 9740
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2023-corrige-v7.pdf",
-          "size": 7214
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2024-sujet-v7.pdf",
-          "size": 9751
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2024-corrige-v7.pdf",
-          "size": 7207
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2025-sujet-v7.pdf",
-          "size": 9723
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2025-corrige-v7.pdf",
-          "size": 7204
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2026-sujet-v7.pdf",
-          "size": 9743
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ef29d95b-43bb-4653-b7c3-6633e0471481-2026-corrige-v7.pdf",
-          "size": 7220
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957",
-      "title": "Concours — Maitres de conférences à la FMPA",
-      "company": "Université Ibn Zohr - Agadir",
-      "specialty": "",
-      "fonction": "Maitres de conférences à la FMPA",
-      "city": "Agadir",
-      "url": "https://www.emploi-public.ma/fr/concours/details/ea9f30e9-8414-4e27-8624-f38195cc0957",
-      "familyLabel": "Éducation / Enseignement",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2022-sujet-v7.pdf",
-          "size": 9382
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2022-corrige-v7.pdf",
-          "size": 6897
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2023-sujet-v7.pdf",
-          "size": 9422
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2023-corrige-v7.pdf",
-          "size": 6897
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2024-sujet-v7.pdf",
-          "size": 9433
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2024-corrige-v7.pdf",
-          "size": 6890
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2025-sujet-v7.pdf",
-          "size": 9405
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2025-corrige-v7.pdf",
-          "size": 6887
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2026-sujet-v7.pdf",
-          "size": 9425
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-ea9f30e9-8414-4e27-8624-f38195cc0957-2026-corrige-v7.pdf",
-          "size": 6903
         }
       ]
     },
@@ -926,6 +558,374 @@
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-c2cac2e2-e7b4-4b73-986d-6a662657aa0e-2026-corrige-v7.pdf",
           "size": 6585
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12",
+      "title": "Concours — Maitre de conférence à la ESEF Agadir spécialité Instrumentation et traitement de l'information",
+      "company": "Université Ibn Zohr - Agadir",
+      "specialty": "Instrumentation et traitement de l&#039;information",
+      "fonction": "Maitre de conférence à la ESEF Agadir spécialité Instrumentation et traitement de l'information",
+      "city": "Agadir",
+      "url": "https://www.emploi-public.ma/fr/concours/details/9cd3606b-21b3-4076-82cd-49ef3dee4c12",
+      "familyLabel": "Éducation / Enseignement",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2022-sujet-v7.pdf",
+          "size": 9535
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2022-corrige-v7.pdf",
+          "size": 7049
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2023-sujet-v7.pdf",
+          "size": 9575
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2023-corrige-v7.pdf",
+          "size": 7049
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2024-sujet-v7.pdf",
+          "size": 9586
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2024-corrige-v7.pdf",
+          "size": 7042
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2025-sujet-v7.pdf",
+          "size": 9558
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2025-corrige-v7.pdf",
+          "size": 7039
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2026-sujet-v7.pdf",
+          "size": 9578
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9cd3606b-21b3-4076-82cd-49ef3dee4c12-2026-corrige-v7.pdf",
+          "size": 7055
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46",
+      "title": "Concours — Maitre de conférence à l’ENCG Dakhla spécialité Droit privé",
+      "company": "Université Ibn Zohr - Agadir",
+      "specialty": "Droit privé",
+      "fonction": "Maitre de conférence à l’ENCG Dakhla spécialité Droit privé",
+      "city": "Dakhla",
+      "url": "https://www.emploi-public.ma/fr/concours/details/1ea2d79f-0aa6-4766-bd8a-e487bd173c46",
+      "familyLabel": "Éducation / Enseignement",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2022-sujet-v7.pdf",
+          "size": 9388
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2022-corrige-v7.pdf",
+          "size": 6903
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2023-sujet-v7.pdf",
+          "size": 9428
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2023-corrige-v7.pdf",
+          "size": 6903
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2024-sujet-v7.pdf",
+          "size": 9439
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2024-corrige-v7.pdf",
+          "size": 6896
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2025-sujet-v7.pdf",
+          "size": 9411
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2025-corrige-v7.pdf",
+          "size": 6893
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2026-sujet-v7.pdf",
+          "size": 9431
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-1ea2d79f-0aa6-4766-bd8a-e487bd173c46-2026-corrige-v7.pdf",
+          "size": 6909
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c",
+      "title": "Concours — Maitre de conférence à l’ENCG Dakhla spécialité Entrepreneuriat",
+      "company": "Université Ibn Zohr - Agadir",
+      "specialty": "Entrepreneuriat",
+      "fonction": "Maitre de conférence à l’ENCG Dakhla spécialité Entrepreneuriat",
+      "city": "Dakhla",
+      "url": "https://www.emploi-public.ma/fr/concours/details/9ccca16e-da45-42c2-85ec-ba3c67eb824c",
+      "familyLabel": "Éducation / Enseignement",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2022-sujet-v7.pdf",
+          "size": 9396
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2022-corrige-v7.pdf",
+          "size": 6911
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2023-sujet-v7.pdf",
+          "size": 9436
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2023-corrige-v7.pdf",
+          "size": 6911
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2024-sujet-v7.pdf",
+          "size": 9447
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2024-corrige-v7.pdf",
+          "size": 6904
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2025-sujet-v7.pdf",
+          "size": 9419
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2025-corrige-v7.pdf",
+          "size": 6901
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2026-sujet-v7.pdf",
+          "size": 9439
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-9ccca16e-da45-42c2-85ec-ba3c67eb824c-2026-corrige-v7.pdf",
+          "size": 6917
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee",
+      "title": "Concours — Maitre de conférence à l’ENCG Dakhla spécialité Gestion",
+      "company": "Université Ibn Zohr - Agadir",
+      "specialty": "Gestion",
+      "fonction": "Maitre de conférence à l’ENCG Dakhla spécialité Gestion",
+      "city": "Dakhla",
+      "url": "https://www.emploi-public.ma/fr/concours/details/7c53345f-107d-432b-91af-51a51f8fa9ee",
+      "familyLabel": "Administration / Gestion",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2022-sujet-v7.pdf",
+          "size": 9572
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2022-corrige-v7.pdf",
+          "size": 6857
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2023-sujet-v7.pdf",
+          "size": 9513
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2023-corrige-v7.pdf",
+          "size": 6761
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2024-sujet-v7.pdf",
+          "size": 9501
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2024-corrige-v7.pdf",
+          "size": 6736
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2025-sujet-v7.pdf",
+          "size": 9522
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2025-corrige-v7.pdf",
+          "size": 6758
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2026-sujet-v7.pdf",
+          "size": 9524
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7c53345f-107d-432b-91af-51a51f8fa9ee-2026-corrige-v7.pdf",
+          "size": 6757
         }
       ]
     }

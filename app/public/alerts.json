@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-14T21:07:51.899Z",
+  "updatedAt": "2026-11-15T12:31:31.144Z",
   "phone": "212663369080",
-  "total": 1976,
+  "total": 1978,
   "alerts": [
+    {
+      "id": "n1794745891143",
+      "at": "2026-11-15T12:31:31.143Z",
+      "title": "+6 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 6 nouveauté(s) (cloud)\n🏛️ Concours — Maitre de conférence à la ESEF Agadir spécialité Instrumentation et traitement de l'information — Université Ibn Zohr - Agadir (Agadir) ⏰2026-11-16\n🏛️ Concours — Maitre de conférence à l’ENCG Dakhla spécialité Droit privé — Université Ibn Zohr - Agadir (Dakhla) ⏰2026-11-16\n🏛️ Concours — Maitre de conférence à l’ENCG Dakhla spécialité Entrepreneuriat — Université Ibn Zohr - Agadir (Dakhla) ⏰2026-11-16\n🏛️ Concours — Maitre de conférence à l’ENCG Dakhla spécialité Gestion — Université Ibn Zohr - Agadir (Dakhla) ⏰2026-11-16\n💼 COMMERCIAL SPÉCIALISÉ EN PROSPECTION DE FREElANCES —  (Rabat)\n💼 Chauffeur Transport Personnel - Casablanca Permis —  (Casablanca)\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Administrateur des Ventes (H/F) (2026-11-15)\n- Responsable de la Vie Étudiante (H/F) H/F (2026-11-15)\n- CHARGE(E) COORDINATION LOGISTIQUE (SKHIRATE) (2026-11-15)\n- Concours — Responsables et Responsables séniors (2026-11-15)\n- Concours — maître de conférences à l'ENS (2026-11-15)\n📊 Total suivi : 1978 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 6,
+        "concours": 4,
+        "total": 1978
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794690471898",
       "at": "2026-11-14T21:07:51.898Z",
@@ -348,18 +360,6 @@
         "new": 45,
         "concours": 0,
         "total": 1059
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793011633152",
-      "at": "2026-10-26T10:47:13.152Z",
-      "title": "+32 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 32 nouveauté(s) (cloud)\n💼 Ingénieur Marché Valorisation — Société Générale GSC (Casablanca (États-Unis)) ⏰2026-12-26\n💼 FIC Derivatives Structurer (H/F) — Société Générale GSC (Casablanca) ⏰2026-12-26\n💼 Electricien - Intérim — ENI GROUP (Berrechid) ⏰2026-12-26\n💼 Mécanicien - Intérim — ENI GROUP (Berrechid) ⏰2026-12-26\n💼 Directeur Magasin Supermarché — Groupe Label'Vie - Carrefour (Tout le Maroc) ⏰2027-01-26\n💼 Gérant Magasin -CARREFOUR EXPRESS — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-26\n💼 Gérant Magasin -CARREFOUR EXPRESS — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-01\n💼 Technicien Aquacole - H/F — AZURA GROUP (Dakhla) ⏰2026-12-26\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Responsable SAV Automobile (2026-10-26)\n- Concours — Infirmier de premier grade - echelle 10 (2026-10-26)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-10-26)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-10-26)\n- Concours — Technicien de 4ème grade - echelle 8 (2026-10-26)\n📊 Total suivi : 1014 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 32,
-        "concours": 4,
-        "total": 1014
       },
       "kind": "nouvelles-offres"
     }
