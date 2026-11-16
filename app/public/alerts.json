@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-15T21:29:42.614Z",
+  "updatedAt": "2026-11-16T13:22:58.741Z",
   "phone": "212663369080",
-  "total": 1992,
+  "total": 2019,
   "alerts": [
+    {
+      "id": "n1794835378740",
+      "at": "2026-11-16T13:22:58.740Z",
+      "title": "+31 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 31 nouveauté(s) (cloud)\n💼 Chargé(e) d’Accueil – Opportunité à NADOR — Saham Bank (Nador et région) ⏰2027-01-16\n💼 Chargé(e) d’Accueil – Opportunité à Kasba Tadla, Fkih Ben Salah & Beni mellal — Saham Bank (Kasba Tadla, Fkih Ben Salah & Beni mellal et région) ⏰2027-01-16\n💼 Chargé(e) d’Accueil – Opportunité à El Jadida et région — Saham Bank (El Jadida et région) ⏰2027-01-16\n💼 Manager Assurances (H/F) — CRIT (Casablanca) ⏰2027-01-16\n💼 HR Intern (PFE Internship) — AXA GBS Morocco (Rabat) ⏰2027-01-16\n💼 Stagiaire PFE -Manager de rayon- — Groupe Label'Vie - Carrefour (Tout le Maroc) ⏰2027-01-16\n💼 Agent Pompiste — Distrans Express Maroc (Casablanca) ⏰2027-01-05\n💼 Chargé(e) Des Ressources Humaines (RH) — Distrans Express Maroc (Casablanca) ⏰2027-01-03\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Approvisionneur - Contrat Projet (2026-11-16)\n- Chargé de marketing digital H/F (2026-11-16)\n- Data Scientist / Ingénieur IA confirmé (2026-11-16)\n- Team Manager Bilingue Franco-Anglophone (2026-11-16)\n- Concours — Maitre de conférence à la ESEF Agadir spécialité Instrumentation et traitement de l'information (2026-11-16)\n📊 Total suivi : 2019 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 31,
+        "concours": 4,
+        "total": 2019
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794778182613",
       "at": "2026-11-15T21:29:42.613Z",
@@ -348,18 +360,6 @@
         "new": 8,
         "concours": 0,
         "total": 1364
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793096035304",
-      "at": "2026-10-27T10:13:55.304Z",
-      "title": "+32 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 32 nouveauté(s) (cloud)\n💼 Responsable Groupe d'Agence (H/F) — Fondation Arrawaj (Agadir) ⏰2026-12-27\n💼 Junior Topline Buyer (H/F) — Centrale Danone (Casablanca) ⏰2026-12-27\n💼 Directeur Administratif et Financier Groupe (DAF) —  (Casablanca) ⏰2026-12-27\n💼 RESPONSABLE CONTROLE GPS & CARBURANT — Distrans Express Maroc (Casablanca) ⏰2026-12-27\n💼 Stagiaire Comptabilité H/F — Sothema (Bouskoura) ⏰2026-12-27\n💼 Responsable Méthodes et Ingénierie Logistique (H/F) — CRIT (Casablanca) ⏰2026-12-27\n💼 Technico-Commercial (H/F) —  (Mohammedia) ⏰2026-12-27\n💼 RESPONSABLE DE MAGASIN — Flormar (Tanger) ⏰2026-12-21\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Cadre supérieur en sûreté (2026-10-27)\n- Concours — MAITRES DE CONFERENCES – CIVILS ET MILITAIRES à la FMPR (2026-10-27)\n- Concours — - Rabat Chargé des courses à handicaps ( H/F) (2026-10-27)\n- Superviseur Traitement - Usines (Taliouine-ASKAOUNE) (2026-10-28)\n- Concours — (Chef de pôle Tourisme et Hôtellerie -Casablanca (RH 115/2026 (2026-10-28)\n📊 Total suivi : 1086 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 32,
-        "concours": 4,
-        "total": 1086
       },
       "kind": "nouvelles-offres"
     }
