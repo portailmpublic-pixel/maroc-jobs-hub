@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-17T14:08:26.255Z",
+  "updatedAt": "2026-11-17T23:45:13.003Z",
   "phone": "212663369080",
-  "total": 2060,
+  "total": 2085,
   "alerts": [
+    {
+      "id": "n1794959113002",
+      "at": "2026-11-17T23:45:13.002Z",
+      "title": "+25 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 25 nouveauté(s) (cloud)\n💼 Key Account Manager — Smollan Morocco (Casablanca) ⏰2027-01-17\n💼 Responsable Commercial Après-Vente — ORH Assessment (Meknès) ⏰2027-01-17\n💼 Conseiller Client (F/H) - Assistance Technique - Agadir - Français / Anglais — Concentrix (Agadir) ⏰2026-12-07\n💼 Conseiller client (f/h) - Assistance Technique Marché Canadien- Français / Anglais — Concentrix (Agadir) ⏰2026-12-12\n💼 Agent Contrôle Qualité et Conformité Fournisseur (Pharma) — Capgemini Engineering (Casablanca) ⏰2027-01-17\n💼 Responsable d'agence — Fondation Arrawaj (Rejoignez un réseau en pleine croissance Maroc)) ⏰2027-01-17\n💼 SPA Manager — XCDM Maroc (Marrakech) ⏰2027-01-17\n💼 Conseillers Clientèle Francophones (H/F) – Temps Partiel - Agadir _ — Concentrix (Agadir) ⏰2027-01-17\n⏰ Deadlines ≤ 3j :\n- Chargé d'Appui Commercial (H/F) (2026-11-17)\n- Gestionnaire Clientèle (H/F) - Tanger (2026-11-17)\n- Concours — Architecte Solutions Sécurité (2026-11-17)\n- Concours — Ingénieur Support et Exploitation IT (2026-11-17)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-11-17)\n📊 Total suivi : 2085 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 25,
+        "concours": 0,
+        "total": 2085
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794924506254",
       "at": "2026-11-17T14:08:26.254Z",
@@ -348,18 +360,6 @@
         "new": 37,
         "concours": 4,
         "total": 1461
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793663269221",
-      "at": "2026-11-02T23:47:49.221Z",
-      "title": "+18 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 18 nouveauté(s) (cloud)\n💼 Chargé de marketing digital H/F — HEOMI (Casablanca) ⏰2026-11-16\n💼 Superviseur de Vente Terrain — Inyad (Casablanca) ⏰2027-01-02\n💼 Key Account Manager — Inyad (Casablanca) ⏰2026-11-30\n💼 Data Engineer/ Data Analyst — Akkodis Maroc (Casablanca) ⏰2026-11-03\n💼 Supply Chain Engineer (H/F) — Akkodis Maroc (Casablanca) ⏰2026-11-07\n💼 Pilote convergence (H/F) — Akkodis Maroc (Tanger) ⏰2026-11-14\n💼 Comptable polyvalent (Anglophone) — Akkodis Maroc (Casablanca) ⏰2026-11-24\n💼 Brigade boulangerie —  (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n- Concours — Chargé de suivi dossiers d'assurances (2026-11-02)\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n📊 Total suivi : 1427 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 18,
-        "concours": 0,
-        "total": 1427
       },
       "kind": "nouvelles-offres"
     }
