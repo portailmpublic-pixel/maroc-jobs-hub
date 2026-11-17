@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-16T13:22:58.741Z",
+  "updatedAt": "2026-11-17T00:40:34.673Z",
   "phone": "212663369080",
-  "total": 2019,
+  "total": 2032,
   "alerts": [
+    {
+      "id": "n1794876034672",
+      "at": "2026-11-17T00:40:34.672Z",
+      "title": "+18 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 18 nouveauté(s) (cloud)\n💼 Responsable Comptabilité Groupe (H/F) —  (Casablanca) ⏰2027-01-16\n💼 Directeur Administratif et Financier Groupe (H/F) —  (Casablanca) ⏰2027-01-16\n💼 Technico commercial pièces de rechange et accessoiresH/F — Blue Box (Casablanca) ⏰2027-01-16\n💼 Commercial(e) Assurance Emprunteur (H/F) — CRIT (Casablanca) ⏰2027-01-16\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-16\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-16\n💼 Responsable Groupe d'Agence (H/F) — Fondation Arrawaj (Agadir) ⏰2027-01-16\n💼 COMMERCIAL(E) TERRAIN — Flormar (Casablanca) ⏰2027-01-16\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Chargé d'Appui Commercial (H/F) (2026-11-17)\n- Gestionnaire Clientèle (H/F) - Tanger (2026-11-17)\n- Concours — Architecte Solutions Sécurité (2026-11-17)\n- Concours — Ingénieur Support et Exploitation IT (2026-11-17)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-11-17)\n📊 Total suivi : 2032 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 18,
+        "concours": 4,
+        "total": 2032
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1794835378740",
       "at": "2026-11-16T13:22:58.740Z",
@@ -348,18 +360,6 @@
         "new": 45,
         "concours": 3,
         "total": 1409
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793566706738",
-      "at": "2026-11-01T20:58:26.738Z",
-      "title": "+8 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 8 nouveauté(s) (cloud)\n💼 Responsable Trésorerie & Financements (H/F) – 7 ans minimum d’expérience — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Comptable Confirmé(e) — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Chargé(e) de la Logistique — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Responsable Back Judiciaire —  (Casablanca)\n💼 Comptable —  (Casablanca)\n💼 Comptable —  (Témara)\n💼 Magasinier - Agent de réception —  (Casablanca)\n💼 Chef de Projet Électricité & Études (H/F) —  (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n- Concours — Chargé de suivi dossiers d'assurances (2026-11-02)\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n📊 Total suivi : 1364 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 8,
-        "concours": 0,
-        "total": 1364
       },
       "kind": "nouvelles-offres"
     }
