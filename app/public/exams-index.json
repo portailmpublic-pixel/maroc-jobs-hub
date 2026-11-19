@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-19T14:08:59.903Z",
+  "updatedAt": "2026-11-19T23:24:53.125Z",
   "years": [
     2022,
     2023,
@@ -657,9 +657,9 @@
       "id": "emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958",
       "title": "Concours — maitre de conférence",
       "company": "Univesité Chouaïb Doukkali - El Jadida",
-      "specialty": "",
+      "specialty": "Energétiques et physique des Matériaux",
       "fonction": "maitre de conférence",
-      "city": "Maroc",
+      "city": "El Jadida",
       "url": "https://www.emploi-public.ma/fr/concours/details/5fa5e401-264d-4268-9a4c-468b3f6e3958",
       "familyLabel": "Éducation / Enseignement",
       "files": [
@@ -669,7 +669,7 @@
           "title": "Sujet 2022",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2022-sujet-v7.pdf",
-          "size": 9368
+          "size": 9421
         },
         {
           "year": 2022,
@@ -677,7 +677,7 @@
           "title": "Corrigé 2022",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2022-corrige-v7.pdf",
-          "size": 6883
+          "size": 6936
         },
         {
           "year": 2023,
@@ -685,7 +685,7 @@
           "title": "Sujet 2023",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2023-sujet-v7.pdf",
-          "size": 9408
+          "size": 9461
         },
         {
           "year": 2023,
@@ -693,7 +693,7 @@
           "title": "Corrigé 2023",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2023-corrige-v7.pdf",
-          "size": 6883
+          "size": 6936
         },
         {
           "year": 2024,
@@ -701,7 +701,7 @@
           "title": "Sujet 2024",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2024-sujet-v7.pdf",
-          "size": 9419
+          "size": 9472
         },
         {
           "year": 2024,
@@ -709,7 +709,7 @@
           "title": "Corrigé 2024",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2024-corrige-v7.pdf",
-          "size": 6876
+          "size": 6929
         },
         {
           "year": 2025,
@@ -717,7 +717,7 @@
           "title": "Sujet 2025",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2025-sujet-v7.pdf",
-          "size": 9391
+          "size": 9444
         },
         {
           "year": 2025,
@@ -725,7 +725,7 @@
           "title": "Corrigé 2025",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2025-corrige-v7.pdf",
-          "size": 6873
+          "size": 6926
         },
         {
           "year": 2026,
@@ -733,7 +733,7 @@
           "title": "Sujet 2026",
           "detail": "10 QCM + 3 cours + 1 cas",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2026-sujet-v7.pdf",
-          "size": 9411
+          "size": 9464
         },
         {
           "year": 2026,
@@ -741,7 +741,7 @@
           "title": "Corrigé 2026",
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-5fa5e401-264d-4268-9a4c-468b3f6e3958-2026-corrige-v7.pdf",
-          "size": 6889
+          "size": 6942
         }
       ]
     },
