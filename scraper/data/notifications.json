@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1795097339607",
+    "at": "2026-11-19T14:08:59.607Z",
+    "kind": "nouvelles-offres",
+    "title": "+37 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 37 nouveauté(s) (cloud)\n💼 INGÉNIEUR ÉTUDES GÉNIE CIVIL / POST-TENSION — ENI GROUP (Rabat) ⏰2027-01-19\n💼 TECHNICO-COMMERCIAL(E) BTP / POST-TENSION - CDI — ENI GROUP (Rabat) ⏰2027-01-19\n💼 Administrateur Infrastructure & Sauvegarde — Hyundai (Global Engines) (Casablanca) ⏰2027-01-19\n💼 Manager d’Equipe — AXA Services Maroc (Rabat) ⏰2027-01-19\n💼 Assistante de Direction — Centrale Danone (Casablanca) ⏰2027-01-19\n💼 Développeur Back-End Java / Kafka / RabbitMQ Senior (H/F) — CGI Technologies et Solutions Maroc (Casablanca) ⏰2027-01-19\n💼 Data Engineer Java / Scala Senior (H/F) — CGI Technologies et Solutions Maroc (Casablanca) ⏰2027-01-19\n💼 Assistant (e) Moyens Généraux —  (Casablanca et périphérie) ⏰2027-01-19\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — (Conseiller en Orientation - Errachidia (RH 140/2026 (2026-11-19)\n- Concours — (Responsable de la ferme pédagogique - Guelmim (RH 141/2026 (2026-11-19)\n- Concours — (Formateur en Management hôtelier - Errachidia (RH 142/2026 (2026-11-19)\n- Emirates Cabin Crew (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n📊 Total suivi : 2162 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 37,
+      "concours": 4,
+      "total": 2162
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1795043804353",
     "at": "2026-11-18T23:16:44.353Z",
     "kind": "nouvelles-offres",
