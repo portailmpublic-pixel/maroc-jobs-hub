@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1795215504906",
+    "at": "2026-11-20T22:58:24.906Z",
+    "kind": "nouvelles-offres",
+    "title": "+31 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 31 nouveauté(s) (cloud)\n💼 Ingénieur IAM / CIAM — Excel Management Conseil (Rabat) ⏰2027-01-20\n💼 Facilities Analyst — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Customer Experience Manager — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Human Resource Manager — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Ingénieur Marque Industrielle — Safran Nacelles (Casablanca) ⏰2027-01-20\n💼 Real Time Analyst — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Operations Team Leader — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Operations Quality Analyst — Telus Digital (Casablanca) ⏰2027-01-20\n⏰ Deadlines ≤ 3j :\n- Emirates Cabin Crew (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n📊 Total suivi : 2244 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 31,
+      "concours": 0,
+      "total": 2244
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1795182669160",
     "at": "2026-11-20T13:51:09.160Z",
     "kind": "nouvelles-offres",

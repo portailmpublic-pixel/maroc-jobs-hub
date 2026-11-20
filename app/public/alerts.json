@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-20T13:51:09.161Z",
+  "updatedAt": "2026-11-20T22:58:24.907Z",
   "phone": "212663369080",
-  "total": 2213,
+  "total": 2244,
   "alerts": [
+    {
+      "id": "n1795215504906",
+      "at": "2026-11-20T22:58:24.906Z",
+      "title": "+31 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 31 nouveauté(s) (cloud)\n💼 Ingénieur IAM / CIAM — Excel Management Conseil (Rabat) ⏰2027-01-20\n💼 Facilities Analyst — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Customer Experience Manager — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Human Resource Manager — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Ingénieur Marque Industrielle — Safran Nacelles (Casablanca) ⏰2027-01-20\n💼 Real Time Analyst — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Operations Team Leader — Telus Digital (Casablanca) ⏰2027-01-20\n💼 Operations Quality Analyst — Telus Digital (Casablanca) ⏰2027-01-20\n⏰ Deadlines ≤ 3j :\n- Emirates Cabin Crew (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n- Concours — maitre de conférence (2026-11-20)\n📊 Total suivi : 2244 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 31,
+        "concours": 0,
+        "total": 2244
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795182669160",
       "at": "2026-11-20T13:51:09.160Z",
@@ -348,18 +360,6 @@
         "new": 33,
         "concours": 4,
         "total": 1614
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793918053374",
-      "at": "2026-11-05T22:34:13.374Z",
-      "title": "+26 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 26 nouveauté(s) (cloud)\n💼 Test Lead — AXA Services Maroc (Rabat) ⏰2027-01-05\n💼 CHARGÉ(E) DE TRÉSORERIE —  (Casablanca) ⏰2027-01-05\n💼 Service Delivery Lead, Application Packaging — ALTEN Maroc (Rabat) ⏰2027-01-05\n💼 INGENIEUR RESEAUX JUNIOR — GSM AL MAGHRIB (Casablanca) ⏰2027-01-05\n💼 Responsable Trésorerie —  (Casablanca) ⏰2027-01-05\n💼 Responsable Production —  (Casablanca) ⏰2027-01-05\n💼 Gestionnaire sinistre — AXA Services Maroc (Rabat) ⏰2027-01-05\n💼 INGENIEUR CLOUD SENIOR — GSM AL MAGHRIB (Casablanca) ⏰2027-01-05\n🏛️ dont 1 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d’Etat en topographie (2026-11-05)\n- Concours — Un Cadre au Département Territorial de Guelmim, relevant de la Direction de Développement des Zones de l'Arganier (DDZA) de l’ANDZOA) (2026-11-05)\n- Concours — Quatre (4) cadres, spécialité Génie Civil ou Génie Rural, au sein de la Direction du Développement des Zones de l’Arganier de l’ANDZOA (2026-11-05)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-11-05)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-11-05)\n📊 Total suivi : 1589 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 26,
-        "concours": 1,
-        "total": 1589
       },
       "kind": "nouvelles-offres"
     }
