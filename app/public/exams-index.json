@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-19T23:24:53.125Z",
+  "updatedAt": "2026-11-20T13:51:09.358Z",
   "years": [
     2022,
     2023,
@@ -7,7 +7,7 @@
     2025,
     2026
   ],
-  "total": 9,
+  "total": 10,
   "offers": [
     {
       "id": "dreamjob-hassan1er",
@@ -190,282 +190,6 @@
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/dreamjob-sntl10-2026-corrige-v7.pdf",
           "size": 6508
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b",
-      "title": "Concours — (Conseiller en Orientation - Errachidia (RH 140/2026",
-      "company": "Office de la Formation Professionnelle et de la Promotion du Travail",
-      "specialty": "",
-      "fonction": "(Conseiller en Orientation - Errachidia (RH 140/2026",
-      "city": "Errachidia",
-      "url": "https://www.emploi-public.ma/fr/concours/details/a866bd08-82bd-4bc4-930a-a3d77858dc9b",
-      "familyLabel": "Administration / Gestion",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2022-sujet-v7.pdf",
-          "size": 9693
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2022-corrige-v7.pdf",
-          "size": 6978
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2023-sujet-v7.pdf",
-          "size": 9634
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2023-corrige-v7.pdf",
-          "size": 6882
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2024-sujet-v7.pdf",
-          "size": 9622
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2024-corrige-v7.pdf",
-          "size": 6857
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2025-sujet-v7.pdf",
-          "size": 9643
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2025-corrige-v7.pdf",
-          "size": 6879
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2026-sujet-v7.pdf",
-          "size": 9645
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-a866bd08-82bd-4bc4-930a-a3d77858dc9b-2026-corrige-v7.pdf",
-          "size": 6878
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08",
-      "title": "Concours — (Responsable de la ferme pédagogique - Guelmim (RH 141/2026",
-      "company": "Office de la Formation Professionnelle et de la Promotion du Travail",
-      "specialty": "",
-      "fonction": "(Responsable de la ferme pédagogique - Guelmim (RH 141/2026",
-      "city": "Guelmim",
-      "url": "https://www.emploi-public.ma/fr/concours/details/6d19904f-2145-460d-ab8a-5d02bc74ee08",
-      "familyLabel": "Administration / Gestion",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2022-sujet-v7.pdf",
-          "size": 9707
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2022-corrige-v7.pdf",
-          "size": 6992
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2023-sujet-v7.pdf",
-          "size": 9648
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2023-corrige-v7.pdf",
-          "size": 6896
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2024-sujet-v7.pdf",
-          "size": 9636
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2024-corrige-v7.pdf",
-          "size": 6871
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2025-sujet-v7.pdf",
-          "size": 9657
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2025-corrige-v7.pdf",
-          "size": 6893
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2026-sujet-v7.pdf",
-          "size": 9659
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-6d19904f-2145-460d-ab8a-5d02bc74ee08-2026-corrige-v7.pdf",
-          "size": 6892
-        }
-      ]
-    },
-    {
-      "id": "emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f",
-      "title": "Concours — (Formateur en Management hôtelier - Errachidia (RH 142/2026",
-      "company": "Office de la Formation Professionnelle et de la Promotion du Travail",
-      "specialty": "",
-      "fonction": "(Formateur en Management hôtelier - Errachidia (RH 142/2026",
-      "city": "Errachidia",
-      "url": "https://www.emploi-public.ma/fr/concours/details/f205c15d-264a-42fe-8821-b4db04f40b7f",
-      "familyLabel": "Administration / Gestion",
-      "files": [
-        {
-          "year": 2022,
-          "kind": "sujet",
-          "title": "Sujet 2022",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2022-sujet-v7.pdf",
-          "size": 9707
-        },
-        {
-          "year": 2022,
-          "kind": "corrige",
-          "title": "Corrigé 2022",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2022-corrige-v7.pdf",
-          "size": 6992
-        },
-        {
-          "year": 2023,
-          "kind": "sujet",
-          "title": "Sujet 2023",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2023-sujet-v7.pdf",
-          "size": 9648
-        },
-        {
-          "year": 2023,
-          "kind": "corrige",
-          "title": "Corrigé 2023",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2023-corrige-v7.pdf",
-          "size": 6896
-        },
-        {
-          "year": 2024,
-          "kind": "sujet",
-          "title": "Sujet 2024",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2024-sujet-v7.pdf",
-          "size": 9636
-        },
-        {
-          "year": 2024,
-          "kind": "corrige",
-          "title": "Corrigé 2024",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2024-corrige-v7.pdf",
-          "size": 6871
-        },
-        {
-          "year": 2025,
-          "kind": "sujet",
-          "title": "Sujet 2025",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2025-sujet-v7.pdf",
-          "size": 9657
-        },
-        {
-          "year": 2025,
-          "kind": "corrige",
-          "title": "Corrigé 2025",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2025-corrige-v7.pdf",
-          "size": 6893
-        },
-        {
-          "year": 2026,
-          "kind": "sujet",
-          "title": "Sujet 2026",
-          "detail": "10 QCM + 3 cours + 1 cas",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2026-sujet-v7.pdf",
-          "size": 9659
-        },
-        {
-          "year": 2026,
-          "kind": "corrige",
-          "title": "Corrigé 2026",
-          "detail": "Corrigé détaillé + méthode",
-          "file": "exams/emploi-public-f205c15d-264a-42fe-8821-b4db04f40b7f-2026-corrige-v7.pdf",
-          "size": 6892
         }
       ]
     },
@@ -834,6 +558,374 @@
           "detail": "Corrigé détaillé + méthode",
           "file": "exams/emploi-public-1d448ba7-7fe9-4498-ae96-44e9135e799a-2026-corrige-v7.pdf",
           "size": 6742
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7",
+      "title": "Concours — (Chef de pôle des Opérations - Errachidia (RH 153/2026",
+      "company": "Office de la Formation Professionnelle et de la Promotion du Travail",
+      "specialty": "",
+      "fonction": "(Chef de pôle des Opérations - Errachidia (RH 153/2026",
+      "city": "Errachidia",
+      "url": "https://www.emploi-public.ma/fr/concours/details/747c4b54-3e2a-4a77-a310-c2f23df4e5b7",
+      "familyLabel": "Administration / Gestion",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2022-sujet-v7.pdf",
+          "size": 9697
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2022-corrige-v7.pdf",
+          "size": 6982
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2023-sujet-v7.pdf",
+          "size": 9638
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2023-corrige-v7.pdf",
+          "size": 6886
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2024-sujet-v7.pdf",
+          "size": 9626
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2024-corrige-v7.pdf",
+          "size": 6861
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2025-sujet-v7.pdf",
+          "size": 9647
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2025-corrige-v7.pdf",
+          "size": 6883
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2026-sujet-v7.pdf",
+          "size": 9649
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-747c4b54-3e2a-4a77-a310-c2f23df4e5b7-2026-corrige-v7.pdf",
+          "size": 6882
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-7d50b278-c694-4107-bfb7-50971fb21023",
+      "title": "Concours — (Chef de pôle gestion et commerce - Errachidia (RH 154/2026",
+      "company": "Office de la Formation Professionnelle et de la Promotion du Travail",
+      "specialty": "",
+      "fonction": "(Chef de pôle gestion et commerce - Errachidia (RH 154/2026",
+      "city": "Errachidia",
+      "url": "https://www.emploi-public.ma/fr/concours/details/7d50b278-c694-4107-bfb7-50971fb21023",
+      "familyLabel": "Administration / Gestion",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2022-sujet-v7.pdf",
+          "size": 9707
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2022-corrige-v7.pdf",
+          "size": 6992
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2023-sujet-v7.pdf",
+          "size": 9648
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2023-corrige-v7.pdf",
+          "size": 6896
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2024-sujet-v7.pdf",
+          "size": 9636
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2024-corrige-v7.pdf",
+          "size": 6871
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2025-sujet-v7.pdf",
+          "size": 9657
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2025-corrige-v7.pdf",
+          "size": 6893
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2026-sujet-v7.pdf",
+          "size": 9659
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-7d50b278-c694-4107-bfb7-50971fb21023-2026-corrige-v7.pdf",
+          "size": 6892
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa",
+      "title": "Concours — (Chef de pôle Tourisme et Hôtellerie -Errachidia (RH 155/2026",
+      "company": "Office de la Formation Professionnelle et de la Promotion du Travail",
+      "specialty": "",
+      "fonction": "(Chef de pôle Tourisme et Hôtellerie -Errachidia (RH 155/2026",
+      "city": "Errachidia",
+      "url": "https://www.emploi-public.ma/fr/concours/details/5db011fb-e5bc-4d7e-af69-96f948f7f1fa",
+      "familyLabel": "Administration / Gestion",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2022-sujet-v7.pdf",
+          "size": 9711
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2022-corrige-v7.pdf",
+          "size": 6996
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2023-sujet-v7.pdf",
+          "size": 9652
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2023-corrige-v7.pdf",
+          "size": 6900
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2024-sujet-v7.pdf",
+          "size": 9640
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2024-corrige-v7.pdf",
+          "size": 6875
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2025-sujet-v7.pdf",
+          "size": 9661
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2025-corrige-v7.pdf",
+          "size": 6897
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2026-sujet-v7.pdf",
+          "size": 9663
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-5db011fb-e5bc-4d7e-af69-96f948f7f1fa-2026-corrige-v7.pdf",
+          "size": 6896
+        }
+      ]
+    },
+    {
+      "id": "emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803",
+      "title": "Concours — (Conseiller(ère) Carrière- Errachidia (RH 156/2026",
+      "company": "Office de la Formation Professionnelle et de la Promotion du Travail",
+      "specialty": "",
+      "fonction": "(Conseiller(ère) Carrière- Errachidia (RH 156/2026",
+      "city": "Errachidia",
+      "url": "https://www.emploi-public.ma/fr/concours/details/56964206-9ee1-4ccd-accc-8c6aee693803",
+      "familyLabel": "Administration / Gestion",
+      "files": [
+        {
+          "year": 2022,
+          "kind": "sujet",
+          "title": "Sujet 2022",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2022-sujet-v7.pdf",
+          "size": 9693
+        },
+        {
+          "year": 2022,
+          "kind": "corrige",
+          "title": "Corrigé 2022",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2022-corrige-v7.pdf",
+          "size": 6978
+        },
+        {
+          "year": 2023,
+          "kind": "sujet",
+          "title": "Sujet 2023",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2023-sujet-v7.pdf",
+          "size": 9634
+        },
+        {
+          "year": 2023,
+          "kind": "corrige",
+          "title": "Corrigé 2023",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2023-corrige-v7.pdf",
+          "size": 6882
+        },
+        {
+          "year": 2024,
+          "kind": "sujet",
+          "title": "Sujet 2024",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2024-sujet-v7.pdf",
+          "size": 9622
+        },
+        {
+          "year": 2024,
+          "kind": "corrige",
+          "title": "Corrigé 2024",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2024-corrige-v7.pdf",
+          "size": 6857
+        },
+        {
+          "year": 2025,
+          "kind": "sujet",
+          "title": "Sujet 2025",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2025-sujet-v7.pdf",
+          "size": 9643
+        },
+        {
+          "year": 2025,
+          "kind": "corrige",
+          "title": "Corrigé 2025",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2025-corrige-v7.pdf",
+          "size": 6879
+        },
+        {
+          "year": 2026,
+          "kind": "sujet",
+          "title": "Sujet 2026",
+          "detail": "10 QCM + 3 cours + 1 cas",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2026-sujet-v7.pdf",
+          "size": 9645
+        },
+        {
+          "year": 2026,
+          "kind": "corrige",
+          "title": "Corrigé 2026",
+          "detail": "Corrigé détaillé + méthode",
+          "file": "exams/emploi-public-56964206-9ee1-4ccd-accc-8c6aee693803-2026-corrige-v7.pdf",
+          "size": 6878
         }
       ]
     }
