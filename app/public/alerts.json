@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-21T13:15:18.440Z",
+  "updatedAt": "2026-11-21T22:02:58.898Z",
   "phone": "212663369080",
-  "total": 2254,
+  "total": 2268,
   "alerts": [
+    {
+      "id": "n1795298578897",
+      "at": "2026-11-21T22:02:58.897Z",
+      "title": "+14 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 14 nouveauté(s) (cloud)\n💼 Secrétaire Médicale — AKDITAL (Tanger) ⏰2027-01-21\n💼 Infographiste Packaging - LISSASFA —  (Casablanca)\n💼 Chauffeur Permis C Safi —  (Safi)\n💼 Manutentionnaire à Marrakech- Harbil —  (Marrakech)\n💼 Magasinier Pièces de Rechange / Acheteur —  (Casablanca)\n💼 Préparateur de commandes à Tit Mellil - Mediouna —  (Mediouna)\n💼 Chauffeur Permis C Nador —  (Nador)\n💼 Aide livreur permis C à Meknès —  (Meknès)\n⏰ Deadlines ≤ 3j :\n- Chargé(e) de recrutement IT (2026-11-21)\n- Concours — (Chef de pôle des Opérations - Errachidia (RH 153/2026 (2026-11-21)\n- Concours — (Chef de pôle gestion et commerce - Errachidia (RH 154/2026 (2026-11-21)\n- Concours — (Chef de pôle Tourisme et Hôtellerie -Errachidia (RH 155/2026 (2026-11-21)\n- Concours — (Conseiller(ère) Carrière- Errachidia (RH 156/2026 (2026-11-21)\n📊 Total suivi : 2268 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 14,
+        "concours": 0,
+        "total": 2268
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795266918439",
       "at": "2026-11-21T13:15:18.439Z",
@@ -348,18 +360,6 @@
         "new": 17,
         "concours": 1,
         "total": 1645
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794002216103",
-      "at": "2026-11-06T21:56:56.103Z",
-      "title": "+14 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 14 nouveauté(s) (cloud)\n💼 Inspecteur Commercial Sédentaire H/F — HEOMI (Casablanca) ⏰2026-12-08\n💼 Cloud engineering Administrateur / SRE Kubernetes Sénior — ALTEN Maroc (Rabat) ⏰2027-01-06\n💼 Chef de Département (H/F) - Hypermarché — Groupe Label'Vie - Carrefour (Mobilité Nationale) ⏰2027-01-06\n💼 HRBP HYPER — Groupe Label'Vie - Carrefour (Tout le Maroc) ⏰2027-01-06\n💼 Data Protection Officer — AXA Services Maroc (Rabat) ⏰2027-01-06\n💼 Expert Technique Applicatif / BA — ALTEN Maroc (Rabat) ⏰2027-01-06\n💼 Gent merchandising dÉco —  (Laayoune)\n💼 Besoin d'unn technicien génie civil —  (Errachidia)\n⏰ Deadlines ≤ 3j :\n- Supply Chain Engineer (H/F) (2026-11-07)\n- Conseillers Commerciaux en Assurance – Émission d’Appels (2026-11-07)\n- Concours — Maitre de conférences Faculté de Médecine et Pharmacie - Tanger (2026-11-07)\n- Concours — محاسب مسؤول عن مراقبة الإيرادات والمقبوضات النقدية (2026-11-07)\n- Concours — Chargé communication, image de marque et partenariats (2026-11-07)\n📊 Total suivi : 1628 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 14,
-        "concours": 0,
-        "total": 1628
       },
       "kind": "nouvelles-offres"
     }
