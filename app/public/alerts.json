@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-20T22:58:24.907Z",
+  "updatedAt": "2026-11-21T13:15:18.440Z",
   "phone": "212663369080",
-  "total": 2244,
+  "total": 2254,
   "alerts": [
+    {
+      "id": "n1795266918439",
+      "at": "2026-11-21T13:15:18.439Z",
+      "title": "+14 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 14 nouveauté(s) (cloud)\n💼 Agent Réseau 24/7 (F/H) — CGI Technologies et Solutions Maroc (Fès) ⏰2027-01-21\n💼 Consultant Senior Devops — CGI Technologies et Solutions Maroc (Casablanca) ⏰2027-01-21\n🏛️ Concours — متصرف من الدرجة الثالثة بكلية العلوم الإنسانية و الإجتماعية بالسمارة تخصص لغات أجنبية — Université Ibn Zohr - Agadir (Agadir) ⏰2026-11-22\n🏛️ Concours — Administrateur 3ème grade à la FS Agadir spécialité Physique — Université Ibn Zohr - Agadir (Agadir) ⏰2026-11-22\n🏛️ Concours — Technicien 3ème grade à la Faculté Chariâa d’Agadir spécialité Informatique — Université Ibn Zohr - Agadir (Agadir) ⏰2026-11-22\n🏛️ Concours — تقني من الدرجة الثالثة بكلية الآداب و العلوم الإنسانية بأكادير تخصص Informatique — Université Ibn Zohr - Agadir (Agadir) ⏰2026-11-22\n💼 RESPONSABLE DE DÉVELOPPEMENT – QAI —  (Casablanca)\n💼 RECRUTEMENT – CHEF DE PARTIE —  (Marrakech)\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Chargé(e) de recrutement IT (2026-11-21)\n- Concours — (Chef de pôle des Opérations - Errachidia (RH 153/2026 (2026-11-21)\n- Concours — (Chef de pôle gestion et commerce - Errachidia (RH 154/2026 (2026-11-21)\n- Concours — (Chef de pôle Tourisme et Hôtellerie -Errachidia (RH 155/2026 (2026-11-21)\n- Concours — (Conseiller(ère) Carrière- Errachidia (RH 156/2026 (2026-11-21)\n📊 Total suivi : 2254 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 14,
+        "concours": 4,
+        "total": 2254
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795215504906",
       "at": "2026-11-20T22:58:24.906Z",
@@ -348,18 +360,6 @@
         "new": 14,
         "concours": 0,
         "total": 1628
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1793969048586",
-      "at": "2026-11-06T12:44:08.586Z",
-      "title": "+33 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 33 nouveauté(s) (cloud)\n💼 Change management specialist Hispano (Consultant Ordonnancement - Secteur Automobile) — ALTEN Maroc (Tétouan) ⏰2027-01-06\n💼 Order Scheduler — ALTEN Maroc (Rabat) ⏰2027-01-06\n💼 Technical Lead Workspace – Portails d’accès applicatifs (F5 VPN / MyApps) — ALTEN Maroc (Rabat) ⏰2027-01-06\n💼 Tech Lead VoIP/Teams – Maîtrise technique de la chaîne voix TGITS — ALTEN Maroc (Rabat) ⏰2027-01-06\n💼 Data Ops Sénior – Data Platform — ALTEN Maroc (Rabat) ⏰2027-01-06\n🏛️ Concours — Maitre de conférences Faculté de Médecine et Pharmacie - Tanger — Université Abdelmalek Essaâdi - Tétouan (Tanger) ⏰2026-11-07\n🏛️ Concours — محاسب مسؤول عن مراقبة الإيرادات والمقبوضات النقدية — SDL MARRAKECH MOUSSAFIR S.A (Marrakech) ⏰2026-11-07\n🏛️ Concours — Chargé communication, image de marque et partenariats — SDL MARRAKECH MOUSSAFIR S.A (Marrakech) ⏰2026-11-07\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Supply Chain Engineer (H/F) (2026-11-07)\n- Conseillers Commerciaux en Assurance – Émission d’Appels (2026-11-07)\n- Concours — Maitre de conférences Faculté de Médecine et Pharmacie - Tanger (2026-11-07)\n- Concours — محاسب مسؤول عن مراقبة الإيرادات والمقبوضات النقدية (2026-11-07)\n- Concours — Chargé communication, image de marque et partenariats (2026-11-07)\n📊 Total suivi : 1614 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 33,
-        "concours": 4,
-        "total": 1614
       },
       "kind": "nouvelles-offres"
     }
