@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-22T13:05:56.099Z",
+  "updatedAt": "2026-11-22T22:18:54.702Z",
   "phone": "212663369080",
-  "total": 2276,
+  "total": 2303,
   "alerts": [
+    {
+      "id": "n1795385934701",
+      "at": "2026-11-22T22:18:54.701Z",
+      "title": "+27 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 27 nouveauté(s) (cloud)\n💼 Responsable BAF - Clinique — AKDITAL (Al Hoceima) ⏰2027-01-22\n💼 Responsable Comptable Administratif Comptabilité —  (Casablanca)\n💼 Vendeuses expérimente à Aéroport SALE —  (Salé)\n💼 Technicien Informatique (IT) - CASABLANCA —  (Casablanca)\n💼 Analyste Financier Junior (H/F) —  (Casablanca)\n💼 Magasinier-Livreur et administratif —  (Casablanca)\n💼 Responsable administrative (f) a marrakech —  (Marrakech)\n💼 ASSISTANTE COMMERCIAL —  (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Responsable service formation en Assurance (H/F) Tanger (2026-11-22)\n- Gestionnaire de paie et Administration du personnel (ADP) (2026-11-22)\n- chargé du contrôle des flux de trésorerie (2026-11-22)\n- Lead Technique Devops N3 (F/H) (2026-11-22)\n- Concours — متصرف من الدرجة الثالثة بكلية العلوم الإنسانية و الإجتماعية بالسمارة تخصص لغات أجنبية (2026-11-22)\n📊 Total suivi : 2303 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 27,
+        "concours": 0,
+        "total": 2303
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795352756094",
       "at": "2026-11-22T13:05:56.094Z",
@@ -348,18 +360,6 @@
         "new": 9,
         "concours": 0,
         "total": 1655
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794084057182",
-      "at": "2026-11-07T20:40:57.182Z",
-      "title": "+4 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 4 nouveauté(s) (cloud)\n💼 infirmière réanimation néonatale Mohammedia — AKDITAL (1) ⏰2027-01-07\n💼 Comptable (F) Sidi maarouf —  (Casablanca)\n💼 COMPTABLE CONFIRMEE : SIDI MAAROUF —  (Casablanca)\n💼 Stage (H/F) – Assistant(e) commercial(e) & marketing | Casablanca — GMH All In One (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Supply Chain Engineer (H/F) (2026-11-07)\n- Conseillers Commerciaux en Assurance – Émission d’Appels (2026-11-07)\n- Concours — Maitre de conférences Faculté de Médecine et Pharmacie - Tanger (2026-11-07)\n- Concours — محاسب مسؤول عن مراقبة الإيرادات والمقبوضات النقدية (2026-11-07)\n- Concours — Chargé communication, image de marque et partenariats (2026-11-07)\n📊 Total suivi : 1649 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 4,
-        "concours": 0,
-        "total": 1649
       },
       "kind": "nouvelles-offres"
     }
