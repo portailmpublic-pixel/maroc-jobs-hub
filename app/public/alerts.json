@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-22T22:18:54.702Z",
+  "updatedAt": "2026-11-23T15:42:07.337Z",
   "phone": "212663369080",
-  "total": 2303,
+  "total": 2346,
   "alerts": [
+    {
+      "id": "n1795448527336",
+      "at": "2026-11-23T15:42:07.336Z",
+      "title": "+47 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 47 nouveauté(s) (cloud)\n💼 Conseiller bilingue FR/ENG — Teleperformance - TP (Marrakech) ⏰2026-12-29\n💼 Chargé de Clientèle francophone pour un leader en Télécom — Teleperformance - TP (Marrakech) ⏰2026-12-29\n💼 Télévendeur - Marrakech — Teleperformance - TP (Marrakech) ⏰2027-01-03\n💼 Sous-Chef Junior — Jardin Majorelle (Marrakech) ⏰2027-01-23\n💼 Consultant Senior Boomi (Intégration & API Management) — DXC - CDG (Casablanca) ⏰2027-01-23\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-23\n💼 Responsable Systèmes d'Information — Domino HR Morocco (Agadir) ⏰2027-01-23\n💼 Responsable Groupe d'Agence — Fondation Arrawaj (Tétouan) ⏰2027-01-23\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Emirates Cabin Crew (2026-11-23)\n- Technicien Usinage Aéronautique (2026-11-23)\n- Ingénieur DevOps (F/H) (2026-11-23)\n- Personal Assistant (2026-11-23)\n- Concours — Maître de conférences grade A - echelle 11 (2026-11-23)\n📊 Total suivi : 2346 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 47,
+        "concours": 4,
+        "total": 2346
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795385934701",
       "at": "2026-11-22T22:18:54.701Z",
@@ -348,18 +360,6 @@
         "new": 920,
         "concours": 2,
         "total": 1671
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794138192683",
-      "at": "2026-11-08T11:43:12.683Z",
-      "title": "+9 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 9 nouveauté(s) (cloud)\n💼 Développeur / Développeuse Salesforce — Capgemini (Casablanca) ⏰2027-01-07\n💼 Carossier tôlier canada —  (Beni Mellal)\n💼 Standardiste —  (Marrakech)\n💼 Agent Administratif et Comptable —  (Tanger)\n💼 Aide comptable —  (Marrakech)\n💼 Agente de confirmation téléphonique à Sidi Maarouf —  (Casablanca)\n💼 Chef d'atelier du marbre —  (Agadir)\n💼 Chef de chantier de Revetement —  (Agadir)\n⏰ Deadlines ≤ 3j :\n- Support Technique Régional - CDD (2026-11-08)\n- SAP FIORI (2026-11-08)\n- Consultant SAP SuccessFactors (2026-11-08)\n- Développeur Senior Kafka (H/F) (2026-11-08)\n- Consultant SAP SD/MM (2026-11-08)\n📊 Total suivi : 1655 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 9,
-        "concours": 0,
-        "total": 1655
       },
       "kind": "nouvelles-offres"
     }
