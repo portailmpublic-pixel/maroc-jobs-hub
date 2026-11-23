@@ -1,6 +1,8 @@
 {
-  "updatedAt": "2026-11-10T19:30:17Z",
-  "disabled": [],
+  "updatedAt": "2026-11-23T12:04:12Z",
+  "disabled": [
+    "imsma2749@gmail.com"
+  ],
   "marches": [
     "f95c1b8f8062a58ae611692cba52dc2300448b19d47af3a68a4c62c3c056e9b9",
     "3fd2ae4ffebb6d065ea9a84b33b496025676e19f7856ddcd48af99084c98cad5",
