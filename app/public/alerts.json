@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-23T15:42:07.337Z",
+  "updatedAt": "2026-11-24T03:10:36.738Z",
   "phone": "212663369080",
-  "total": 2346,
+  "total": 2368,
   "alerts": [
+    {
+      "id": "n1795489836737",
+      "at": "2026-11-24T03:10:36.737Z",
+      "title": "+28 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 28 nouveauté(s) (cloud)\n💼 Chargé de relation clientèle — CDG- Branche Epargne-Prévoyance (Rabat) ⏰2026-12-07\n💼 Gestionnaire Logistique — CDG- Branche Epargne-Prévoyance (Rabat) ⏰2026-12-07\n💼 Field Support Technician — Inyad (Casablanca) ⏰2026-12-12\n💼 Assistant Administratif et Financier — Inyad (Casablanca) ⏰2026-11-30\n💼 Coursier — Inyad (Casablanca) ⏰2026-12-08\n💼 Product Owner / Business Analyst — Inyad (Casablanca) ⏰2027-01-03\n💼 Commercial Terrain - Marrakech — Inyad (Marrakech) ⏰2026-12-22\n💼 Commercial Terrain - Tanger — Inyad (Tanger) ⏰2026-12-22\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Coordinateur(trice) Administratif & Financier (2026-11-24)\n- Ingénieur Électrique – Schématique & Appareillages (AUTOCAD) (2026-11-24)\n- Juriste H/F (2026-11-24)\n- Agent Commercial H/F (2026-11-24)\n- Ingénieur DevOps (F/H) (2026-11-24)\n📊 Total suivi : 2368 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 28,
+        "concours": 4,
+        "total": 2368
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795448527336",
       "at": "2026-11-23T15:42:07.336Z",
@@ -348,18 +360,6 @@
         "new": 33,
         "concours": 4,
         "total": 1700
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794171515755",
-      "at": "2026-11-08T20:58:35.755Z",
-      "title": "+920 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 920 nouveauté(s) (cloud)\n💼 Techniciens en froid et climatisation —  (Casablanca)\n💼 Chargé des achats locaux —  (Casablanca)\n💼 TECHNICO COMMERCIAL —  (Casablanca)\n💼 Comptable confirmée —  (Casablanca)\n💼 Acheteur Confirmé/Responsable Achats -Électricité —  (Casablanca)\n💼 CHEF PÂTISSIER H/F —  (Casablanca)\n💼 Commercial(e) – basé à berrechid —  (Berrechid)\n💼 Décoration / Architecture d’intérieur —  (Casablanca)\n🏛️ dont 2 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Support Technique Régional - CDD (2026-11-08)\n- SAP FIORI (2026-11-08)\n- Consultant SAP SuccessFactors (2026-11-08)\n- Développeur Senior Kafka (H/F) (2026-11-08)\n- Consultant SAP SD/MM (2026-11-08)\n📊 Total suivi : 1671 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 920,
-        "concours": 2,
-        "total": 1671
       },
       "kind": "nouvelles-offres"
     }
