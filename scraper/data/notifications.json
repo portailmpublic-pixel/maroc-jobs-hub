@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1795534437532",
+    "at": "2026-11-24T15:33:57.532Z",
+    "kind": "nouvelles-offres",
+    "title": "+40 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 40 nouveauté(s) (cloud)\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-24\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-24\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-24\n💼 Chargé des Applications Informatiques — Fonds Hassan 2 (Rabat) ⏰2027-01-16\n💼 Technicien(ne) d'études Barrage — Novec (Salé, Technopolis) ⏰2027-01-24\n💼 Chef d'Agence (H/F) — Fondation Arrawaj (Rejoignez un réseau en pleine croissance) ⏰2027-01-24\n💼 Responsable des Ressources Humaines (RRH) — CRIT (Casablanca) ⏰2027-01-24\n💼 Pharmacien de Production — Sothema (Bouskoura) ⏰2027-01-24\n⏰ Deadlines ≤ 3j :\n- Coordinateur(trice) Administratif & Financier (2026-11-24)\n- Ingénieur Électrique – Schématique & Appareillages (AUTOCAD) (2026-11-24)\n- Juriste H/F (2026-11-24)\n- Agent Commercial H/F (2026-11-24)\n- Ingénieur DevOps (F/H) (2026-11-24)\n📊 Total suivi : 2408 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 40,
+      "concours": 0,
+      "total": 2408
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1795489836737",
     "at": "2026-11-24T03:10:36.737Z",
     "kind": "nouvelles-offres",
@@ -635,18 +648,5 @@
       "total": 985
     },
     "trigger": "cloud"
-  },
-  {
-    "id": "n1790981245528",
-    "at": "2026-10-02T22:47:25.528Z",
-    "kind": "veille",
-    "title": "Veille sans nouveauté",
-    "body": "🇲🇦 Maroc Jobs Hub — 0 nouveauté(s) (e2e-dryrun)\n⏰ Deadlines ≤ 3j :\n- Concours — maitre de conférence (2026-10-03)\n- Concours — maitre de conférence (2026-10-03)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-10-03)\n- Concours — maitre de conférence (2026-10-03)\n- Concours — Technicien 3ème grade FSA Taroudant, Développement (2026-10-04)\n📊 Total suivi : 396 offres. Ouvrez l'app/onglet Offres pour le détail.",
-    "counts": {
-      "new": 0,
-      "concours": 0,
-      "total": 396
-    },
-    "trigger": "e2e-dryrun"
   }
 ]
