@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1795619960737",
+    "at": "2026-11-25T15:19:20.737Z",
+    "kind": "nouvelles-offres",
+    "title": "+44 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 44 nouveauté(s) (cloud)\n💼 Manager de site ( Facility Management ) Fés — AXA Services Maroc (Fès) ⏰2027-01-25\n💼 RESPONSABLE DE COMPTOIR — Locamed (Nador) ⏰2027-01-25\n💼 Testeur Informatique Anglophone (H/F) — AXA Services Maroc (Salé Technopolis) ⏰2027-01-25\n💼 OPPO Future Leaders Programme — Oppo (Rabat) ⏰2027-01-25\n💼 OPPO Future Leaders Programme — Oppo (Casablanca) ⏰2027-01-25\n💼 Technicien Process — Manpower Agences (Casablanca) ⏰2027-01-25\n💼 Assistante commerciale — GSM AL MAGHRIB (Casablanca) ⏰2027-01-25\n💼 Responsable Administratif et Financier (RAF) – Finance & Contrôle de Gestion —  (Casablanca) ⏰2027-01-25\n⏰ Deadlines ≤ 3j :\n- Représentant commercial (2026-11-25)\n- Superviseur de Production / Shift Leader (2026-11-25)\n- Techniciens Supérieurs - Mécanique/Electricité/Electromécanique (2026-11-25)\n- Technicien de maintenance réseau informatique débutant (2026-11-25)\n- Stagiaire Technique BF/IT (2026-11-25)\n📊 Total suivi : 2477 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 44,
+      "concours": 0,
+      "total": 2477
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1795569354991",
     "at": "2026-11-25T01:15:54.991Z",
     "kind": "nouvelles-offres",
@@ -633,19 +646,6 @@
       "new": 45,
       "concours": 0,
       "total": 1059
-    },
-    "trigger": "cloud"
-  },
-  {
-    "id": "n1793011633152",
-    "at": "2026-10-26T10:47:13.152Z",
-    "kind": "nouvelles-offres",
-    "title": "+32 nouvelle(s) offre(s)",
-    "body": "🇲🇦 Maroc Jobs Hub — 32 nouveauté(s) (cloud)\n💼 Ingénieur Marché Valorisation — Société Générale GSC (Casablanca (États-Unis)) ⏰2026-12-26\n💼 FIC Derivatives Structurer (H/F) — Société Générale GSC (Casablanca) ⏰2026-12-26\n💼 Electricien - Intérim — ENI GROUP (Berrechid) ⏰2026-12-26\n💼 Mécanicien - Intérim — ENI GROUP (Berrechid) ⏰2026-12-26\n💼 Directeur Magasin Supermarché — Groupe Label'Vie - Carrefour (Tout le Maroc) ⏰2027-01-26\n💼 Gérant Magasin -CARREFOUR EXPRESS — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-26\n💼 Gérant Magasin -CARREFOUR EXPRESS — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-01\n💼 Technicien Aquacole - H/F — AZURA GROUP (Dakhla) ⏰2026-12-26\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Responsable SAV Automobile (2026-10-26)\n- Concours — Infirmier de premier grade - echelle 10 (2026-10-26)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-10-26)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-10-26)\n- Concours — Technicien de 4ème grade - echelle 8 (2026-10-26)\n📊 Total suivi : 1014 offres. Ouvrez l'app/onglet Offres pour le détail.",
-    "counts": {
-      "new": 32,
-      "concours": 4,
-      "total": 1014
     },
     "trigger": "cloud"
   }
