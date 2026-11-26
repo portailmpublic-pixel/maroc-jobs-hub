@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-26T00:51:06.974Z",
+  "updatedAt": "2026-11-26T14:44:36.356Z",
   "phone": "212663369080",
-  "total": 2505,
+  "total": 2535,
   "alerts": [
+    {
+      "id": "n1795704276354",
+      "at": "2026-11-26T14:44:36.354Z",
+      "title": "+30 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 30 nouveauté(s) (cloud)\n💼 Assistant(e) Commercial(e)en Réception d'Appels — Maroc Climate and Security (MCS) - Carrier (Casablanca) ⏰2027-01-20\n💼 Responsable contrôle interne — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-11-28\n💼 Chef de projet SAP Sénior — DXC - CDG (Rabat) ⏰2027-01-26\n💼 Superviseur restauration — AKDITAL (Al Hoceima) ⏰2027-01-26\n💼 Conseillers clientèle bilingues FR/EN – Banque canadienne — Foundever (ex Sitel Group) (Rabat) ⏰2027-01-26\n💼 Responsable Maintenance (H/F) —  (Casablanca) ⏰2027-01-26\n💼 Gestionnaire de Stock National — Lesieur Cristal (Casablanca) ⏰2027-01-26\n💼 Comptable — Universet (Casablanca - Bouskoura) ⏰2027-01-26\n⏰ Deadlines ≤ 3j :\n- Chef Departement Regional H/F (2026-11-26)\n- Directeur Regional H/F (2026-11-26)\n- Télé COMMERCIAL (H/F) (2026-11-26)\n- Concours — administrateur 2eme grade (2026-11-26)\n- Concours — Technicien de 3ème grade (2026-11-26)\n📊 Total suivi : 2535 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 30,
+        "concours": 0,
+        "total": 2535
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795654266973",
       "at": "2026-11-26T00:51:06.973Z",
@@ -348,18 +360,6 @@
         "new": 21,
         "concours": 0,
         "total": 1845
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794400072190",
-      "at": "2026-11-11T12:27:52.190Z",
-      "title": "+43 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 43 nouveauté(s) (cloud)\n💼 Chef de département organisation — Groupe Label'Vie - Carrefour (Casablanca) ⏰2027-01-11\n💼 Manager H/F — McDonald's Maroc (Agadir) ⏰2027-01-11\n💼 Quality Manager Software Quality Customer & Support — Maroc Climate and Security (MCS) - Carrier (Casablanca) ⏰2027-01-11\n💼 Vendeurse showroom — Ms Smart Electro (Casablanca) ⏰2027-01-11\n💼 E-COMMERCE SPECIALIST (H/F) — Flormar (Casablanca) ⏰2027-01-11\n💼 Manager H/F — McDonald's Maroc (Marrakech) ⏰2027-01-11\n💼 Responsable Admissions & Réception Clinique — AKDITAL (Marrakech) ⏰2027-01-11\n💼 Chargé de portefeuille (H/F) — Fondation Arrawaj (Fès) ⏰2027-01-11\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Chef de Projet Senior Innovation & Intelligence Artificielle (H/F) (2026-11-11)\n- Concours — Chargé(e) scolarité (2026-11-11)\n- Concours — maitre de conférence (2026-11-11)\n- Concours — Administrateur 2ème grade - echelle 11 (2026-11-11)\n- Concours — Ingénieur d'Etat en Génie Informatique, Spécialité : Big Data ou Data Science ou intelligence Artificielle (2026-11-11)\n📊 Total suivi : 1824 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 43,
-        "concours": 4,
-        "total": 1824
       },
       "kind": "nouvelles-offres"
     }

@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1795704276354",
+    "at": "2026-11-26T14:44:36.354Z",
+    "kind": "nouvelles-offres",
+    "title": "+30 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 30 nouveauté(s) (cloud)\n💼 Assistant(e) Commercial(e)en Réception d'Appels — Maroc Climate and Security (MCS) - Carrier (Casablanca) ⏰2027-01-20\n💼 Responsable contrôle interne — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-11-28\n💼 Chef de projet SAP Sénior — DXC - CDG (Rabat) ⏰2027-01-26\n💼 Superviseur restauration — AKDITAL (Al Hoceima) ⏰2027-01-26\n💼 Conseillers clientèle bilingues FR/EN – Banque canadienne — Foundever (ex Sitel Group) (Rabat) ⏰2027-01-26\n💼 Responsable Maintenance (H/F) —  (Casablanca) ⏰2027-01-26\n💼 Gestionnaire de Stock National — Lesieur Cristal (Casablanca) ⏰2027-01-26\n💼 Comptable — Universet (Casablanca - Bouskoura) ⏰2027-01-26\n⏰ Deadlines ≤ 3j :\n- Chef Departement Regional H/F (2026-11-26)\n- Directeur Regional H/F (2026-11-26)\n- Télé COMMERCIAL (H/F) (2026-11-26)\n- Concours — administrateur 2eme grade (2026-11-26)\n- Concours — Technicien de 3ème grade (2026-11-26)\n📊 Total suivi : 2535 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 30,
+      "concours": 0,
+      "total": 2535
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1795654266973",
     "at": "2026-11-26T00:51:06.973Z",
     "kind": "nouvelles-offres",
@@ -633,19 +646,6 @@
       "new": 8,
       "concours": 0,
       "total": 1364
-    },
-    "trigger": "cloud"
-  },
-  {
-    "id": "n1793096035304",
-    "at": "2026-10-27T10:13:55.304Z",
-    "kind": "nouvelles-offres",
-    "title": "+32 nouvelle(s) offre(s)",
-    "body": "🇲🇦 Maroc Jobs Hub — 32 nouveauté(s) (cloud)\n💼 Responsable Groupe d'Agence (H/F) — Fondation Arrawaj (Agadir) ⏰2026-12-27\n💼 Junior Topline Buyer (H/F) — Centrale Danone (Casablanca) ⏰2026-12-27\n💼 Directeur Administratif et Financier Groupe (DAF) —  (Casablanca) ⏰2026-12-27\n💼 RESPONSABLE CONTROLE GPS & CARBURANT — Distrans Express Maroc (Casablanca) ⏰2026-12-27\n💼 Stagiaire Comptabilité H/F — Sothema (Bouskoura) ⏰2026-12-27\n💼 Responsable Méthodes et Ingénierie Logistique (H/F) — CRIT (Casablanca) ⏰2026-12-27\n💼 Technico-Commercial (H/F) —  (Mohammedia) ⏰2026-12-27\n💼 RESPONSABLE DE MAGASIN — Flormar (Tanger) ⏰2026-12-21\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Cadre supérieur en sûreté (2026-10-27)\n- Concours — MAITRES DE CONFERENCES – CIVILS ET MILITAIRES à la FMPR (2026-10-27)\n- Concours — - Rabat Chargé des courses à handicaps ( H/F) (2026-10-27)\n- Superviseur Traitement - Usines (Taliouine-ASKAOUNE) (2026-10-28)\n- Concours — (Chef de pôle Tourisme et Hôtellerie -Casablanca (RH 115/2026 (2026-10-28)\n📊 Total suivi : 1086 offres. Ouvrez l'app/onglet Offres pour le détail.",
-    "counts": {
-      "new": 32,
-      "concours": 4,
-      "total": 1086
     },
     "trigger": "cloud"
   }
