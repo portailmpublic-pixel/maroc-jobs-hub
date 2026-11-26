@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-25T15:19:20.739Z",
+  "updatedAt": "2026-11-26T00:51:06.974Z",
   "phone": "212663369080",
-  "total": 2477,
+  "total": 2505,
   "alerts": [
+    {
+      "id": "n1795654266973",
+      "at": "2026-11-26T00:51:06.973Z",
+      "title": "+30 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 30 nouveauté(s) (cloud)\n💼 Auditeur interne junior — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 gestionnaire sinistre corporel — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 Stagiaire flux de trésorerie — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 Stagiaire GEID — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 Contrôleur de gestion (H/F) — ORH Assessment (Casablanca) ⏰2027-01-25\n💼 Technicien Laboratoire d'analyses médicales — AKDITAL (Tétouan) ⏰2027-01-25\n💼 Chargée cliente — GSM AL MAGHRIB (Essaouira) ⏰2027-01-25\n💼 Chargée cliente — GSM AL MAGHRIB (Agadir) ⏰2027-01-25\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Chef Departement Regional H/F (2026-11-26)\n- Directeur Regional H/F (2026-11-26)\n- Télé COMMERCIAL (H/F) (2026-11-26)\n- Concours — administrateur 2eme grade (2026-11-26)\n- Concours — Technicien de 3ème grade (2026-11-26)\n📊 Total suivi : 2505 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 30,
+        "concours": 4,
+        "total": 2505
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795619960737",
       "at": "2026-11-25T15:19:20.737Z",
@@ -348,18 +360,6 @@
         "new": 43,
         "concours": 4,
         "total": 1824
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794348569634",
-      "at": "2026-11-10T22:09:29.634Z",
-      "title": "+33 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 33 nouveauté(s) (cloud)\n💼 Ingénieur Qualité — Super Auto Group (Rabat) ⏰2027-01-10\n💼 Adjoint Responsable Service Après-Vente — Auto Nejma Maroc S.A. (Rabat) ⏰2027-01-10\n💼 Ingénieur Test & Validation Sénior — ALTEN Maroc (Rabat) ⏰2027-01-10\n💼 AGENT COMPTABLE — Atlas Online (Casablanca) ⏰2027-01-10\n💼 Project Management Officer (PMO) — Capgemini Engineering (Casablanca) ⏰2027-01-10\n💼 Intégrateur DevOps (F/H) — Sofrecom Maroc (Rabat) ⏰2027-01-10\n💼 Développeur UiPath /Architecte cloud AWS — DXC - CDG (Casablanca) ⏰2027-01-10\n💼 Conseiller clientèle bilingue (Francais/Anglais) — Atlas Online (Casablanca) ⏰2027-01-10\n⏰ Deadlines ≤ 3j :\n- Formateur Germanophone (2026-11-10)\n- Gérant Station de Services (2026-11-10)\n- Chef de Projet Senior Innovation & Intelligence Artificielle (H/F) (2026-11-11)\n- Concours — Chargé(e) scolarité (2026-11-11)\n- Concours — maitre de conférence (2026-11-11)\n📊 Total suivi : 1781 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 33,
-        "concours": 0,
-        "total": 1781
       },
       "kind": "nouvelles-offres"
     }

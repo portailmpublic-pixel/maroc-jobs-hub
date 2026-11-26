@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1795654266973",
+    "at": "2026-11-26T00:51:06.973Z",
+    "kind": "nouvelles-offres",
+    "title": "+30 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 30 nouveauté(s) (cloud)\n💼 Auditeur interne junior — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 gestionnaire sinistre corporel — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 Stagiaire flux de trésorerie — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 Stagiaire GEID — CAT Assurance et Réassurance (Casablanca) ⏰2027-01-26\n💼 Contrôleur de gestion (H/F) — ORH Assessment (Casablanca) ⏰2027-01-25\n💼 Technicien Laboratoire d'analyses médicales — AKDITAL (Tétouan) ⏰2027-01-25\n💼 Chargée cliente — GSM AL MAGHRIB (Essaouira) ⏰2027-01-25\n💼 Chargée cliente — GSM AL MAGHRIB (Agadir) ⏰2027-01-25\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Chef Departement Regional H/F (2026-11-26)\n- Directeur Regional H/F (2026-11-26)\n- Télé COMMERCIAL (H/F) (2026-11-26)\n- Concours — administrateur 2eme grade (2026-11-26)\n- Concours — Technicien de 3ème grade (2026-11-26)\n📊 Total suivi : 2505 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 30,
+      "concours": 4,
+      "total": 2505
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1795619960737",
     "at": "2026-11-25T15:19:20.737Z",
     "kind": "nouvelles-offres",
@@ -633,19 +646,6 @@
       "new": 32,
       "concours": 4,
       "total": 1086
-    },
-    "trigger": "cloud"
-  },
-  {
-    "id": "n1793049805833",
-    "at": "2026-10-26T21:23:25.833Z",
-    "kind": "nouvelles-offres",
-    "title": "+45 nouvelle(s) offre(s)",
-    "body": "🇲🇦 Maroc Jobs Hub — 45 nouveauté(s) (cloud)\n💼 Ingénieur en Maintenance — Best Biscuits Maroc (Had Soualem) ⏰2026-12-26\n💼 Assistante Médicale — Locamed (Rabat) ⏰2026-12-26\n💼 délégué pharmaceutique — Locamed (Rabat) ⏰2026-12-26\n💼 Project Manager Officer — Groupe Label'Vie - Carrefour (Casablanca) ⏰2026-12-26\n💼 Gestionnaire de Comptes B2B Bilingue — Cnexia (Fidélisation & Rétention) ⏰2026-12-26\n💼 Gérant Station de Services —  (Ksar El-Kébir) ⏰2026-11-10\n💼 Responsable UAP — Best Biscuits Maroc (Had Soualem) ⏰2026-12-16\n💼 Responsable Logistique Expérimenté - Secteur Industriel — Ventec (Casablanca) ⏰2026-12-26\n⏰ Deadlines ≤ 3j :\n- Responsable SAV Automobile (2026-10-26)\n- Concours — Infirmier de premier grade - echelle 10 (2026-10-26)\n- Concours — Ingénieur d'Etat 1er grade - echelle 11 (2026-10-26)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-10-26)\n- Concours — Technicien de 4ème grade - echelle 8 (2026-10-26)\n📊 Total suivi : 1059 offres. Ouvrez l'app/onglet Offres pour le détail.",
-    "counts": {
-      "new": 45,
-      "concours": 0,
-      "total": 1059
     },
     "trigger": "cloud"
   }
