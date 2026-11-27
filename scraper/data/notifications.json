@@ -1,5 +1,18 @@
 [
   {
+    "id": "n1795741037185",
+    "at": "2026-11-27T00:57:17.185Z",
+    "kind": "nouvelles-offres",
+    "title": "+38 nouvelle(s) offre(s)",
+    "body": "🇲🇦 Maroc Jobs Hub — 38 nouveauté(s) (cloud)\n💼 Commercial B2B – Produits Premium & Gastronomie (H/F) — KM15 (Marrakech, Casablanca) ⏰2027-01-26\n💼 Spécialiste Sûreté, Sécurité physique et Gestion des urgences (H/F) – Rabat — Cnexia (Rabat) ⏰2027-01-26\n💼 Responsable Accueil & Réception (H/F) (Front Office, Service VIP & Patients internationaux) — Hôpital UIR - L'Hôpital Universitaire International de Rabat (Rabat) ⏰2027-01-26\n💼 Agent(e) de Contact Professionnels de Santé — Manpower Agences (Casablanca) ⏰2027-01-26\n💼 Agent commercial — Locamed (Fès) ⏰2027-01-26\n💼 Consultant Organisation / AMOA Senior – Banque (H/F) — Systema (Casablanca) ⏰2027-01-26\n💼 Consultant Junior Organisation & Transformation Bancaire (H/F) — Systema (Casablanca) ⏰2027-01-26\n💼 Architecte — Sofrecom Maroc (Technopolis) ⏰2027-01-26\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Technicien de 4ème grade - echelle 8 (2026-11-27)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-11-27)\n- Chargé de Clientèle (H/F) (2026-11-28)\n- Software Engineer Senior .NET – Cloud & Microservices (2026-11-28)\n- Conseiller commercial (2026-11-28)\n📊 Total suivi : 2565 offres. Ouvrez l'app/onglet Offres pour le détail.",
+    "counts": {
+      "new": 38,
+      "concours": 4,
+      "total": 2565
+    },
+    "trigger": "cloud"
+  },
+  {
     "id": "n1795704276354",
     "at": "2026-11-26T14:44:36.354Z",
     "kind": "nouvelles-offres",
@@ -633,19 +646,6 @@
       "new": 45,
       "concours": 3,
       "total": 1409
-    },
-    "trigger": "cloud"
-  },
-  {
-    "id": "n1793566706738",
-    "at": "2026-11-01T20:58:26.738Z",
-    "kind": "nouvelles-offres",
-    "title": "+8 nouvelle(s) offre(s)",
-    "body": "🇲🇦 Maroc Jobs Hub — 8 nouveauté(s) (cloud)\n💼 Responsable Trésorerie & Financements (H/F) – 7 ans minimum d’expérience — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Comptable Confirmé(e) — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Chargé(e) de la Logistique — Disty technologies (Casablanca) ⏰2027-01-01\n💼 Responsable Back Judiciaire —  (Casablanca)\n💼 Comptable —  (Casablanca)\n💼 Comptable —  (Témara)\n💼 Magasinier - Agent de réception —  (Casablanca)\n💼 Chef de Projet Électricité & Études (H/F) —  (Casablanca)\n⏰ Deadlines ≤ 3j :\n- Concours — Ingénieur d'Etat et Technicien spécialisé (2026-11-02)\n- Concours — ARCHITECTE (2026-11-02)\n- Concours — Chargé de suivi dossiers d'assurances (2026-11-02)\n- Développeur Full-Stack .NET / React (H/F) (2026-11-03)\n- Concours — Technicien Comptable (2026-11-03)\n📊 Total suivi : 1364 offres. Ouvrez l'app/onglet Offres pour le détail.",
-    "counts": {
-      "new": 8,
-      "concours": 0,
-      "total": 1364
     },
     "trigger": "cloud"
   }
