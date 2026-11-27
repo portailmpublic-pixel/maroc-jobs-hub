@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-27T00:57:17.187Z",
+  "updatedAt": "2026-11-27T14:44:13.046Z",
   "phone": "212663369080",
-  "total": 2565,
+  "total": 2590,
   "alerts": [
+    {
+      "id": "n1795790653045",
+      "at": "2026-11-27T14:44:13.045Z",
+      "title": "+25 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 25 nouveauté(s) (cloud)\n💼 Business Analyst Senior — Consult IT (Aix En Provence) ⏰2027-01-27\n💼 CRM Manager —  (Casablanca) ⏰2027-01-27\n💼 Responsable Technique (H/F) — Centrale Danone (Meknès) ⏰2027-01-27\n💼 Agent Administratif Khemissat —  (Khémisset) ⏰2027-01-27\n💼 Responsable Technique Et Production —  (Casablanca) ⏰2027-01-27\n💼 Conseillers Commerciaux en Assurance (H/F) — HEOMI (Casablanca) ⏰2027-01-05\n💼 Commercial (H/F) — Devink (Casablanca) ⏰2027-01-27\n💼 Stagiaire PFE : Finance / Contrôle de gestion (H/F) — CGI Technologies et Solutions Maroc (Casablanca) ⏰2027-01-27\n⏰ Deadlines ≤ 3j :\n- Concours — Technicien de 4ème grade - echelle 8 (2026-11-27)\n- Concours — Technicien de 3ème grade - echelle 9 (2026-11-27)\n- Chargé de Clientèle (H/F) (2026-11-28)\n- Software Engineer Senior .NET – Cloud & Microservices (2026-11-28)\n- Conseiller commercial (2026-11-28)\n📊 Total suivi : 2590 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 25,
+        "concours": 0,
+        "total": 2590
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795741037185",
       "at": "2026-11-27T00:57:17.185Z",
@@ -348,18 +360,6 @@
         "new": 29,
         "concours": 0,
         "total": 1906
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794490381289",
-      "at": "2026-11-12T13:33:01.289Z",
-      "title": "+36 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 36 nouveauté(s) (cloud)\n💼 Technicien Service Desk FR (ANAPEC) — Econocom Maroc (Sala Al Jadida) ⏰2026-12-06\n💼 Technicien Service Desk FR/EN — Econocom Maroc (Sala Al Jadida) ⏰2026-12-26\n💼 PMO – Support au programme Workplace (H/F) — AFD.Tech (Rabat) ⏰2027-01-12\n💼 Chef de Projet IT — CAC (Centrale Automobile Chérifienne) (Casablanca) ⏰2027-01-12\n💼 Chef de Projet Data & IA — CAC (Centrale Automobile Chérifienne) (Casablanca) ⏰2027-01-12\n💼 Project Manager – Workplace (H/F) — AFD.Tech (Rabat) ⏰2027-01-12\n💼 Ingénieur Structuration Pre-Trade — Société Générale GSC (Casablanca) ⏰2026-12-26\n💼 Team Manager Bilingue Franco-Anglophone — Marketing Call Center (Rabat) ⏰2026-11-16\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — Contrôleur LBC-FT (2026-11-12)\n- Concours — Responsable Mobilisation des Ressources (2026-11-12)\n- Concours — Auditeur interne (2026-11-12)\n- Concours — Assistant(e) de Direction (2026-11-12)\n- Concours — (Chef de pôle Pédagogique-Casablanca - Laâyoune - Rabat (RH 132/2026 (2026-11-13)\n📊 Total suivi : 1877 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 36,
-        "concours": 4,
-        "total": 1877
       },
       "kind": "nouvelles-offres"
     }
