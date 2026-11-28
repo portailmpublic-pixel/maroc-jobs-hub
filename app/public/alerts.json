@@ -1,8 +1,20 @@
 {
-  "updatedAt": "2026-11-28T00:22:30.141Z",
+  "updatedAt": "2026-11-28T13:55:32.876Z",
   "phone": "212663369080",
-  "total": 2611,
+  "total": 2634,
   "alerts": [
+    {
+      "id": "n1795874132874",
+      "at": "2026-11-28T13:55:32.874Z",
+      "title": "+23 nouvelle(s) offre(s)",
+      "body": "🇲🇦 Maroc Jobs Hub — 23 nouveauté(s) (cloud)\n💼 Responsable Marketing et Communication —  (Casablanca) ⏰2027-01-28\n💼 Ouvrier à Lissasfa, Errahma, Sidi Maârouf —  (Casablanca)\n💼 Vendeur conventionnel à Casablanca —  (Casablanca)\n💼 ASSISTANTE COMMERCIALE CONFIRMÉE (H/F) —  (Rabat)\n💼 ASSISTANTE ADMINISTRATIVE - MAITRISE DE L'ESPAGNOL —  (Casablanca)\n💼 Chargé(e) de Relation Client (H/F) – Fès —  (Fès)\n💼 Opérateurs - CASABLANCA —  (Casablanca)\n💼 Cuisinier / Cuisinier Polyvalent —  (Tanger)\n⏰ Deadlines ≤ 3j :\n- Chargé de Clientèle (H/F) (2026-11-28)\n- Software Engineer Senior .NET – Cloud & Microservices (2026-11-28)\n- Conseiller commercial (2026-11-28)\n- Conseiller commercial (2026-11-28)\n- Employee Relations Manager Multilingual Africa Cluster (2026-11-28)\n📊 Total suivi : 2634 offres. Ouvrez l'app/onglet Offres pour le détail.",
+      "counts": {
+        "new": 23,
+        "concours": 0,
+        "total": 2634
+      },
+      "kind": "nouvelles-offres"
+    },
     {
       "id": "n1795825350139",
       "at": "2026-11-28T00:22:30.139Z",
@@ -348,18 +360,6 @@
         "new": 21,
         "concours": 0,
         "total": 1954
-      },
-      "kind": "nouvelles-offres"
-    },
-    {
-      "id": "n1794574380913",
-      "at": "2026-11-13T12:53:00.913Z",
-      "title": "+31 nouvelle(s) offre(s)",
-      "body": "🇲🇦 Maroc Jobs Hub — 31 nouveauté(s) (cloud)\n💼 Agente de Soporte al Cliente Español – 100 % Chat y Email (Sin llamadas) — Marketing Call Center (Español) ⏰2027-01-13\n💼 Magasinier / Gestionnaire de stock – Service Après-Vente (SAV) — Oppo (Casablanca) ⏰2027-01-13\n💼 Formateur / Formatrice — Oppo (Casablanca) ⏰2027-01-13\n💼 Chargé(e) de support exécutif — ALH Holding (Casablanca) ⏰2027-01-13\n💼 Responsable Gardiennage régional —  (Tout le Maroc) ⏰2026-12-07\n💼 GESTIONNAIRE D'ASSURANCE —  (Salé) ⏰2027-01-13\n💼 Contrôleur de gestion (H/F) — Somagec (Casablanca) ⏰2027-01-05\n💼 Gestionnaire Sous-Traitance — Manpower Agences (Casablanca) ⏰2027-01-13\n🏛️ dont 4 concours État (dossiers d'entraînement dispo dans l'onglet Exams)\n⏰ Deadlines ≤ 3j :\n- Concours — (Chef de pôle Pédagogique-Casablanca - Laâyoune - Rabat (RH 132/2026 (2026-11-13)\n- Concours — Technicien 3ème grade à l’EST LAAYOUNE spécialité Informatique (2026-11-13)\n- Concours — CADRE ENVIRONNEMENT (2026-11-13)\n- Concours — Administrateur Systèmes (2026-11-13)\n- Responsable prospection (2026-11-14)\n📊 Total suivi : 1933 offres. Ouvrez l'app/onglet Offres pour le détail.",
-      "counts": {
-        "new": 31,
-        "concours": 4,
-        "total": 1933
       },
       "kind": "nouvelles-offres"
     }
